@@ -1,0 +1,58 @@
+plugins {
+    id 'java-gradle-plugin'
+    id 'jacoco'
+    id 'maven-publish'
+    id 'org.ajoberstar.reckon' version '0.13.0'
+    id 'org.sonarqube' version '3.0'
+    id 'com.gradle.plugin-publish' version '0.12.0'
+    id 'be.vbgn.ci-detect' version '0.5.0'
+    id 'be.vbgn.dev-conventions.opinion' version '0.3.0'
+    id 'nebula.integtest' version '7.0.9'
+}
+
+group 'eu.xenit.gradle'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Use JUnit test framework for unit tests
+    testImplementation 'junit:junit:4.12'
+}
+
+gradlePlugin {
+    plugins {
+        internalPlugin {
+            id = 'eu.xenit.enterprise.internal'
+            implementationClass = 'eu.xenit.gradle.enterprise.InternalPlugin'
+        }
+
+        ossPlugin {
+            id = 'eu.xenit.enterprise.oss'
+            implementationClass = 'eu.xenit.gradle.enterprise.OssPlugin'
+        }
+    }
+    testSourceSets(sourceSets.integTest)
+}
+
+pluginBundle {
+    vcsUrl = "https://github.com/xenit-eu/enterprise-gradle-plugin"
+    website = vcsUrl
+    description = "Xenit enterprise and OSS conventions plugins"
+
+    plugins {
+        internalPlugin {
+            displayName = "Xenit internal conventions plugin"
+            description = "Configures conventions for internal packages"
+        }
+
+        ossPlugin {
+            displayName = "Xenit OSS conventions plugin"
+            description = "Configures conventions for open source packages"
+        }
+    }
+}
+
