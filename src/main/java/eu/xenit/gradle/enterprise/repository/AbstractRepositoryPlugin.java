@@ -13,18 +13,12 @@ import org.gradle.api.artifacts.repositories.MavenArtifactRepository;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 
-/**
- * Maintains a list of explicitly allowed and blocked maven repositories.
- * <p>
- * Explicitly blocked repositories will result in an exception when they are configured.
- * Explicitly allowed repositories are used as a base for allowed repositories in {@link InternalRepositoryReplacementPlugin}
- */
-public class OssRepositoryReplacementPlugin implements Plugin<Project> {
+class AbstractRepositoryPlugin implements Plugin<Project> {
 
     private static final Map<URI, String> blocklist;
     private static final Set<URI> allowlist;
 
-    private static final Logger LOGGER = Logging.getLogger(OssRepositoryReplacementPlugin.class);
+    private static final Logger LOGGER = Logging.getLogger(AbstractRepositoryPlugin.class);
 
     static {
         Map<URI, String> blocklistMap = new HashMap<>();
@@ -62,6 +56,9 @@ public class OssRepositoryReplacementPlugin implements Plugin<Project> {
 
     @Override
     public void apply(Project project) {
+        RepositoryHandlerExtensions.apply(project.getRepositories(), project);
+        RepositoryHandlerExtensions.apply(project.getBuildscript().getRepositories(), project);
+
         project.getBuildscript().getRepositories().all(repository -> validateRepository(repository, project));
         project.getRepositories().all(repository -> validateRepository(repository, project));
     }

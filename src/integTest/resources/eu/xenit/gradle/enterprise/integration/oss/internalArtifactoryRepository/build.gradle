@@ -1,0 +1,9 @@
+plugins {
+    id "eu.xenit.enterprise.oss"
+}
+
+repositories {
+    maven {
+        url "https://artifactory.xenit.eu/artifactory/libs-release"
+    }
+}

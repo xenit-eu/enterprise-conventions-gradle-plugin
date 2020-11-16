@@ -1,0 +1,8 @@
+plugins {
+    id "eu.xenit.enterprise.oss"
+}
+
+repositories {
+    mavenCentral()
+    jcenter()
+}

@@ -1,7 +1,6 @@
 package eu.xenit.gradle.enterprise;
 
-import eu.xenit.gradle.enterprise.repository.InternalRepositoryReplacementPlugin;
-import eu.xenit.gradle.enterprise.repository.RepositoryHandlerExtensions;
+import eu.xenit.gradle.enterprise.repository.InternalRepositoryPlugin;
 import org.gradle.api.Project;
 
 public class InternalPlugin extends BasePlugin {
@@ -10,13 +9,6 @@ public class InternalPlugin extends BasePlugin {
 
     @Override
     public void apply(Project project) {
-        project.getPlugins().withType(OssPlugin.class, action -> {
-            throw new IllegalStateException(
-                    "The " + PLUGIN_ID + " plugin can not be applied together with " + OssPlugin.PLUGIN_ID);
-        });
-
-        project.getPluginManager().apply(InternalRepositoryReplacementPlugin.class);
-        RepositoryHandlerExtensions.apply(project.getRepositories(), project);
-        RepositoryHandlerExtensions.apply(project.getBuildscript().getRepositories(), project);
+        project.getPluginManager().apply(InternalRepositoryPlugin.class);
     }
 }

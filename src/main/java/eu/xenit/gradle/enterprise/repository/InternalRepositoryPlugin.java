@@ -15,11 +15,9 @@ import org.gradle.api.logging.Logging;
  * <p>
  * All not explicitly allowlisted or replaced repositories will be blocked by policy.
  */
-public class InternalRepositoryReplacementPlugin extends OssRepositoryReplacementPlugin {
+public class InternalRepositoryPlugin extends AbstractRepositoryPlugin {
 
     private static final Map<URI, String> replacements;
-    public static final String USERNAME_PROPERTY = "eu.xenit.artifactory.username";
-    public static final String PASSWORD_PROPERTY = "eu.xenit.artifactory.password";
 
     static {
         Map<URI, String> replacementsMap = new HashMap<>();
@@ -43,7 +41,7 @@ public class InternalRepositoryReplacementPlugin extends OssRepositoryReplacemen
         replacements = Collections.unmodifiableMap(replacementsMap);
     }
 
-    private static final Logger LOGGER = Logging.getLogger(InternalRepositoryReplacementPlugin.class);
+    private static final Logger LOGGER = Logging.getLogger(InternalRepositoryPlugin.class);
     private static final String MAVEN_REPOSITORY = "https://artifactory.xenit.eu/artifactory/";
 
     @Override
@@ -72,6 +70,6 @@ public class InternalRepositoryReplacementPlugin extends OssRepositoryReplacemen
             }
         }
 
-        throw new BlockedRepositoryException(repository.getUrl(), "Repository is explicitly allowed.");
+        throw new BlockedRepositoryException(repository.getUrl(), "Repository is not explicitly allowed or replaced.");
     }
 }
