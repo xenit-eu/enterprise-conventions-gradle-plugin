@@ -15,7 +15,7 @@ import org.gradle.api.logging.Logging;
  * <p>
  * All not explicitly allowlisted or replaced repositories will be blocked by policy.
  */
-public class InternalRepositoryPlugin extends AbstractRepositoryPlugin {
+public class PrivateRepositoryPlugin extends AbstractRepositoryPlugin {
 
     private static final Map<URI, String> replacements;
 
@@ -41,7 +41,7 @@ public class InternalRepositoryPlugin extends AbstractRepositoryPlugin {
         replacements = Collections.unmodifiableMap(replacementsMap);
     }
 
-    private static final Logger LOGGER = Logging.getLogger(InternalRepositoryPlugin.class);
+    private static final Logger LOGGER = Logging.getLogger(PrivateRepositoryPlugin.class);
     private static final String MAVEN_REPOSITORY = "https://artifactory.xenit.eu/artifactory/";
 
     @Override

@@ -25,9 +25,9 @@ dependencies {
 
 gradlePlugin {
     plugins {
-        internalPlugin {
-            id = 'eu.xenit.enterprise.internal'
-            implementationClass = 'eu.xenit.gradle.enterprise.InternalPlugin'
+        privatePlugin {
+            id = 'eu.xenit.enterprise.private'
+            implementationClass = 'eu.xenit.gradle.enterprise.PrivatePlugin'
         }
 
         ossPlugin {
@@ -44,9 +44,9 @@ pluginBundle {
     description = "Xenit enterprise and OSS conventions plugins"
 
     plugins {
-        internalPlugin {
-            displayName = "Xenit internal conventions plugin"
-            description = "Configures conventions for internal packages"
+        privatePlugin {
+            displayName = "Xenit private conventions plugin"
+            description = "Configures conventions for Xenit private packages"
         }
 
         ossPlugin {
