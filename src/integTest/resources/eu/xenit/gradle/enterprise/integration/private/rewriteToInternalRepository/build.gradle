@@ -1,0 +1,22 @@
+plugins {
+    id "eu.xenit.enterprise.private"
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        name "Alfresco"
+        url "https://artifacts.alfresco.com/nexus/content/repositories/enterprise-releases"
+        credentials {
+            username "something"
+            password "invalid"
+        }
+    }
+}
+
+afterEvaluate {
+    def alfresco = repositories.getByName("Alfresco")
+    assert alfresco.url == uri("https://artifactory.xenit.eu/artifactory/alfresco-enterprise")
+    assert alfresco.credentials.username == "xenit-private"
+    assert alfresco.credentials.password == "xenit-password"
+}
