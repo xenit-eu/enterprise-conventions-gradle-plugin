@@ -7,11 +7,13 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.gradle.testkit.runner.GradleRunner;
 import org.gradle.testkit.runner.internal.DefaultGradleRunner;
+import org.gradle.util.GradleVersion;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
@@ -34,6 +36,9 @@ public abstract class AbstractIntegrationTest {
 
     @Parameters(name = "Gradle v{0}")
     public static Collection<Object[]> testData() {
+        if (Boolean.getBoolean("eu.xenit.enterprise.integration.gradle-offline")) {
+            return Collections.singletonList(new Object[]{GradleVersion.current().toString()});
+        }
         String[] gradleVersions = new String[]{
                 "6.4.1",
                 "6.3",
@@ -67,8 +72,11 @@ public abstract class AbstractIntegrationTest {
         GradleRunner gradleRunner = GradleRunner.create()
                 .withPluginClasspath()
                 .withProjectDir(testProjectDir.getRoot())
-                .withGradleVersion(gradleVersion)
                 .forwardOutput();
+
+        if (!Boolean.getBoolean("eu.xenit.enterprise.integration.gradle-offline")) {
+            gradleRunner.withGradleVersion(gradleVersion);
+        }
 
         // Configure java commandline options so integration tests are run with coverage information
         String[] myCommandLine = ProcessHandle.current().info().arguments().get();

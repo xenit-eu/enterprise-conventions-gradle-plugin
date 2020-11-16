@@ -56,3 +56,8 @@ pluginBundle {
     }
 }
 
+integrationTest {
+    if (gradle.startParameter.offline) {
+        systemProperty "eu.xenit.enterprise.integration.gradle-offline", "true"
+    }
+}
