@@ -15,7 +15,7 @@ public class OssRepositoryPlugin extends AbstractRepositoryPlugin {
     @Override
     protected boolean validateRepository(MavenArtifactRepository repository,
             Project project) {
-        if (repository.getUrl().getHost().equals("artifactory.xenit.eu")) {
+        if ("artifactory.xenit.eu".equals(repository.getUrl().getHost())) {
             throw new BlockedRepositoryException(repository.getUrl(),
                     "Xenit internal artifactory can not be used in OSS projects.");
         }

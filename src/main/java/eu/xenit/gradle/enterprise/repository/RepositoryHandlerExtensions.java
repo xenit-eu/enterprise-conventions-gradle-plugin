@@ -28,7 +28,7 @@ public class RepositoryHandlerExtensions {
 
     public MavenArtifactRepository xenitPrivate(Action<? super MavenArtifactRepository> action) {
         return repositoryHandler.maven(repository -> {
-            repository.setName("Xenit Releases");
+            repository.setName("XenitPrivate");
             repository.setUrl("https://artifactory.xenit.eu/artifactory/libs-release-local");
             repository.credentials(CredentialsUtil.configureArtifactoryCredentials(project));
             action.execute(repository);
@@ -41,7 +41,7 @@ public class RepositoryHandlerExtensions {
 
     public MavenArtifactRepository xenitPrivateSnapshots(Action<? super MavenArtifactRepository> action) {
         return repositoryHandler.maven(repository -> {
-            repository.setName("Xenit Snapshots");
+            repository.setName("XenitPrivateSnapshots");
             repository.setUrl("https://artifactory.xenit.eu/artifactory/libs-snapshot-local");
             repository.credentials(CredentialsUtil.configureArtifactoryCredentials(project));
             action.execute(repository);
@@ -54,7 +54,7 @@ public class RepositoryHandlerExtensions {
 
     public MavenArtifactRepository sonatypeSnapshots(Action<? super MavenArtifactRepository> action) {
         return repositoryHandler.maven(repository -> {
-            repository.setName("Sonatype Snapshots");
+            repository.setName("SonatypeSnapshots");
             repository.setUrl("https://oss.sonatype.org/content/repositories/snapshots/");
             action.execute(repository);
         });

@@ -37,7 +37,7 @@ public abstract class AbstractIntegrationTest {
     @Parameters(name = "Gradle v{0}")
     public static Collection<Object[]> testData() {
         if (Boolean.getBoolean("eu.xenit.enterprise.integration.gradle-offline")) {
-            return Collections.singletonList(new Object[]{GradleVersion.current().toString()});
+            return Collections.singletonList(new Object[]{GradleVersion.current().getVersion()});
         }
         String[] gradleVersions = new String[]{
                 "6.4.1",

@@ -30,4 +30,9 @@ public class OssIntegrationTest extends AbstractIntegrationTest {
     public void sonatypeRepository() throws IOException {
         createGradleRunner(integrationTests.resolve("oss/sonatypeRepository")).build();
     }
+
+    @Test
+    public void localRepository() throws IOException {
+        createGradleRunner(integrationTests.resolve("oss/localRepository")).build();
+    }
 }

@@ -18,6 +18,11 @@ public class PrivateIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
+    public void internalRepository() throws IOException {
+        createGradleRunner(integrationTests.resolve("private/internalRepository")).build();
+    }
+
+    @Test
     public void rewriteToInternalRepositoryWithoutCredentials() throws IOException {
         BuildResult buildResult = createGradleRunner(
                 integrationTests.resolve("private/rewriteToInternalRepositoryWithoutCredentials"))

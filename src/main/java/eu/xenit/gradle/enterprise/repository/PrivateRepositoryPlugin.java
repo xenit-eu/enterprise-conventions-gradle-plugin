@@ -67,6 +67,8 @@ public class PrivateRepositoryPlugin extends AbstractRepositoryPlugin {
             } else {
                 LOGGER.info(
                         "Xenit Artifactory credentials were not provided. Not replacing repositories with internal proxy.");
+                // Return here. Repository was not replaced, but it is allowed per our policy (as we are proxying it)
+                return false;
             }
         }
 
