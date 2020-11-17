@@ -3,7 +3,12 @@ plugins {
 }
 
 repositories {
-    xenitPrivate()
+    xenitPrivate {
+        // Doing something here to test that repository configuration closures do work
+        mavenContent {
+            releasesOnly()
+        }
+    }
     xenitPrivateSnapshots()
 }
 

@@ -1,5 +1,6 @@
 package eu.xenit.gradle.enterprise.repository;
 
+import javax.inject.Inject;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.dsl.RepositoryHandler;
@@ -17,6 +18,7 @@ public class RepositoryHandlerExtensions {
     protected static final Action<? super MavenArtifactRepository> EMPTY_ACTION = repository -> {
     };
 
+    @Inject
     public RepositoryHandlerExtensions(RepositoryHandler repositoryHandler, Project project) {
         this.repositoryHandler = repositoryHandler;
         this.project = project;
@@ -61,7 +63,9 @@ public class RepositoryHandlerExtensions {
     }
 
     public static void apply(RepositoryHandler repositoryHandler, Project project) {
+        RepositoryHandlerExtensions repositoryHandlerExtensions = project.getObjects()
+                .newInstance(RepositoryHandlerExtensions.class, repositoryHandler, project);
         ((HasConvention) repositoryHandler).getConvention().getPlugins()
-                .put("eu.xenit.enterprise.repository", new RepositoryHandlerExtensions(repositoryHandler, project));
+                .put("eu.xenit.enterprise.repository", repositoryHandlerExtensions);
     }
 }
