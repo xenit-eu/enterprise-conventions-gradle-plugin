@@ -29,7 +29,7 @@ public class RepositoryHandlerExtensions {
     public MavenArtifactRepository xenitPrivate(Action<? super MavenArtifactRepository> action) {
         return repositoryHandler.maven(repository -> {
             repository.setName("XenitPrivate");
-            repository.setUrl("https://artifactory.xenit.eu/artifactory/libs-release-local");
+            repository.setUrl(StringConstants.XENIT_RELEASE_URL);
             repository.credentials(CredentialsUtil.configureArtifactoryCredentials(project));
             action.execute(repository);
         });
@@ -42,7 +42,7 @@ public class RepositoryHandlerExtensions {
     public MavenArtifactRepository xenitPrivateSnapshots(Action<? super MavenArtifactRepository> action) {
         return repositoryHandler.maven(repository -> {
             repository.setName("XenitPrivateSnapshots");
-            repository.setUrl("https://artifactory.xenit.eu/artifactory/libs-snapshot-local");
+            repository.setUrl(StringConstants.XENIT_SNAPSHOTS_URL);
             repository.credentials(CredentialsUtil.configureArtifactoryCredentials(project));
             action.execute(repository);
         });
@@ -55,7 +55,7 @@ public class RepositoryHandlerExtensions {
     public MavenArtifactRepository sonatypeSnapshots(Action<? super MavenArtifactRepository> action) {
         return repositoryHandler.maven(repository -> {
             repository.setName("SonatypeSnapshots");
-            repository.setUrl("https://oss.sonatype.org/content/repositories/snapshots/");
+            repository.setUrl(StringConstants.SONATYPE_SNAPSHOTS_URL);
             action.execute(repository);
         });
     }

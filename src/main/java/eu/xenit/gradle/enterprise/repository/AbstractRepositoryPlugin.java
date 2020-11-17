@@ -8,8 +8,10 @@ import java.util.Map;
 import java.util.Set;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.artifacts.ArtifactRepositoryContainer;
 import org.gradle.api.artifacts.repositories.ArtifactRepository;
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository;
+import org.gradle.api.internal.artifacts.BaseRepositoryFactory;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 
@@ -28,8 +30,9 @@ class AbstractRepositoryPlugin implements Plugin<Project> {
                 "JCenter does not verify groupid for artifacts: https://twitter.com/JakeWharton/status/1073102730443526144");
         blocklistMap.put(URI.create("https://jitpack.io"), "Jitpack builds artifacts from source");
 
-        allowlistSet.add(URI.create("https://repo.maven.apache.org/maven2")); // Maven central
-        allowlistSet.add(URI.create("https://plugins.gradle.org/m2")); // Gradle plugin portal
+        allowlistSet.add(URI.create(ArtifactRepositoryContainer.MAVEN_CENTRAL_URL));
+        allowlistSet.add(URI.create(StringConstants.SONATYPE_SNAPSHOTS_URL));
+        allowlistSet.add(URI.create(BaseRepositoryFactory.PLUGIN_PORTAL_DEFAULT_URL));
 
         withEndingSlash(blocklistMap);
         withEndingSlash(allowlistSet);
@@ -78,6 +81,9 @@ class AbstractRepositoryPlugin implements Plugin<Project> {
         if ("file".equals(repository.getUrl().getScheme())) {
             LOGGER.debug("Allowing local repository: {}", repository.getUrl());
             return true;
+        }
+        if ("http".equals(repository.getUrl().getScheme())) {
+            throw new BlockedRepositoryException(repository.getUrl(), "HTTPS is required for repositories.");
         }
         if (blocklist.containsKey(repository.getUrl())) {
             String reason = blocklist.get(repository.getUrl());

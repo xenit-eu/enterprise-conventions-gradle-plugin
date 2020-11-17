@@ -19,7 +19,7 @@ repositories {
 }
 
 dependencies {
-    // Use JUnit test framework for unit tests
+    integTestImplementation "commons-io:commons-io:2.8.0"
     testImplementation 'junit:junit:4.12'
 }
 

@@ -42,11 +42,10 @@ public class PrivateRepositoryPlugin extends AbstractRepositoryPlugin {
     }
 
     private static final Logger LOGGER = Logging.getLogger(PrivateRepositoryPlugin.class);
-    private static final String MAVEN_REPOSITORY = "https://artifactory.xenit.eu/artifactory/";
 
     @Override
     protected boolean validateRepository(MavenArtifactRepository repository, Project project) {
-        if (repository.getUrl().toString().startsWith(MAVEN_REPOSITORY)) {
+        if (repository.getUrl().toString().startsWith(StringConstants.XENIT_BASE_URL)) {
             LOGGER.debug("Allowing enterprise repository: {}", repository.getUrl());
             return true;
         }
@@ -61,7 +60,7 @@ public class PrivateRepositoryPlugin extends AbstractRepositoryPlugin {
         if (replacement != null) {
             if (CredentialsUtil.hasArtifactoryCredentials(project)) {
                 LOGGER.debug("Replacing repository {} with enterprise repository", repository.getUrl());
-                repository.setUrl(URI.create(MAVEN_REPOSITORY + replacement));
+                repository.setUrl(URI.create(StringConstants.XENIT_BASE_URL + replacement));
                 repository.credentials(CredentialsUtil.configureArtifactoryCredentials(project));
                 return true;
             } else {
