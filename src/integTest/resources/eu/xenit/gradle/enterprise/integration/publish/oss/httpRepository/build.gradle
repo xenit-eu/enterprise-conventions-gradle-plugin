@@ -1,0 +1,12 @@
+plugins {
+    id "eu.xenit.enterprise.oss"
+    id "maven-publish"
+}
+
+publishing {
+    repositories {
+        maven {
+            url "http://example.com/m2/"
+        }
+    }
+}

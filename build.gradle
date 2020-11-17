@@ -16,9 +16,11 @@ sourceCompatibility = 11
 
 repositories {
     mavenCentral()
+    gradlePluginPortal()
 }
 
 dependencies {
+    implementation 'de.marcphilipp.gradle:nexus-publish-plugin:0.4.0'
     integTestImplementation "commons-io:commons-io:2.8.0"
     testImplementation 'junit:junit:4.12'
 }

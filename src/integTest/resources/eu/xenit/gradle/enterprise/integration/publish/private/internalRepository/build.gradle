@@ -1,0 +1,14 @@
+plugins {
+    id "eu.xenit.enterprise.private"
+    id "maven-publish"
+}
+
+publishing {
+    repositories {
+        xenitPrivate()
+    }
+}
+
+afterEvaluate {
+    assert publishing.repositories.stream().count() == 1
+}
