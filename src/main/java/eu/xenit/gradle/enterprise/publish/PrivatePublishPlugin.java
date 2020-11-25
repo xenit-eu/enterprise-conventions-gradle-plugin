@@ -1,6 +1,5 @@
 package eu.xenit.gradle.enterprise.publish;
 
-import eu.xenit.gradle.enterprise.repository.BlockedRepositoryException;
 import eu.xenit.gradle.enterprise.violations.ViolationHandler;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository;
@@ -21,7 +20,7 @@ public class PrivatePublishPlugin extends AbstractPublishPlugin {
             return;
         }
 
-        violationHandler.handleViolation(new BlockedRepositoryException(repository.getUrl(),
+        violationHandler.handleViolation(new BlockedPublishRepositoryException(repository.getUrl(),
                 "Only publishing to internal artifactory or to local repository is allowed."));
     }
 
