@@ -1,5 +1,6 @@
 package eu.xenit.gradle.enterprise.publish;
 
+import eu.xenit.gradle.enterprise.violations.ViolationHandler;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository;
@@ -20,15 +21,17 @@ abstract class AbstractPublishPlugin implements Plugin<Project> {
     }
 
     private void validatePublishRepositories(Project project, PublishingExtension publishing) {
+        ViolationHandler violationHandler = ViolationHandler.fromProject(project);
         publishing.getRepositories().all(repository -> {
             if (repository instanceof MavenArtifactRepository) {
-                validatePublishRepository((MavenArtifactRepository) repository);
+                validatePublishRepository(violationHandler, (MavenArtifactRepository) repository);
             }
         });
 
     }
 
-    protected abstract void validatePublishRepository(MavenArtifactRepository repository);
+    protected abstract void validatePublishRepository(ViolationHandler violationHandler,
+            MavenArtifactRepository repository);
 
     protected abstract void configurePublication(Project project, PublishingExtension publishing);
 }

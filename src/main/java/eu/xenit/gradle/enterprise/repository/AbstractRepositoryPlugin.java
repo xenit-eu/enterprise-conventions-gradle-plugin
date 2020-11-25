@@ -1,5 +1,6 @@
 package eu.xenit.gradle.enterprise.repository;
 
+import eu.xenit.gradle.enterprise.violations.ViolationHandler;
 import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
@@ -61,19 +62,22 @@ class AbstractRepositoryPlugin implements Plugin<Project> {
     public void apply(Project project) {
         RepositoryHandlerExtensions.apply(project.getRepositories(), project);
         RepositoryHandlerExtensions.apply(project.getBuildscript().getRepositories(), project);
+        ViolationHandler violationHandler = ViolationHandler.fromProject(project);
 
-        project.getBuildscript().getRepositories().all(repository -> validateRepository(repository, project));
-        project.getRepositories().all(repository -> validateRepository(repository, project));
+        project.getBuildscript().getRepositories()
+                .all(repository -> validateRepository(repository, project, violationHandler));
+        project.getRepositories().all(repository -> validateRepository(repository, project, violationHandler));
     }
 
-    private void validateRepository(ArtifactRepository repository, Project project) {
+    private void validateRepository(ArtifactRepository repository, Project project,
+            ViolationHandler violationHandler) {
         if (repository instanceof MavenArtifactRepository) {
-            validateRepository((MavenArtifactRepository) repository, project);
+            validateRepository((MavenArtifactRepository) repository, project, violationHandler);
         }
     }
 
     protected boolean validateRepository(MavenArtifactRepository repository,
-            Project project) {
+            Project project, ViolationHandler violationHandler) {
         if (allowlist.contains(repository.getUrl())) {
             LOGGER.debug("Allowing explicitly allowlisted repository: {}", repository.getUrl());
             return true;
@@ -83,12 +87,13 @@ class AbstractRepositoryPlugin implements Plugin<Project> {
             return true;
         }
         if ("http".equals(repository.getUrl().getScheme())) {
-            throw new BlockedRepositoryException(repository.getUrl(), "HTTPS is required for repositories.");
+            violationHandler.handleViolation(
+                    new BlockedRepositoryException(repository.getUrl(), "HTTPS is required for repositories."));
         }
         if (blocklist.containsKey(repository.getUrl())) {
             String reason = blocklist.get(repository.getUrl());
-            throw new BlockedRepositoryException(repository.getUrl(),
-                    "Explicitly blocklisted by eu.xenit.enterprise plugins: " + reason);
+            violationHandler.handleViolation(new BlockedRepositoryException(repository.getUrl(),
+                    "Explicitly blocklisted by eu.xenit.enterprise plugins: " + reason));
         }
 
         return false;

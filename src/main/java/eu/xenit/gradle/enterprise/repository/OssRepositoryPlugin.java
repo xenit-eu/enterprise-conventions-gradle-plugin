@@ -1,5 +1,6 @@
 package eu.xenit.gradle.enterprise.repository;
 
+import eu.xenit.gradle.enterprise.violations.ViolationHandler;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository;
 
@@ -14,11 +15,12 @@ public class OssRepositoryPlugin extends AbstractRepositoryPlugin {
 
     @Override
     protected boolean validateRepository(MavenArtifactRepository repository,
-            Project project) {
+            Project project, ViolationHandler violationHandler) {
         if (repository.getUrl().toString().startsWith(StringConstants.XENIT_BASE_URL)) {
-            throw new BlockedRepositoryException(repository.getUrl(),
-                    "Xenit internal artifactory can not be used in OSS projects.");
+            violationHandler.handleViolation(new BlockedRepositoryException(repository.getUrl(),
+                    "Xenit internal artifactory can not be used in OSS projects."));
+            return false;
         }
-        return super.validateRepository(repository, project);
+        return super.validateRepository(repository, project, violationHandler);
     }
 }

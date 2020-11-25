@@ -1,6 +1,7 @@
 package eu.xenit.gradle.enterprise.publish;
 
 import eu.xenit.gradle.enterprise.repository.BlockedRepositoryException;
+import eu.xenit.gradle.enterprise.violations.ViolationHandler;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository;
 import org.gradle.api.publish.PublishingExtension;
@@ -11,15 +12,15 @@ import org.gradle.plugins.signing.SigningPlugin;
 public class OssPublishPlugin extends AbstractPublishPlugin {
 
     @Override
-    protected void validatePublishRepository(MavenArtifactRepository repository) {
+    protected void validatePublishRepository(ViolationHandler violationHandler, MavenArtifactRepository repository) {
         if (repository.getUrl().getScheme().equals("http")) {
             boolean hasCredentials = true;
             if (repository instanceof AuthenticationSupportedInternal) {
                 hasCredentials = ((AuthenticationSupportedInternal) repository).getConfiguredCredentials() != null;
             }
             if (hasCredentials) {
-                throw new BlockedRepositoryException(repository.getUrl(),
-                        "Publishing to HTTP repositories with credentials is not allowed.");
+                violationHandler.handleViolation(new BlockedRepositoryException(repository.getUrl(),
+                        "Publishing to HTTP repositories with credentials is not allowed."));
             }
         }
     }

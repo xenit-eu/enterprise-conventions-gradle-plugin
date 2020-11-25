@@ -1,6 +1,7 @@
 package eu.xenit.gradle.enterprise.publish;
 
 import eu.xenit.gradle.enterprise.repository.BlockedRepositoryException;
+import eu.xenit.gradle.enterprise.violations.ViolationHandler;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository;
 import org.gradle.api.publish.PublishingExtension;
@@ -8,7 +9,7 @@ import org.gradle.api.publish.PublishingExtension;
 public class PrivatePublishPlugin extends AbstractPublishPlugin {
 
     @Override
-    protected void validatePublishRepository(MavenArtifactRepository repository) {
+    protected void validatePublishRepository(ViolationHandler violationHandler, MavenArtifactRepository repository) {
         // Publishing to local file repositories is always allowed
         if ("file".equals(repository.getUrl().getScheme())) {
             return;
@@ -20,8 +21,8 @@ public class PrivatePublishPlugin extends AbstractPublishPlugin {
             return;
         }
 
-        throw new BlockedRepositoryException(repository.getUrl(),
-                "Only publishing to internal artifactory or to local repository is allowed.");
+        violationHandler.handleViolation(new BlockedRepositoryException(repository.getUrl(),
+                "Only publishing to internal artifactory or to local repository is allowed."));
     }
 
     @Override

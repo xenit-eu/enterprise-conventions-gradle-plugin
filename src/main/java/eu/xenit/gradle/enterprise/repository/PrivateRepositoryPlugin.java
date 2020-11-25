@@ -1,5 +1,6 @@
 package eu.xenit.gradle.enterprise.repository;
 
+import eu.xenit.gradle.enterprise.violations.ViolationHandler;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collections;
@@ -44,13 +45,14 @@ public class PrivateRepositoryPlugin extends AbstractRepositoryPlugin {
     private static final Logger LOGGER = Logging.getLogger(PrivateRepositoryPlugin.class);
 
     @Override
-    protected boolean validateRepository(MavenArtifactRepository repository, Project project) {
+    protected boolean validateRepository(MavenArtifactRepository repository, Project project,
+            ViolationHandler violationHandler) {
         if (repository.getUrl().toString().startsWith(StringConstants.XENIT_BASE_URL)) {
             LOGGER.debug("Allowing enterprise repository: {}", repository.getUrl());
             return true;
         }
 
-        boolean isValidated = super.validateRepository(repository, project);
+        boolean isValidated = super.validateRepository(repository, project, violationHandler);
         if (isValidated) {
             return true;
         }
@@ -71,6 +73,8 @@ public class PrivateRepositoryPlugin extends AbstractRepositoryPlugin {
             }
         }
 
-        throw new BlockedRepositoryException(repository.getUrl(), "Repository is not explicitly allowed or replaced.");
+        violationHandler.handleViolation(new BlockedRepositoryException(repository.getUrl(),
+                "Repository is not explicitly allowed or replaced."));
+        return false;
     }
 }
