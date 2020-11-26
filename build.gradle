@@ -31,7 +31,10 @@ gradlePlugin {
             id = 'eu.xenit.enterprise.private'
             implementationClass = 'eu.xenit.gradle.enterprise.PrivatePlugin'
         }
-
+        privateInitPlugin {
+            id = 'eu.xenit.enterprise.private.init'
+            implementationClass = 'eu.xenit.gradle.enterprise.PrivateInitPlugin'
+        }
         ossPlugin {
             id = 'eu.xenit.enterprise.oss'
             implementationClass = 'eu.xenit.gradle.enterprise.OssPlugin'
@@ -50,7 +53,10 @@ pluginBundle {
             displayName = "Xenit private conventions plugin"
             description = "Configures conventions for Xenit private packages"
         }
-
+        privateInitPlugin {
+            displayName = "Xenit private initscript plugin"
+            description = "Configures conventions for Xenit private & oss packages: initscript plugin for internal use"
+        }
         ossPlugin {
             displayName = "Xenit OSS conventions plugin"
             description = "Configures conventions for open source packages"
