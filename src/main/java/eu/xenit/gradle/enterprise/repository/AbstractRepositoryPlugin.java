@@ -19,6 +19,22 @@ import org.gradle.api.logging.Logging;
 
 class AbstractRepositoryPlugin implements Plugin<Project> {
 
+    protected enum ValidationResult {
+        ALLOWED(true),
+        BLOCKED(true),
+        NEUTRAL(false);
+
+        private final boolean isFinal;
+
+        private ValidationResult(boolean isFinal) {
+            this.isFinal = isFinal;
+        }
+
+        public boolean isFinal() {
+            return isFinal;
+        }
+    }
+
     private static final Map<URI, String> blocklist;
     private static final Set<URI> allowlist;
 
@@ -75,26 +91,28 @@ class AbstractRepositoryPlugin implements Plugin<Project> {
         }
     }
 
-    protected boolean validateRepository(MavenArtifactRepository repository,
+    protected ValidationResult validateRepository(MavenArtifactRepository repository,
             Project project, ViolationHandler violationHandler) {
         if (allowlist.contains(repository.getUrl())) {
             LOGGER.debug("Allowing explicitly allowlisted repository: {}", repository.getUrl());
-            return true;
+            return ValidationResult.ALLOWED;
         }
         if ("file".equals(repository.getUrl().getScheme())) {
             LOGGER.debug("Allowing local repository: {}", repository.getUrl());
-            return true;
+            return ValidationResult.ALLOWED;
         }
         if ("http".equals(repository.getUrl().getScheme())) {
             violationHandler.handleViolation(
                     new BlockedRepositoryException(repository.getUrl(), "HTTPS is required for repositories."));
+            return ValidationResult.BLOCKED;
         }
         if (blocklist.containsKey(repository.getUrl())) {
             String reason = blocklist.get(repository.getUrl());
             violationHandler.handleViolation(new BlockedRepositoryException(repository.getUrl(),
                     "Explicitly blocklisted by eu.xenit.enterprise plugins: " + reason));
+            return ValidationResult.BLOCKED;
         }
 
-        return false;
+        return ValidationResult.NEUTRAL;
     }
 }

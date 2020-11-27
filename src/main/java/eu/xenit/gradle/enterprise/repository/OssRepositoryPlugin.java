@@ -15,12 +15,12 @@ public class OssRepositoryPlugin extends AbstractRepositoryPlugin {
 
 
     @Override
-    protected boolean validateRepository(MavenArtifactRepository repository,
+    protected ValidationResult validateRepository(MavenArtifactRepository repository,
             Project project, ViolationHandler violationHandler) {
         if (repository.getUrl().toString().startsWith(StringConstants.XENIT_BASE_URL)) {
             violationHandler.handleViolation(new BlockedRepositoryException(repository.getUrl(),
                     "Xenit internal artifactory can not be used in OSS projects."));
-            return false;
+            return ValidationResult.BLOCKED;
         }
         return super.validateRepository(repository, project, violationHandler);
     }

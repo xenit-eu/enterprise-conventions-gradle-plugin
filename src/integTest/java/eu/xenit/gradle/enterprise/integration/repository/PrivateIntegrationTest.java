@@ -27,9 +27,10 @@ public class PrivateIntegrationTest extends AbstractIntegrationTest {
         BuildResult buildResult = createGradleRunner(
                 integrationTests.resolve("repository/private/rewriteToInternalRepositoryWithoutCredentials"))
                 .withArguments("--info")
-                .build();
+                .buildAndFail();
 
         assertTrue(buildResult.getOutput().contains("Xenit Artifactory credentials were not provided."));
+        assertTrue(buildResult.getOutput().contains("Repository is not explicitly allowed or replaced."));
     }
 
     @Test

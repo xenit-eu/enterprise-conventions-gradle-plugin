@@ -40,16 +40,16 @@ public class PrivateRepositoryReplacementPlugin extends AbstractRepositoryPlugin
     private static final Logger LOGGER = Logging.getLogger(PrivateRepositoryPlugin.class);
 
     @Override
-    protected boolean validateRepository(MavenArtifactRepository repository, Project project,
+    protected ValidationResult validateRepository(MavenArtifactRepository repository, Project project,
             ViolationHandler violationHandler) {
         if (repository.getUrl().toString().startsWith(StringConstants.XENIT_BASE_URL)) {
             LOGGER.debug("Allowing enterprise repository: {}", repository.getUrl());
-            return true;
+            return ValidationResult.ALLOWED;
         }
 
-        boolean isValidated = super.validateRepository(repository, project, violationHandler);
-        if (isValidated) {
-            return true;
+        ValidationResult validationResult = super.validateRepository(repository, project, violationHandler);
+        if (validationResult.isFinal()) {
+            return validationResult;
         }
 
         String replacement = replacements.get(repository.getUrl());
@@ -59,15 +59,15 @@ public class PrivateRepositoryReplacementPlugin extends AbstractRepositoryPlugin
                 LOGGER.debug("Replacing repository {} with enterprise repository", repository.getUrl());
                 repository.setUrl(URI.create(StringConstants.XENIT_BASE_URL + replacement));
                 repository.credentials(ArtifactoryCredentialsUtil.configureArtifactoryCredentials(project));
-                return true;
+                return ValidationResult.ALLOWED;
             } else {
                 LOGGER.info(
                         "Xenit Artifactory credentials were not provided. Not replacing repositories with internal proxy.");
-                // Return here. Repository was not replaced, but it is allowed per our policy (as we are proxying it)
-                return false;
+                // Return here. Repository was not replaced, but it is not explicitly disallowed per our policy (as we are proxying it)
+                return ValidationResult.NEUTRAL;
             }
         }
 
-        return false;
+        return ValidationResult.NEUTRAL;
     }
 }

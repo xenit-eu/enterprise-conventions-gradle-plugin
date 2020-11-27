@@ -12,14 +12,14 @@ import org.gradle.api.artifacts.repositories.MavenArtifactRepository;
 public class PrivateRepositoryPlugin extends PrivateRepositoryReplacementPlugin {
 
     @Override
-    protected boolean validateRepository(MavenArtifactRepository repository, Project project,
+    protected ValidationResult validateRepository(MavenArtifactRepository repository, Project project,
             ViolationHandler violationHandler) {
-        boolean isValidated = super.validateRepository(repository, project, violationHandler);
-        if (isValidated) {
-            return true;
+        ValidationResult validationResult = super.validateRepository(repository, project, violationHandler);
+        if (validationResult.isFinal()) {
+            return validationResult;
         }
         violationHandler.handleViolation(new BlockedRepositoryException(repository.getUrl(),
                 "Repository is not explicitly allowed or replaced."));
-        return false;
+        return ValidationResult.BLOCKED;
     }
 }
