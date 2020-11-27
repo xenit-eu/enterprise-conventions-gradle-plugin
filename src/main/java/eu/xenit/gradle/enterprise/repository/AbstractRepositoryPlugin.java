@@ -1,5 +1,6 @@
 package eu.xenit.gradle.enterprise.repository;
 
+import eu.xenit.gradle.enterprise.internal.StringConstants;
 import eu.xenit.gradle.enterprise.violations.ViolationHandler;
 import java.net.URI;
 import java.util.Collections;
@@ -60,8 +61,6 @@ class AbstractRepositoryPlugin implements Plugin<Project> {
 
     @Override
     public void apply(Project project) {
-        RepositoryHandlerExtensions.apply(project.getRepositories(), project);
-        RepositoryHandlerExtensions.apply(project.getBuildscript().getRepositories(), project);
         ViolationHandler violationHandler = ViolationHandler.fromProject(project);
 
         project.getBuildscript().getRepositories()

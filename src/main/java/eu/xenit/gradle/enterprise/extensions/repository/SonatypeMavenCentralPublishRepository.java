@@ -1,4 +1,4 @@
-package eu.xenit.gradle.enterprise.publish;
+package eu.xenit.gradle.enterprise.extensions.repository;
 
 import de.marcphilipp.gradle.nexus.NexusRepository;
 import java.net.URI;

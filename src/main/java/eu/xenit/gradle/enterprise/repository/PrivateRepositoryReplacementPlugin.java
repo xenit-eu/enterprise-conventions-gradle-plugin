@@ -1,5 +1,7 @@
 package eu.xenit.gradle.enterprise.repository;
 
+import eu.xenit.gradle.enterprise.internal.ArtifactoryCredentialsUtil;
+import eu.xenit.gradle.enterprise.internal.StringConstants;
 import eu.xenit.gradle.enterprise.violations.ViolationHandler;
 import java.net.URI;
 import java.util.Collections;
@@ -53,10 +55,10 @@ public class PrivateRepositoryReplacementPlugin extends AbstractRepositoryPlugin
         String replacement = replacements.get(repository.getUrl());
 
         if (replacement != null) {
-            if (CredentialsUtil.hasArtifactoryCredentials(project)) {
+            if (ArtifactoryCredentialsUtil.hasArtifactoryCredentials(project)) {
                 LOGGER.debug("Replacing repository {} with enterprise repository", repository.getUrl());
                 repository.setUrl(URI.create(StringConstants.XENIT_BASE_URL + replacement));
-                repository.credentials(CredentialsUtil.configureArtifactoryCredentials(project));
+                repository.credentials(ArtifactoryCredentialsUtil.configureArtifactoryCredentials(project));
                 return true;
             } else {
                 LOGGER.info(

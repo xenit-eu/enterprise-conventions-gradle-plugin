@@ -1,15 +1,15 @@
-package eu.xenit.gradle.enterprise.repository;
+package eu.xenit.gradle.enterprise.internal;
 
 import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.credentials.PasswordCredentials;
 
-final class CredentialsUtil {
+public final class ArtifactoryCredentialsUtil {
 
     public static final String USERNAME_PROPERTY = "eu.xenit.artifactory.username";
     public static final String PASSWORD_PROPERTY = "eu.xenit.artifactory.password";
 
-    private CredentialsUtil() {
+    private ArtifactoryCredentialsUtil() {
     }
 
     public static Action<? super PasswordCredentials> configureArtifactoryCredentials(Project project) {

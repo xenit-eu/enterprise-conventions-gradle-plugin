@@ -39,6 +39,10 @@ gradlePlugin {
             id = 'eu.xenit.enterprise.oss'
             implementationClass = 'eu.xenit.gradle.enterprise.OssPlugin'
         }
+        repositoryExtensionsPlugin {
+            id = 'eu.xenit.enterprise.ext.repository'
+            implementationClass = 'eu.xenit.gradle.enterprise.extensions.repository'
+        }
     }
     testSourceSets(sourceSets.integTest)
 }

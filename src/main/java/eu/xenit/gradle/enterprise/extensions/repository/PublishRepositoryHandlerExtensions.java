@@ -1,9 +1,8 @@
-package eu.xenit.gradle.enterprise.publish;
+package eu.xenit.gradle.enterprise.extensions.repository;
 
 import de.marcphilipp.gradle.nexus.NexusPublishExtension;
 import de.marcphilipp.gradle.nexus.NexusPublishPlugin;
 import de.marcphilipp.gradle.nexus.NexusRepository;
-import eu.xenit.gradle.enterprise.repository.RepositoryHandlerExtensions;
 import javax.inject.Inject;
 import kotlin.text.StringsKt;
 import org.gradle.api.Action;
@@ -12,15 +11,14 @@ import org.gradle.api.artifacts.dsl.RepositoryHandler;
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository;
 import org.gradle.api.internal.HasConvention;
 
-public class PublishRepositoryHandlerExtensions extends RepositoryHandlerExtensions {
+public class PublishRepositoryHandlerExtensions {
 
-    private Project project;
-    private RepositoryHandler repositoryHandler;
+    private static final Action<? super MavenArtifactRepository> EMPTY_ACTION = repository -> {
+    };
+    private final Project project;
 
     @Inject
-    public PublishRepositoryHandlerExtensions(RepositoryHandler repositoryHandler, Project project) {
-        super(repositoryHandler, project);
-        this.repositoryHandler = repositoryHandler;
+    public PublishRepositoryHandlerExtensions(Project project) {
         this.project = project;
     }
 
@@ -60,9 +58,10 @@ public class PublishRepositoryHandlerExtensions extends RepositoryHandlerExtensi
 
     public static void apply(RepositoryHandler repositoryHandler, Project project) {
         PublishRepositoryHandlerExtensions extensions = project.getObjects()
-                .newInstance(PublishRepositoryHandlerExtensions.class, repositoryHandler, project);
+                .newInstance(PublishRepositoryHandlerExtensions.class, project);
 
-        ((HasConvention) repositoryHandler).getConvention().getPlugins().put("eu.xenit.enterprise.publish", extensions);
+        ((HasConvention) repositoryHandler).getConvention().getPlugins()
+                .put(PublishRepositoryHandlerExtensions.class.getCanonicalName(), extensions);
     }
 
 }

@@ -6,6 +6,8 @@ import org.gradle.api.invocation.Gradle;
 
 public class PrivateInitPlugin implements Plugin<Gradle> {
 
+    public static final String PLUGIN_ID = "eu.xenit.enterprise.private.init";
+
     @Override
     public void apply(Gradle gradle) {
         gradle.allprojects(project -> {

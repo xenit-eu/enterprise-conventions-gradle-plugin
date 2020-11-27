@@ -13,7 +13,6 @@ abstract class AbstractPublishPlugin implements Plugin<Project> {
     public void apply(Project project) {
         project.getPlugins().withType(MavenPublishPlugin.class, publishPlugin -> {
             PublishingExtension publishing = project.getExtensions().getByType(PublishingExtension.class);
-            PublishRepositoryHandlerExtensions.apply(publishing.getRepositories(), project);
             configurePublication(project, publishing);
             validatePublishRepositories(project, publishing);
         });

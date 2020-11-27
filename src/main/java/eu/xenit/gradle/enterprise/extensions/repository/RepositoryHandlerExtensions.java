@@ -1,5 +1,7 @@
-package eu.xenit.gradle.enterprise.repository;
+package eu.xenit.gradle.enterprise.extensions.repository;
 
+import eu.xenit.gradle.enterprise.internal.ArtifactoryCredentialsUtil;
+import eu.xenit.gradle.enterprise.internal.StringConstants;
 import javax.inject.Inject;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
@@ -12,6 +14,8 @@ import org.gradle.api.internal.HasConvention;
  */
 public class RepositoryHandlerExtensions {
 
+    public static final String XENIT_SNAPSHOTS_URL = "https://artifactory.xenit.eu/artifactory/libs-snapshot-local";
+    public static final String XENIT_RELEASE_URL = "https://artifactory.xenit.eu/artifactory/libs-release-local";
     private final RepositoryHandler repositoryHandler;
     private final Project project;
 
@@ -31,8 +35,8 @@ public class RepositoryHandlerExtensions {
     public MavenArtifactRepository xenitPrivate(Action<? super MavenArtifactRepository> action) {
         return repositoryHandler.maven(repository -> {
             repository.setName("XenitPrivate");
-            repository.setUrl(StringConstants.XENIT_RELEASE_URL);
-            repository.credentials(CredentialsUtil.configureArtifactoryCredentials(project));
+            repository.setUrl(XENIT_RELEASE_URL);
+            repository.credentials(ArtifactoryCredentialsUtil.configureArtifactoryCredentials(project));
             action.execute(repository);
         });
     }
@@ -44,8 +48,8 @@ public class RepositoryHandlerExtensions {
     public MavenArtifactRepository xenitPrivateSnapshots(Action<? super MavenArtifactRepository> action) {
         return repositoryHandler.maven(repository -> {
             repository.setName("XenitPrivateSnapshots");
-            repository.setUrl(StringConstants.XENIT_SNAPSHOTS_URL);
-            repository.credentials(CredentialsUtil.configureArtifactoryCredentials(project));
+            repository.setUrl(XENIT_SNAPSHOTS_URL);
+            repository.credentials(ArtifactoryCredentialsUtil.configureArtifactoryCredentials(project));
             action.execute(repository);
         });
     }
@@ -66,6 +70,6 @@ public class RepositoryHandlerExtensions {
         RepositoryHandlerExtensions repositoryHandlerExtensions = project.getObjects()
                 .newInstance(RepositoryHandlerExtensions.class, repositoryHandler, project);
         ((HasConvention) repositoryHandler).getConvention().getPlugins()
-                .put("eu.xenit.enterprise.repository", repositoryHandlerExtensions);
+                .put(RepositoryHandlerExtensions.class.getCanonicalName(), repositoryHandlerExtensions);
     }
 }
