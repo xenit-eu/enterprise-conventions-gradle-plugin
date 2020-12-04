@@ -7,6 +7,7 @@ import eu.xenit.gradle.enterprise.internal.artifactory.ArtifactoryHttpClient;
 import eu.xenit.gradle.enterprise.internal.artifactory.ArtifactoryRepositorySpec;
 import eu.xenit.gradle.enterprise.internal.artifactory.ArtifactoryRepositorySpec.RepositoryType;
 import eu.xenit.gradle.enterprise.internal.artifactory.CachingArtifactoryClient;
+import eu.xenit.gradle.enterprise.internal.artifactory.NullArtifactoryClient;
 import eu.xenit.gradle.enterprise.violations.ViolationHandler;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
@@ -41,17 +42,23 @@ public class PrivateRepositoryReplacementPlugin extends AbstractRepositoryPlugin
     @Override
     public void apply(Project project) {
         URI baseURI = URI.create(StringConstants.XENIT_BASE_URL);
-        HttpClient httpClient = HttpClient.newBuilder()
-                .version(Version.HTTP_1_1)
-                .authenticator(new ArtifactoryHttpAuthenticator(baseURI, project))
-                .build();
-        this.artifactoryClient = new CachingArtifactoryClient(new ArtifactoryHttpClient(baseURI, httpClient),
-                cacheRepository, StringConstants.XENIT_BASE_URL, project.getGradle().getStartParameter().isOffline());
+        if (ArtifactoryCredentialsUtil.hasArtifactoryCredentials(project)) {
+            HttpClient httpClient = HttpClient.newBuilder()
+                    .version(Version.HTTP_1_1)
+                    .authenticator(new ArtifactoryHttpAuthenticator(baseURI, project))
+                    .build();
+            this.artifactoryClient = new CachingArtifactoryClient(new ArtifactoryHttpClient(baseURI, httpClient),
+                    cacheRepository, StringConstants.XENIT_BASE_URL,
+                    project.getGradle().getStartParameter().isOffline());
+        } else {
+            this.artifactoryClient = new NullArtifactoryClient();
+        }
         super.apply(project);
     }
 
     private Map<URI, String> getReplacements() {
         Map<URI, String> replacements = new HashMap<>();
+
         List<ArtifactoryRepositorySpec> repositories = artifactoryClient.getRepositories();
 
         for (ArtifactoryRepositorySpec repository : repositories) {
@@ -116,7 +123,7 @@ public class PrivateRepositoryReplacementPlugin extends AbstractRepositoryPlugin
                     .equals(baseURI.getHost())) {
                 return new PasswordAuthentication(
                         project.property(ArtifactoryCredentialsUtil.USERNAME_PROPERTY).toString(),
-                        project.project(ArtifactoryCredentialsUtil.PASSWORD_PROPERTY).toString().toCharArray()
+                        project.property(ArtifactoryCredentialsUtil.PASSWORD_PROPERTY).toString().toCharArray()
                 );
             }
             return null;

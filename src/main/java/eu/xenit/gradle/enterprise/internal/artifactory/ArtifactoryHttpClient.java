@@ -8,13 +8,16 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import org.gradle.api.logging.Logger;
+import org.gradle.api.logging.Logging;
 import org.json.JSONArray;
-import org.json.JSONObject;
 import org.json.JSONTokener;
 
 public class ArtifactoryHttpClient implements ArtifactoryClient {
+
+    private static final Logger LOGGER = Logging.getLogger(ArtifactoryHttpClient.class);
 
     private final URI apiBase;
     private final HttpClient httpClient;
@@ -25,11 +28,12 @@ public class ArtifactoryHttpClient implements ArtifactoryClient {
     }
 
     public List<ArtifactoryRepositorySpec> getRepositories0() throws IOException, InterruptedException {
-        HttpRequest request = HttpRequest.newBuilder(apiBase.resolve("repositories"))
+        HttpRequest request = HttpRequest.newBuilder(apiBase.resolve("api/repositories"))
                 .GET()
                 .build();
 
         HttpResponse<InputStream> response = httpClient.send(request, BodyHandlers.ofInputStream());
+
         try {
             if (response.statusCode() != 200) {
                 throw new IOException(
@@ -41,10 +45,14 @@ public class ArtifactoryHttpClient implements ArtifactoryClient {
 
             JSONArray repositoriesJson = new JSONArray(new JSONTokener(response.body()));
 
-            return repositoriesJson.toList().stream()
-                    .map(item -> (JSONObject) item)
-                    .map(ArtifactoryRepositorySpec::createFromJson)
-                    .collect(Collectors.toList());
+            List<ArtifactoryRepositorySpec> repositories = new ArrayList<>(repositoriesJson.length());
+            for (int i = 0; i < repositoriesJson.length(); i++) {
+                repositories.add(ArtifactoryRepositorySpec.createFromJson(repositoriesJson.getJSONObject(i)));
+            }
+
+            LOGGER.debug("Received repositories from {}: {}", request, repositories);
+
+            return repositories;
         } finally {
             response.body().close();
         }

@@ -107,3 +107,7 @@ integrationTest {
         systemProperty "eu.xenit.enterprise.integration.gradle-offline", "true"
     }
 }
+
+pluginUnderTestMetadata {
+    pluginClasspath.from(configurations.packaged)
+}
