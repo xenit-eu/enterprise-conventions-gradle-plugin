@@ -75,7 +75,7 @@ gradlePlugin {
         }
         repositoryExtensionsPlugin {
             id = 'eu.xenit.enterprise.ext.repository'
-            implementationClass = 'eu.xenit.gradle.enterprise.extensions.repository'
+            implementationClass = 'eu.xenit.gradle.enterprise.extensions.repository.RepositoryExtensionsPlugin'
         }
     }
     testSourceSets(sourceSets.integTest)
