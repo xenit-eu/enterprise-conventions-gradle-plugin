@@ -19,6 +19,9 @@ import org.gradle.api.logging.Logging;
 
 class AbstractRepositoryPlugin implements Plugin<Project> {
 
+    public static final String REPOSITORY_BLOCK_PREFIX = "eu.xenit.enterprise.repository.block.";
+    public static final String REPOSITORY_ALLOW_PREFIX = "eu.xenit.enterprise.repository.allow.";
+
     protected enum ValidationResult {
         ALLOWED(true),
         BLOCKED(true),
@@ -97,10 +100,21 @@ class AbstractRepositoryPlugin implements Plugin<Project> {
             LOGGER.debug("Allowing explicitly allowlisted repository: {}", repository.getUrl());
             return ValidationResult.ALLOWED;
         }
+
         if ("file".equals(repository.getUrl().getScheme())) {
             LOGGER.debug("Allowing local repository: {}", repository.getUrl());
             return ValidationResult.ALLOWED;
         }
+
+        PropertyConfigurationList allowList = new PropertyConfigurationList(
+                (Map<String, Object>) project.getProperties(),
+                REPOSITORY_ALLOW_PREFIX);
+
+        if (allowList.containsHost(repository.getUrl())) {
+            LOGGER.debug("Allowing repository {} by property configuration", repository.getUrl());
+            return ValidationResult.ALLOWED;
+        }
+
         if ("http".equals(repository.getUrl().getScheme())) {
             violationHandler.handleViolation(
                     new BlockedRepositoryException(repository.getUrl(), "HTTPS is required for repositories."));
@@ -113,6 +127,16 @@ class AbstractRepositoryPlugin implements Plugin<Project> {
             return ValidationResult.BLOCKED;
         }
 
+        PropertyConfigurationList blockList = new PropertyConfigurationList(
+                (Map<String, Object>) project.getProperties(),
+                REPOSITORY_BLOCK_PREFIX);
+
+        if (blockList.containsHost(repository.getUrl())) {
+            LOGGER.debug("Blocking repository {} by property configuration", repository.getUrl());
+            violationHandler.handleViolation(new BlockedRepositoryException(repository.getUrl(),
+                    "Repository is blocked in property-based blocklist."));
+            return ValidationResult.BLOCKED;
+        }
         return ValidationResult.NEUTRAL;
     }
 }
