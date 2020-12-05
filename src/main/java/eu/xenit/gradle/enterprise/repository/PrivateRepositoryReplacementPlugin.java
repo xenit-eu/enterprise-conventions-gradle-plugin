@@ -48,7 +48,7 @@ public class PrivateRepositoryReplacementPlugin extends AbstractRepositoryPlugin
                     .authenticator(new ArtifactoryHttpAuthenticator(baseURI, project))
                     .build();
             this.artifactoryClient = new CachingArtifactoryClient(new ArtifactoryHttpClient(baseURI, httpClient),
-                    cacheRepository, StringConstants.XENIT_BASE_URL,
+                    cacheRepository, baseURI.toString(),
                     project.getGradle().getStartParameter().isOffline());
         } else {
             this.artifactoryClient = new NullArtifactoryClient();

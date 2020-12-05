@@ -1,1 +1,3 @@
 rootProject.name = 'enterprise-plugin'
+
+include ':integration-test-fakes'

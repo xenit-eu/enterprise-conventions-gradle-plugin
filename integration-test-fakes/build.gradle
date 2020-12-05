@@ -1,0 +1,16 @@
+plugins {
+    id 'eu.xenit.docker-compose' version '5.1.1'
+    id 'eu.xenit.docker' version '5.1.1'
+}
+
+createDockerFile {
+    from("nginx")
+    smartCopy("fake-artifactory.conf", "/etc/nginx/conf.d/default.conf")
+    smartCopy("htpasswd", "/etc/nginx/")
+    workingDir("/usr/share/nginx/html/")
+    runCommand("mkdir -p artifactory/api/repositories")
+    smartCopy("repositories.json", "artifactory/api/")
+    runCommand("ln -s ../repositories.json artifactory/api/repositories/index.json")
+    instruction("HEALTHCHECK --interval=10s --timeout=2s CMD curl -fs -u xenit-private:xenit-password http://localhost/ -o /dev/null || exit 1")
+}
+

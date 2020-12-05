@@ -1,0 +1,6 @@
+version: '2.2'
+services:
+  artifactory:
+    image: "${DOCKER_IMAGE}"
+    ports:
+      - "${DOCKER_IP}::80"

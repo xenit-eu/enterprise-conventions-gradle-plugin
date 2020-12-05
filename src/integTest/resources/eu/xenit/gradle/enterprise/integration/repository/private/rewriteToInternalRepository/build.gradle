@@ -16,7 +16,7 @@ repositories {
 
 afterEvaluate {
     def alfresco = repositories.getByName("Alfresco")
-    assert alfresco.url == uri("https://artifactory.xenit.eu/artifactory/alfresco-enterprise")
+    assert alfresco.url == uri(System.getProperty("eu.xenit.gradle.enterprise.artifactory-override") + "alfresco-enterprise")
     assert alfresco.credentials.username == "xenit-private"
     assert alfresco.credentials.password == "xenit-password"
 }

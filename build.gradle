@@ -102,6 +102,10 @@ pluginBundle {
     }
 }
 
+evaluationDependsOn(":integration-test-fakes")
+
+project(":integration-test-fakes").dockerCompose.isRequiredBy(integrationTest)
+
 integrationTest {
     if (gradle.startParameter.offline) {
         systemProperty "eu.xenit.enterprise.integration.gradle-offline", "true"

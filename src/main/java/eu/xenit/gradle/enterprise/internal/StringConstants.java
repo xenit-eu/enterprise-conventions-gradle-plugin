@@ -1,8 +1,15 @@
 package eu.xenit.gradle.enterprise.internal;
 
-public interface StringConstants {
+public final class StringConstants {
 
-    String SONATYPE_SNAPSHOTS_URL = "https://oss.sonatype.org/content/repositories/snapshots/";
+    public static final String SONATYPE_SNAPSHOTS_URL = "https://oss.sonatype.org/content/repositories/snapshots/";
+    public static final String XENIT_BASE_URL;
 
-    String XENIT_BASE_URL = "https://artifactory.xenit.eu/artifactory/";
+    static {
+        XENIT_BASE_URL = System.getProperty("eu.xenit.gradle.enterprise.artifactory-override",
+                "https://artifactory.xenit.eu/artifactory/");
+    }
+
+    private StringConstants() {
+    }
 }

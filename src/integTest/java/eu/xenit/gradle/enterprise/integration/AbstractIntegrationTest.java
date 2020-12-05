@@ -87,6 +87,10 @@ public abstract class AbstractIntegrationTest {
                 .filter(arg -> arg.startsWith("-javaagent"))
                 .map(agent -> agent.replace("build/", System.getProperty("user.dir") + "/build/"))
                 .collect(Collectors.toList());
+        // Override default artifactory URL with our test fake
+        agentOpts.add(String.format("-Deu.xenit.gradle.enterprise.artifactory-override=http://%s:%s/artifactory/",
+                System.getProperty("artifactory.host"),
+                System.getProperty("artifactory.tcp.80")));
         ((DefaultGradleRunner) gradleRunner).withJvmArguments(agentOpts);
 
         return gradleRunner;

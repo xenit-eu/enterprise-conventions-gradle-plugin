@@ -1,0 +1,94 @@
+[
+  {
+    "key": "ext-release-local",
+    "description": "Local repository for third party libraries",
+    "type": "LOCAL",
+    "url": "http://artifactory.xenit.eu/artifactory/ext-release-local"
+  },
+  {
+    "key": "ext-snapshot-local",
+    "description": "Local repository for third party snapshots",
+    "type": "LOCAL",
+    "url": "http://artifactory.xenit.eu/artifactory/ext-snapshot-local"
+  },
+  {
+    "key": "libs-release-local",
+    "description": "Local repository for in-house libraries",
+    "type": "LOCAL",
+    "url": "http://artifactory.xenit.eu/artifactory/libs-release-local"
+  },
+  {
+    "key": "libs-snapshot-local",
+    "description": "Local repository for in-house snapshots",
+    "type": "LOCAL",
+    "url": "http://artifactory.xenit.eu/artifactory/libs-snapshot-local"
+  },
+  {
+    "key": "plugins-release-local",
+    "description": "Local repository for plugins",
+    "type": "LOCAL",
+    "url": "http://artifactory.xenit.eu/artifactory/plugins-release-local"
+  },
+  {
+    "key": "plugins-snapshot-local",
+    "description": "Local repository for plugins snapshots",
+    "type": "LOCAL",
+    "url": "http://artifactory.xenit.eu/artifactory/plugins-snapshot-local"
+  },
+  {
+    "key": "xenit-release-local",
+    "description": "Xenit internal artifacts",
+    "type": "LOCAL",
+    "url": "http://artifactory.xenit.eu/artifactory/xenit-release-local"
+  },
+  {
+    "key": "alfresco-community",
+    "type": "REMOTE",
+    "url": "https://artifacts.alfresco.com/nexus/content/groups/public"
+  },
+  {
+    "key": "alfresco-enterprise",
+    "type": "REMOTE",
+    "url": "https://artifacts.alfresco.com/nexus/content/repositories/enterprise-releases"
+  },
+  {
+    "key": "alfresco-public-snapshot",
+    "type": "REMOTE",
+    "url": "https://artifacts.alfresco.com/nexus/content/repositories/public-snapshots/"
+  },
+  {
+    "key": "arondor-release",
+    "type": "REMOTE",
+    "url": "https://artifactory.arondor.cloud/artifactory/arondor-release"
+  },
+  {
+    "key": "spring-release",
+    "type": "REMOTE",
+    "url": "https://maven.springframework.org/release"
+  },
+  {
+    "key": "libs-release",
+    "type": "VIRTUAL",
+    "url": "http://artifactory.xenit.eu/artifactory/libs-release"
+  },
+  {
+    "key": "libs-snapshot",
+    "type": "VIRTUAL",
+    "url": "http://artifactory.xenit.eu/artifactory/libs-snapshot"
+  },
+  {
+    "key": "plugins-release",
+    "type": "VIRTUAL",
+    "url": "http://artifactory.xenit.eu/artifactory/plugins-release"
+  },
+  {
+    "key": "plugins-snapshot",
+    "type": "VIRTUAL",
+    "url": "http://artifactory.xenit.eu/artifactory/plugins-snapshot"
+  },
+  {
+    "key": "remote-repos",
+    "type": "VIRTUAL",
+    "url": "http://artifactory.xenit.eu/artifactory/remote-repos"
+  }
+]
