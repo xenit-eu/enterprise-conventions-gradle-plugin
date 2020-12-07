@@ -96,34 +96,14 @@ class AbstractRepositoryPlugin implements Plugin<Project> {
 
     protected ValidationResult validateRepository(MavenArtifactRepository repository,
             Project project, ViolationHandler violationHandler) {
-        if (allowlist.contains(repository.getUrl())) {
-            LOGGER.debug("Allowing explicitly allowlisted repository: {}", repository.getUrl());
-            return ValidationResult.ALLOWED;
-        }
-
         if ("file".equals(repository.getUrl().getScheme())) {
             LOGGER.debug("Allowing local repository: {}", repository.getUrl());
-            return ValidationResult.ALLOWED;
-        }
-
-        PropertyConfigurationList allowList = new PropertyConfigurationList(
-                (Map<String, Object>) project.getProperties(),
-                REPOSITORY_ALLOW_PREFIX);
-
-        if (allowList.containsHost(repository.getUrl())) {
-            LOGGER.debug("Allowing repository {} by property configuration", repository.getUrl());
             return ValidationResult.ALLOWED;
         }
 
         if ("http".equals(repository.getUrl().getScheme())) {
             violationHandler.handleViolation(
                     new BlockedRepositoryException(repository.getUrl(), "HTTPS is required for repositories."));
-            return ValidationResult.BLOCKED;
-        }
-        if (blocklist.containsKey(repository.getUrl())) {
-            String reason = blocklist.get(repository.getUrl());
-            violationHandler.handleViolation(new BlockedRepositoryException(repository.getUrl(),
-                    "Explicitly blocklisted by eu.xenit.enterprise plugins: " + reason));
             return ValidationResult.BLOCKED;
         }
 
@@ -137,6 +117,28 @@ class AbstractRepositoryPlugin implements Plugin<Project> {
                     "Repository is blocked in property-based blocklist."));
             return ValidationResult.BLOCKED;
         }
+
+        PropertyConfigurationList allowList = new PropertyConfigurationList(
+                (Map<String, Object>) project.getProperties(),
+                REPOSITORY_ALLOW_PREFIX);
+
+        if (allowList.containsHost(repository.getUrl())) {
+            LOGGER.debug("Allowing repository {} by property configuration", repository.getUrl());
+            return ValidationResult.ALLOWED;
+        }
+
+        if (allowlist.contains(repository.getUrl())) {
+            LOGGER.debug("Allowing explicitly allowlisted repository: {}", repository.getUrl());
+            return ValidationResult.ALLOWED;
+        }
+
+        if (blocklist.containsKey(repository.getUrl())) {
+            String reason = blocklist.get(repository.getUrl());
+            violationHandler.handleViolation(new BlockedRepositoryException(repository.getUrl(),
+                    "Explicitly blocklisted by eu.xenit.enterprise plugins: " + reason));
+            return ValidationResult.BLOCKED;
+        }
+
         return ValidationResult.NEUTRAL;
     }
 }

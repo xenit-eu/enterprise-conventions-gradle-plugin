@@ -121,3 +121,30 @@ publishing {
 
 </details>
 
+## Repository blocking
+
+In the `eu.xenit.enterprise.oss` plugin, all artifact repositories are allowed by default, except for the Xenit private artifacts server.
+This is to avoid accidentally depending on this private server for open source software that we publish.
+
+In the `eu.xenit.enterprise.private` plugin, only select artifact repositories are allowed: Maven Central, Gradle Plugin Portal and all artifact repositories that are proxied by the Xenit private artifacts server.
+These repositories are selected as trusted sources because they verify groupId ownership and don't allow artifacts to be replaced or delete after publication.
+
+In all cases, local `file:///` repositories are allowed and `http://` repositories are blocked.
+It is possible to add additional repositories to the allow- or blocklists by adding properties to `gradle.properties` (either globally or per-project):
+`eu.xenit.enterprise.repository.allow.<hostname>=true` or `eu.xenit.enterprise.repository.block.<hostname>=true`
+Entries that are added to the blocklist in this way take priority over entries that are added to the allowlist.
+
+<details>
+<summary>Example</summary>
+
+These properties-files can be placed in `~/.gradle/gradle.properties`, or locally in your project as `gradle.properties`.
+
+```properties
+# Allow jcenter back, even though it is blocked by default
+eu.xenit.enterprise.repository.allow.jcenter.org=true
+
+# Block repository on example.com, even though it may be allowed by default
+eu.xenit.enterprise.repository.block.example.com=true
+```
+
+</details>
