@@ -4,6 +4,6 @@ plugins {
 
 repositories {
     maven {
-        url "https://artifactory.xenit.eu/artifactory/libs-release"
+        url System.getProperty('eu.xenit.gradle.enterprise.artifactory-override') + "libs-release"
     }
 }

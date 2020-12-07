@@ -1,5 +1,6 @@
 package eu.xenit.gradle.enterprise.repository;
 
+import eu.xenit.gradle.enterprise.internal.ArtifactoryCredentialsUtil;
 import eu.xenit.gradle.enterprise.violations.ViolationHandler;
 import javax.inject.Inject;
 import org.gradle.api.Project;
@@ -25,8 +26,17 @@ public class PrivateRepositoryPlugin extends PrivateRepositoryReplacementPlugin 
         if (validationResult.isFinal()) {
             return validationResult;
         }
-        violationHandler.handleViolation(new BlockedRepositoryException(repository.getUrl(),
-                "Repository is not explicitly allowed or replaced."));
-        return ValidationResult.BLOCKED;
+        if (ArtifactoryCredentialsUtil.hasArtifactoryCredentials(project)) {
+            // Only block repositories from being used when we have Artifactory credentials
+            // (AKA we are a Xenit developer)
+            // Let other developers use whatever repositories they want, as they are not even
+            // allowed to list the repositories we replace, they need a way to use those repositories
+            // directly.
+            violationHandler.handleViolation(new BlockedRepositoryException(repository.getUrl(),
+                    "Repository is not explicitly allowed or replaced."));
+            return ValidationResult.BLOCKED;
+        } else {
+            return ValidationResult.NEUTRAL;
+        }
     }
 }

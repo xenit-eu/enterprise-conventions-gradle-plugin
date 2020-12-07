@@ -14,8 +14,8 @@ import org.gradle.api.internal.HasConvention;
  */
 public class RepositoryHandlerExtensions {
 
-    public static final String XENIT_SNAPSHOTS_URL = "https://artifactory.xenit.eu/artifactory/libs-snapshot-local";
-    public static final String XENIT_RELEASE_URL = "https://artifactory.xenit.eu/artifactory/libs-release-local";
+    public static final String XENIT_SNAPSHOTS_URL = StringConstants.XENIT_BASE_URL + "libs-snapshot-local";
+    public static final String XENIT_RELEASE_URL = StringConstants.XENIT_BASE_URL + "libs-release-local";
     private final RepositoryHandler repositoryHandler;
     private final Project project;
 

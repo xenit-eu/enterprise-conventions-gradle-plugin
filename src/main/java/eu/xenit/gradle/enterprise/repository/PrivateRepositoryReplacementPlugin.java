@@ -90,18 +90,12 @@ public class PrivateRepositoryReplacementPlugin extends AbstractRepositoryPlugin
 
         String replacement = getReplacements().get(repository.getUrl());
 
+        // If we have replacements, we have artifactory credentials (as that's how we get the list of replacements in the first place)
         if (replacement != null) {
-            if (ArtifactoryCredentialsUtil.hasArtifactoryCredentials(project)) {
-                LOGGER.debug("Replacing repository {} with enterprise repository", repository.getUrl());
-                repository.setUrl(URI.create(StringConstants.XENIT_BASE_URL + replacement));
-                repository.credentials(ArtifactoryCredentialsUtil.configureArtifactoryCredentials(project));
-                return ValidationResult.ALLOWED;
-            } else {
-                LOGGER.info(
-                        "Xenit Artifactory credentials were not provided. Not replacing repositories with internal proxy.");
-                // Return here. Repository was not replaced, but it is not explicitly disallowed per our policy (as we are proxying it)
-                return ValidationResult.NEUTRAL;
-            }
+            LOGGER.debug("Replacing repository {} with enterprise repository", repository.getUrl());
+            repository.setUrl(URI.create(StringConstants.XENIT_BASE_URL + replacement));
+            repository.credentials(ArtifactoryCredentialsUtil.configureArtifactoryCredentials(project));
+            return ValidationResult.ALLOWED;
         }
 
         return ValidationResult.NEUTRAL;

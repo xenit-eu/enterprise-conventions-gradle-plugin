@@ -54,7 +54,7 @@ initscript {
     }
 }
 
-apply plugin: eu.xenit.enterprise.PrivateInitPlugin
+apply plugin: eu.xenit.gradle.enterprise.PrivateInitPlugin
 ```
 
 </details>

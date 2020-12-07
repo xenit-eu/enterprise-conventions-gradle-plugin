@@ -13,12 +13,13 @@ repositories {
 }
 
 afterEvaluate {
+    def xenitArtifactory = System.getProperty("eu.xenit.gradle.enterprise.artifactory-override")
     def xenit = repositories.getByName("XenitPrivate")
-    assert xenit.url == uri("https://artifactory.xenit.eu/artifactory/libs-release-local")
+    assert xenit.url == uri(xenitArtifactory + "libs-release-local")
     assert xenit.credentials.username == "xenit-private"
     assert xenit.credentials.password == "xenit-password"
     def xenitSnapshots = repositories.getByName("XenitPrivateSnapshots")
-    assert xenitSnapshots.url == uri("https://artifactory.xenit.eu/artifactory/libs-snapshot-local")
+    assert xenitSnapshots.url == uri(xenitArtifactory + "libs-snapshot-local")
     assert xenitSnapshots.credentials.username == "xenit-private"
     assert xenitSnapshots.credentials.password == "xenit-password"
 }
