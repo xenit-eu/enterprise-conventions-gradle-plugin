@@ -5,6 +5,8 @@ import eu.xenit.gradle.enterprise.violations.ViolationHandler;
 import javax.inject.Inject;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository;
+import org.gradle.api.logging.Logger;
+import org.gradle.api.logging.Logging;
 import org.gradle.cache.CacheRepository;
 
 /**
@@ -13,6 +15,8 @@ import org.gradle.cache.CacheRepository;
  * All not explicitly allowlisted or replaced repositories will be blocked by policy.
  */
 public class PrivateRepositoryPlugin extends PrivateRepositoryReplacementPlugin {
+
+    private static final Logger LOGGER = Logging.getLogger(PrivateRepositoryPlugin.class);
 
     @Inject
     public PrivateRepositoryPlugin(CacheRepository cacheRepository) {
@@ -36,6 +40,8 @@ public class PrivateRepositoryPlugin extends PrivateRepositoryReplacementPlugin 
                     "Repository is not explicitly allowed or replaced."));
             return ValidationResult.BLOCKED;
         } else {
+            LOGGER.warn("Repository {} has not been vetted as Xenit Artifactory credentials are missing.",
+                    repository.getUrl());
             return ValidationResult.NEUTRAL;
         }
     }
