@@ -85,7 +85,7 @@ pluginBundle {
     vcsUrl = "https://github.com/xenit-eu/enterprise-gradle-plugin"
     website = vcsUrl
     description = "Xenit OSS and private conventions plugins"
-
+    tags = ["conventions", "repository-replacement", "repositories", "security"]
     plugins {
         privatePlugin {
             displayName = "Xenit private conventions plugin"
