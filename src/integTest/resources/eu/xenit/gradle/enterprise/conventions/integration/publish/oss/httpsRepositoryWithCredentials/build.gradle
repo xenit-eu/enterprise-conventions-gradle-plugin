@@ -1,0 +1,16 @@
+plugins {
+    id "eu.xenit.enterprise-conventions.oss"
+    id "maven-publish"
+}
+
+publishing {
+    repositories {
+        maven {
+            url "https://example.com/m2/"
+            credentials {
+                username "some-user"
+                password "a password"
+            }
+        }
+    }
+}

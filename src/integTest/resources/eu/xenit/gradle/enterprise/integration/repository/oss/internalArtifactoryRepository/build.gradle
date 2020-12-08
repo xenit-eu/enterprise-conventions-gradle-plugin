@@ -1,9 +1,0 @@
-plugins {
-    id "eu.xenit.enterprise.oss"
-}
-
-repositories {
-    maven {
-        url System.getProperty('eu.xenit.gradle.enterprise.artifactory-override') + "libs-release"
-    }
-}

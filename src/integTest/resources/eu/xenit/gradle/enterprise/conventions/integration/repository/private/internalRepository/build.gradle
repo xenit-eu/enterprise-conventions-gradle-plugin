@@ -1,0 +1,25 @@
+plugins {
+    id "eu.xenit.enterprise-conventions.private"
+}
+
+repositories {
+    xenitPrivate {
+        // Doing something here to test that repository configuration closures do work
+        mavenContent {
+            releasesOnly()
+        }
+    }
+    xenitPrivateSnapshots()
+}
+
+afterEvaluate {
+    def xenitArtifactory = System.getProperty("eu.xenit.gradle.enterprise.conventions.artifactory-override")
+    def xenit = repositories.getByName("XenitPrivate")
+    assert xenit.url == uri(xenitArtifactory + "libs-release-local")
+    assert xenit.credentials.username == "xenit-private"
+    assert xenit.credentials.password == "xenit-password"
+    def xenitSnapshots = repositories.getByName("XenitPrivateSnapshots")
+    assert xenitSnapshots.url == uri(xenitArtifactory + "libs-snapshot-local")
+    assert xenitSnapshots.credentials.username == "xenit-private"
+    assert xenitSnapshots.credentials.password == "xenit-password"
+}

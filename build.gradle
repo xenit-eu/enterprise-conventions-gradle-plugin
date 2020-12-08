@@ -49,7 +49,7 @@ task shadowJar(type: ShadowJar) {
 
 task configureShadowJar(type: ConfigureShadowRelocation) {
     target = shadowJar
-    prefix = "eu.xenit.gradle.enterprise.internal.shadow"
+    prefix = "eu.xenit.gradle.enterprise.conventions.internal.shadow"
 }
 
 shadowJar.dependsOn(configureShadowJar)
@@ -62,20 +62,20 @@ jar {
 gradlePlugin {
     plugins {
         privatePlugin {
-            id = 'eu.xenit.enterprise.private'
-            implementationClass = 'eu.xenit.gradle.enterprise.PrivatePlugin'
+            id = 'eu.xenit.enterprise-conventions.private'
+            implementationClass = 'eu.xenit.gradle.enterprise.conventions.PrivatePlugin'
         }
         privateInitPlugin {
-            id = 'eu.xenit.enterprise.private.init'
-            implementationClass = 'eu.xenit.gradle.enterprise.PrivateInitPlugin'
+            id = 'eu.xenit.enterprise-conventions.private.init'
+            implementationClass = 'eu.xenit.gradle.enterprise.conventions.PrivateInitPlugin'
         }
         ossPlugin {
-            id = 'eu.xenit.enterprise.oss'
-            implementationClass = 'eu.xenit.gradle.enterprise.OssPlugin'
+            id = 'eu.xenit.enterprise-conventions.oss'
+            implementationClass = 'eu.xenit.gradle.enterprise.conventions.OssPlugin'
         }
         repositoryExtensionsPlugin {
-            id = 'eu.xenit.enterprise.ext.repository'
-            implementationClass = 'eu.xenit.gradle.enterprise.extensions.repository.RepositoryExtensionsPlugin'
+            id = 'eu.xenit.enterprise-conventions.ext.repository'
+            implementationClass = 'eu.xenit.gradle.enterprise.conventions.extensions.repository.RepositoryExtensionsPlugin'
         }
     }
     testSourceSets(sourceSets.integTest)
@@ -84,7 +84,7 @@ gradlePlugin {
 pluginBundle {
     vcsUrl = "https://github.com/xenit-eu/enterprise-gradle-plugin"
     website = vcsUrl
-    description = "Xenit enterprise and OSS conventions plugins"
+    description = "Xenit OSS and private conventions plugins"
 
     plugins {
         privatePlugin {
@@ -93,11 +93,11 @@ pluginBundle {
         }
         privateInitPlugin {
             displayName = "Xenit private initscript plugin"
-            description = "Configures conventions for Xenit private & oss packages: initscript plugin for internal use"
+            description = "Configures conventions for Xenit private & oss packages: initscript plugin for Xenit developers"
         }
         ossPlugin {
             displayName = "Xenit OSS conventions plugin"
-            description = "Configures conventions for open source packages"
+            description = "Configures conventions for Xenit open source packages"
         }
     }
 }
@@ -108,7 +108,7 @@ project(":integration-test-fakes").dockerCompose.isRequiredBy(integrationTest)
 
 integrationTest {
     if (gradle.startParameter.offline) {
-        systemProperty "eu.xenit.enterprise.integration.gradle-offline", "true"
+        systemProperty "eu.xenit.enterprise.conventions.integration.gradle-offline", "true"
     }
 }
 

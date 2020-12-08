@@ -1,0 +1,15 @@
+plugins {
+    id "eu.xenit.enterprise-conventions.private"
+    id "maven-publish"
+}
+
+publishing {
+    repositories {
+        sonatypeSnapshots {
+            credentials {
+                username "abc"
+                password "def"
+            }
+        }
+    }
+}
