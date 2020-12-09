@@ -35,10 +35,10 @@ public class CachingArtifactoryClient implements ArtifactoryClient {
     }
 
     private CacheBuilder createCacheBuilder() {
-        return cacheRepository.cache("eu.xenit.gradle.enterprise")
+        return cacheRepository.cache("eu.xenit.gradle.enterprise.conventions")
                 .withCrossVersionCache(LockTarget.DefaultTarget)
                 .withLockOptions(LockOptionsBuilder.mode(LockMode.Exclusive))
-                .withDisplayName("eu.xenit.enterprise repository replacement cache")
+                .withDisplayName("eu.xenit.enterprise-conventions repository replacement cache")
                 .withProperties(Collections.singletonMap("cacheVersion", "1"));
     }
 
