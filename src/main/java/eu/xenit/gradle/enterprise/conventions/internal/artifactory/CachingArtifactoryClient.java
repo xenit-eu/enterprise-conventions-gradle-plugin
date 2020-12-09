@@ -1,6 +1,5 @@
 package eu.xenit.gradle.enterprise.conventions.internal.artifactory;
 
-import java.io.Serializable;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
@@ -26,12 +25,6 @@ public class CachingArtifactoryClient implements ArtifactoryClient {
     private final CacheRepository cacheRepository;
     private final String cacheKey;
     private final boolean offline;
-
-    public static class RepositoriesAndDate implements Serializable {
-
-        private long expirySeconds;
-        private List<ArtifactoryRepositorySpec> repositories;
-    }
 
     public CachingArtifactoryClient(ArtifactoryClient client, CacheRepository cacheRepository, String cacheKey,
             boolean offline) {
@@ -60,9 +53,10 @@ public class CachingArtifactoryClient implements ArtifactoryClient {
                         .createCache(CACHE_PARAMETERS);
                 RepositoriesAndDate repositoriesAndDate = repositoryMapCache.get(this.cacheKey);
 
-                if (repositoriesAndDate != null && (repositoriesAndDate.expirySeconds < Instant.now().getEpochSecond()
-                        || this.offline)) {
-                    return Collections.unmodifiableList(repositoriesAndDate.repositories);
+                if (repositoriesAndDate != null && (
+                        repositoriesAndDate.getExpirySeconds() < Instant.now().getEpochSecond()
+                                || this.offline)) {
+                    return Collections.unmodifiableList(repositoriesAndDate.getRepositories());
                 }
                 return null;
             });
@@ -82,8 +76,8 @@ public class CachingArtifactoryClient implements ArtifactoryClient {
                 PersistentIndexedCache<String, RepositoriesAndDate> repositoryMapCache = cache
                         .createCache(CACHE_PARAMETERS);
                 RepositoriesAndDate repositoriesAndDate = new RepositoriesAndDate();
-                repositoriesAndDate.expirySeconds = Instant.now().getEpochSecond() + VALIDITY_SECONDS;
-                repositoriesAndDate.repositories = repositories;
+                repositoriesAndDate.setExpirySeconds(Instant.now().getEpochSecond() + VALIDITY_SECONDS);
+                repositoriesAndDate.setRepositories(repositories);
                 repositoryMapCache.put(this.cacheKey, repositoriesAndDate);
             });
         }
