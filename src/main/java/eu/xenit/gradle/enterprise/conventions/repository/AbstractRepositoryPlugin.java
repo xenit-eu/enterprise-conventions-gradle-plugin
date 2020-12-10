@@ -67,7 +67,7 @@ class AbstractRepositoryPlugin implements Plugin<Project> {
         return URI.create(uri.toString() + "/");
     }
 
-    static void withEndingSlash(Map<URI, String> map) {
+    static <T> void withEndingSlash(Map<URI, T> map) {
         for (URI uri : new HashSet<>(map.keySet())) {
             map.put(withEndingSlash(uri), map.get(uri));
         }

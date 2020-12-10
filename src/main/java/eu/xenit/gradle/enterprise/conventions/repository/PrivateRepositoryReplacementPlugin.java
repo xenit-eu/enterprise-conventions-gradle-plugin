@@ -3,17 +3,11 @@ package eu.xenit.gradle.enterprise.conventions.repository;
 import eu.xenit.gradle.enterprise.conventions.internal.ArtifactoryCredentialsUtil;
 import eu.xenit.gradle.enterprise.conventions.internal.StringConstants;
 import eu.xenit.gradle.enterprise.conventions.internal.artifactory.ArtifactoryClient;
-import eu.xenit.gradle.enterprise.conventions.internal.artifactory.ArtifactoryHttpClient;
+import eu.xenit.gradle.enterprise.conventions.internal.artifactory.ArtifactoryClientFacade;
 import eu.xenit.gradle.enterprise.conventions.internal.artifactory.ArtifactoryRepositorySpec;
 import eu.xenit.gradle.enterprise.conventions.internal.artifactory.ArtifactoryRepositorySpec.RepositoryType;
-import eu.xenit.gradle.enterprise.conventions.internal.artifactory.CachingArtifactoryClient;
-import eu.xenit.gradle.enterprise.conventions.internal.artifactory.NullArtifactoryClient;
 import eu.xenit.gradle.enterprise.conventions.violations.ViolationHandler;
-import java.net.Authenticator;
-import java.net.PasswordAuthentication;
 import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpClient.Version;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +26,7 @@ public class PrivateRepositoryReplacementPlugin extends AbstractRepositoryPlugin
     private static final Logger LOGGER = Logging.getLogger(PrivateRepositoryPlugin.class);
     private final CacheRepository cacheRepository;
 
-    private ArtifactoryClient artifactoryClient;
+    protected ArtifactoryClient artifactoryClient;
 
     @Inject
     public PrivateRepositoryReplacementPlugin(CacheRepository cacheRepository) {
@@ -41,23 +35,12 @@ public class PrivateRepositoryReplacementPlugin extends AbstractRepositoryPlugin
 
     @Override
     public void apply(Project project) {
-        URI baseURI = URI.create(StringConstants.XENIT_BASE_URL);
-        if (ArtifactoryCredentialsUtil.hasArtifactoryCredentials(project)) {
-            HttpClient httpClient = HttpClient.newBuilder()
-                    .version(Version.HTTP_1_1)
-                    .authenticator(new ArtifactoryHttpAuthenticator(baseURI, project))
-                    .build();
-            this.artifactoryClient = new CachingArtifactoryClient(new ArtifactoryHttpClient(baseURI, httpClient),
-                    cacheRepository, baseURI.toString(),
-                    project.getGradle().getStartParameter().isOffline());
-        } else {
-            this.artifactoryClient = new NullArtifactoryClient();
-        }
+        artifactoryClient = new ArtifactoryClientFacade(project, cacheRepository);
         super.apply(project);
     }
 
-    private Map<URI, String> getReplacements() {
-        Map<URI, String> replacements = new HashMap<>();
+    private Map<URI, URI> getReplacements() {
+        Map<URI, URI> replacements = new HashMap<>();
 
         List<ArtifactoryRepositorySpec> repositories = artifactoryClient.getRepositories();
 
@@ -67,7 +50,7 @@ public class PrivateRepositoryReplacementPlugin extends AbstractRepositoryPlugin
                 while (remoteUrl.endsWith("/")) {
                     remoteUrl = remoteUrl.substring(0, remoteUrl.length() - 1);
                 }
-                replacements.put(URI.create(remoteUrl), repository.getKey());
+                replacements.put(URI.create(remoteUrl), URI.create(repository.getProxyUrl()));
             }
         }
 
@@ -88,12 +71,12 @@ public class PrivateRepositoryReplacementPlugin extends AbstractRepositoryPlugin
             return validationResult;
         }
 
-        String replacement = getReplacements().get(repository.getUrl());
+        URI replacement = getReplacements().get(repository.getUrl());
 
         // If we have replacements, we have artifactory credentials (as that's how we get the list of replacements in the first place)
         if (replacement != null) {
-            LOGGER.debug("Replacing repository {} with enterprise repository", repository.getUrl());
-            repository.setUrl(URI.create(StringConstants.XENIT_BASE_URL + replacement));
+            LOGGER.debug("Replacing repository {} with enterprise repository {}", repository.getUrl(), replacement);
+            repository.setUrl(replacement);
             repository.credentials(ArtifactoryCredentialsUtil.configureArtifactoryCredentials(project));
             return ValidationResult.ALLOWED;
         }
@@ -101,26 +84,4 @@ public class PrivateRepositoryReplacementPlugin extends AbstractRepositoryPlugin
         return ValidationResult.NEUTRAL;
     }
 
-    private static class ArtifactoryHttpAuthenticator extends Authenticator {
-
-        private final URI baseURI;
-        private final Project project;
-
-        public ArtifactoryHttpAuthenticator(URI baseURI, Project project) {
-            this.baseURI = baseURI;
-            this.project = project;
-        }
-
-        @Override
-        protected PasswordAuthentication getPasswordAuthentication() {
-            if (ArtifactoryCredentialsUtil.hasArtifactoryCredentials(project) && getRequestingHost()
-                    .equals(baseURI.getHost())) {
-                return new PasswordAuthentication(
-                        project.property(ArtifactoryCredentialsUtil.USERNAME_PROPERTY).toString(),
-                        project.property(ArtifactoryCredentialsUtil.PASSWORD_PROPERTY).toString().toCharArray()
-                );
-            }
-            return null;
-        }
-    }
 }

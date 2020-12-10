@@ -14,15 +14,21 @@ public class ArtifactoryRepositorySpec implements Serializable {
     private String key;
     private RepositoryType type;
     private String url;
+    private String baseUrl;
 
-    public ArtifactoryRepositorySpec(String key, RepositoryType type, String url) {
+    public ArtifactoryRepositorySpec(String baseUrl, String key, RepositoryType type, String url) {
+        this.baseUrl = baseUrl;
+        if (!baseUrl.endsWith("/")) {
+            baseUrl += "/";
+        }
         this.key = key;
         this.type = type;
         this.url = url;
     }
 
-    static ArtifactoryRepositorySpec createFromJson(JSONObject object) {
+    static ArtifactoryRepositorySpec createFromJson(String baseUrl, JSONObject object) {
         return new ArtifactoryRepositorySpec(
+                baseUrl,
                 object.getString("key"),
                 RepositoryType.valueOf(object.getString("type")),
                 object.getString("url")
@@ -40,4 +46,18 @@ public class ArtifactoryRepositorySpec implements Serializable {
     public String getUrl() {
         return url;
     }
+
+    public String getProxyUrl() {
+        return baseUrl + key;
+    }
+   
+    @Override
+    public String toString() {
+        return "ArtifactoryRepositorySpec{" +
+                "key='" + key + '\'' +
+                ", type=" + type +
+                ", url='" + url + '\'' +
+                '}';
+    }
+
 }

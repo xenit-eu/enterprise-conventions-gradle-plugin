@@ -47,7 +47,8 @@ public class ArtifactoryHttpClient implements ArtifactoryClient {
 
             List<ArtifactoryRepositorySpec> repositories = new ArrayList<>(repositoriesJson.length());
             for (int i = 0; i < repositoriesJson.length(); i++) {
-                repositories.add(ArtifactoryRepositorySpec.createFromJson(repositoriesJson.getJSONObject(i)));
+                repositories.add(ArtifactoryRepositorySpec
+                        .createFromJson(apiBase.toString(), repositoriesJson.getJSONObject(i)));
             }
 
             LOGGER.debug("Received repositories from {}: {}", request, repositories);
@@ -67,5 +68,12 @@ public class ArtifactoryHttpClient implements ArtifactoryClient {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public String toString() {
+        return "ArtifactoryHttpClient{" +
+                "apiBase=" + apiBase +
+                '}';
     }
 }
