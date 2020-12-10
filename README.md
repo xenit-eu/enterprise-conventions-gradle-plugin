@@ -36,10 +36,10 @@ plugins {
 
 </details>
 
-Additionally, Xenit engineers should apply the `eu.xenit.enterprise-conventions.private.init` plugin in their global Gradle initscript.
+Additionally, the `eu.xenit.enterprise-conventions.private.init` plugin should be applied to Xenit private CI servers.
 
 <details>
-<summary>Example</summary>
+<summary>Configure Xenit CI server</summary>
 
 Locate your `~/.gradle/init.d/` folder for configuration:
  * On Windows: A (hidden) `.gradle` folder is located in your user folder.

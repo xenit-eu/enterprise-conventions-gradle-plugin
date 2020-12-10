@@ -93,7 +93,7 @@ pluginBundle {
         }
         privateInitPlugin {
             displayName = "Xenit private initscript plugin"
-            description = "Configures conventions for Xenit private & oss packages: initscript plugin for Xenit developers"
+            description = "Configures conventions for Xenit private & oss packages: initscript plugin for Xenit build servers"
         }
         ossPlugin {
             displayName = "Xenit OSS conventions plugin"
