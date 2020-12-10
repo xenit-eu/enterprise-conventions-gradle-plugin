@@ -126,6 +126,38 @@ publishing {
 
 </details>
 
+### Publication signing
+
+When the `eu.xenit.enterprise-conventions.oss` and the [`maven-publish`](https://docs.gradle.org/current/userguide/publishing_maven.html) plugins are used together,
+the [`signing` plugin](https://docs.gradle.org/current/userguide/signing_plugin.html) is automatically applied and signing is configured for all publications.
+
+Which GPG key to use for signing artifacts can be automatically configured:
+
+ * If the `SIGNING_PRIVATE_KEY` and `SIGNING_PASSWORD` environment variables are present, these will be used for [in-memory signing](https://docs.gradle.org/current/userguide/signing_plugin.html#sec:in-memory-keys)
+ * If the `signing.keyId`, `signing.password` and `signing.secretKeyRingFile` properties are present, these will be used for [default signatory credentials](https://docs.gradle.org/current/userguide/signing_plugin.html#sec:signatory_credentials)
+
+<details>
+<summary>Example usages</summary>
+
+**These are just examples, use your CI's method to insert secure environment variables instead of hardcoding them in CI configuration**
+
+With environment variables:
+
+```commandline
+export SIGNING_PRIVATE_KEY=XXXXXX # ascii-armored private key
+export SIGNING_PASSWORD=YYYYY # password to unlock secret key
+./gradlew publish
+```
+
+With properties:
+
+```commandline
+./gradlew publish -Psigning.keyId=01234 -Psigning.password=YYYYY -P signing.secretKeyRingFile=~/.gnupg/secring.gpg
+```
+
+</details>
+
+
 ## Repository blocking
 
 In the `eu.xenit.enterprise-conventions.oss` plugin, all artifact repositories are allowed by default, except for the Xenit private artifacts server.
