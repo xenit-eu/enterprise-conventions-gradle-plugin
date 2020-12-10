@@ -1,7 +1,10 @@
 package eu.xenit.gradle.enterprise.conventions.repository;
 
 import eu.xenit.gradle.enterprise.conventions.internal.StringConstants;
+import eu.xenit.gradle.enterprise.conventions.internal.artifactory.ArtifactoryRepositorySpec;
+import eu.xenit.gradle.enterprise.conventions.internal.artifactory.ArtifactoryRepositorySpec.RepositoryType;
 import eu.xenit.gradle.enterprise.conventions.violations.ViolationHandler;
+import java.util.List;
 import javax.inject.Inject;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository;
@@ -20,10 +23,22 @@ public class OssRepositoryPlugin extends PrivateRepositoryReplacementPlugin {
         super(cacheRepository);
     }
 
+    private boolean isProxiedRepository(MavenArtifactRepository repository) {
+        List<ArtifactoryRepositorySpec> repositories = artifactoryClient.getRepositories();
+        for (ArtifactoryRepositorySpec repositorySpec : repositories) {
+            if (repository.getUrl().toString().equals(repositorySpec.getProxyUrl())
+                    && repositorySpec.getType() == RepositoryType.REMOTE) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     protected ValidationResult validateRepository(MavenArtifactRepository repository,
             Project project, ViolationHandler violationHandler) {
-        if (repository.getUrl().toString().startsWith(StringConstants.XENIT_BASE_URL)) {
+        if (repository.getUrl().toString().startsWith(StringConstants.XENIT_BASE_URL) && !isProxiedRepository(
+                repository)) {
             violationHandler.handleViolation(new BlockedRepositoryException(repository.getUrl(),
                     "Xenit internal artifactory can not be used in OSS projects."));
             return ValidationResult.BLOCKED;
