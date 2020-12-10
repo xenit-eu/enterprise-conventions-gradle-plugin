@@ -1,5 +1,6 @@
 package eu.xenit.gradle.enterprise.conventions.integration;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
@@ -92,6 +93,9 @@ public abstract class AbstractIntegrationTest {
                 .format("-Deu.xenit.gradle.enterprise.conventions.artifactory-override=http://%s:%s/artifactory/",
                         System.getProperty("artifactory.host"),
                         System.getProperty("artifactory.tcp.80")));
+        agentOpts.add(String.format("-Deu.xenit.gradle.enterprise.conventions.integration.plugin-classpath=%s",
+                gradleRunner.getPluginClasspath().stream().map(
+                        File::toString).collect(Collectors.joining(":"))));
         ((DefaultGradleRunner) gradleRunner).withJvmArguments(agentOpts);
 
         return gradleRunner;

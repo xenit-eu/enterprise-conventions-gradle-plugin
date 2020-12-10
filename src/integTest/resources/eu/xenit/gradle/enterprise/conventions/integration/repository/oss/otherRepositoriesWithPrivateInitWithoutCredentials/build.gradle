@@ -1,0 +1,9 @@
+plugins {
+    id "eu.xenit.enterprise-conventions.oss"
+}
+
+repositories {
+    maven {
+        url 'https://example.com/m2/'
+    }
+}

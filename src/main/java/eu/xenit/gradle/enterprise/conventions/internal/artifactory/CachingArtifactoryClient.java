@@ -105,7 +105,11 @@ public class CachingArtifactoryClient implements ArtifactoryClient {
             repositoriesAndDate.setExpirySeconds(Instant.now().getEpochSecond() + VALIDITY_SECONDS);
             repositoriesAndDate.setRepositories(repositories);
             LOGGER.debug("Storing repositories {} into cache", repositories);
-            getIndexedCache().put(this.cacheKey, repositoriesAndDate);
+            try {
+                getIndexedCache().put(this.cacheKey, repositoriesAndDate);
+            } catch (Exception e) {
+                LOGGER.error("Failed to store cached repository information", e);
+            }
         });
 
         return Collections.unmodifiableList(repositories);
