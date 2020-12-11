@@ -38,17 +38,18 @@ public class CachingArtifactoryClient implements ArtifactoryClient {
         this.offline = offline;
     }
 
-    private CacheBuilder createCacheBuilder(LockMode lockMode) {
+    private CacheBuilder createCacheBuilder() {
         return cacheRepository.cache("eu.xenit.gradle.enterprise.conventions")
                 .withCrossVersionCache(LockTarget.DefaultTarget)
-                .withLockOptions(LockOptionsBuilder.mode(lockMode).useCrossVersionImplementation())
+                .withLockOptions(LockOptionsBuilder.mode(LockMode.None).useCrossVersionImplementation())
                 .withDisplayName("eu.xenit.enterprise-conventions repository replacement cache")
                 .withProperties(Collections.singletonMap("cacheVersion", "3"));
     }
 
     @Override
     public List<ArtifactoryRepositorySpec> getRepositories() {
-        try (PersistentCache cache = createCacheBuilder(LockMode.Shared).open()) {
+        CacheBuilder cacheBuilder = createCacheBuilder();
+        try (PersistentCache cache = cacheBuilder.open()) {
             @Nullable
             List<ArtifactoryRepositorySpec> cachedRepositories = cache.useCache(() -> {
                 RepositoriesAndDate repositoriesAndDate = null;
@@ -89,7 +90,7 @@ public class CachingArtifactoryClient implements ArtifactoryClient {
         LOGGER.info("Fetching repository information with client {}", client);
         List<ArtifactoryRepositorySpec> repositories = client.getRepositories();
 
-        try (PersistentCache cache = createCacheBuilder(LockMode.Exclusive).open()) {
+        try (PersistentCache cache = cacheBuilder.open()) {
             cache.useCache(() -> {
                 RepositoriesAndDate repositoriesAndDate = new RepositoriesAndDate();
                 repositoriesAndDate.setExpirySeconds(Instant.now().getEpochSecond() + VALIDITY_SECONDS);
