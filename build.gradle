@@ -64,18 +64,26 @@ gradlePlugin {
         privatePlugin {
             id = 'eu.xenit.enterprise-conventions.private'
             implementationClass = 'eu.xenit.gradle.enterprise.conventions.PrivatePlugin'
+            displayName = "Xenit private conventions plugin"
+            description = "Configures conventions for Xenit private packages"
         }
         privateInitPlugin {
             id = 'eu.xenit.enterprise-conventions.private.init'
             implementationClass = 'eu.xenit.gradle.enterprise.conventions.PrivateInitPlugin'
+            displayName = "Xenit private initscript plugin"
+            description = "Configures conventions for Xenit private & oss packages: initscript plugin for Xenit build servers"
         }
         ossPlugin {
             id = 'eu.xenit.enterprise-conventions.oss'
             implementationClass = 'eu.xenit.gradle.enterprise.conventions.OssPlugin'
+            displayName = "Xenit OSS conventions plugin"
+            description = "Configures conventions for Xenit open source packages"
         }
         repositoryExtensionsPlugin {
             id = 'eu.xenit.enterprise-conventions.ext.repository'
             implementationClass = 'eu.xenit.gradle.enterprise.conventions.extensions.repository.RepositoryExtensionsPlugin'
+            displayName = "Xenit conventions plugin: Repository extension"
+            description = "Configures additional repository shorthands"
         }
     }
     testSourceSets(sourceSets.integTest)
@@ -86,20 +94,6 @@ pluginBundle {
     website = vcsUrl
     description = "Xenit OSS and private conventions plugins"
     tags = ["conventions", "repository-replacement", "repositories", "security"]
-    plugins {
-        privatePlugin {
-            displayName = "Xenit private conventions plugin"
-            description = "Configures conventions for Xenit private packages"
-        }
-        privateInitPlugin {
-            displayName = "Xenit private initscript plugin"
-            description = "Configures conventions for Xenit private & oss packages: initscript plugin for Xenit build servers"
-        }
-        ossPlugin {
-            displayName = "Xenit OSS conventions plugin"
-            description = "Configures conventions for Xenit open source packages"
-        }
-    }
 }
 
 evaluationDependsOn(":integration-test-fakes")
