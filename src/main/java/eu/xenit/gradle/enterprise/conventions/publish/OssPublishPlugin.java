@@ -7,10 +7,12 @@ import java.lang.reflect.Method;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository;
 import org.gradle.api.credentials.Credentials;
+import org.gradle.api.execution.TaskExecutionGraph;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.api.provider.Property;
 import org.gradle.api.publish.PublishingExtension;
+import org.gradle.api.publish.maven.tasks.PublishToMavenRepository;
 import org.gradle.internal.artifacts.repositories.AuthenticationSupportedInternal;
 import org.gradle.plugins.signing.SigningExtension;
 import org.gradle.plugins.signing.SigningPlugin;
@@ -74,5 +76,12 @@ public class OssPublishPlugin extends AbstractPublishPlugin {
         if (privateKey != null && password != null) {
             signing.useInMemoryPgpKeys(privateKey, password);
         }
+        signing.setRequired(project.provider(() -> isSigningRequired(project)));
+    }
+
+    private boolean isSigningRequired(Project project) {
+        TaskExecutionGraph taskGraph = project.getGradle().getTaskGraph();
+        // Only set signing to required when non-mavenlocal repositories are being published to.
+        return project.getTasks().withType(PublishToMavenRepository.class).stream().anyMatch(taskGraph::hasTask);
     }
 }
