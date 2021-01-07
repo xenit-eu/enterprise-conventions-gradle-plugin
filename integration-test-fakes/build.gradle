@@ -14,3 +14,9 @@ createDockerFile {
     instruction("HEALTHCHECK --interval=10s --timeout=2s CMD curl -fs -u xenit-private:xenit-password http://localhost/ -o /dev/null || exit 1")
 }
 
+dockerBuild {
+    label {
+        fromGit(false)
+    }
+}
+
