@@ -41,6 +41,7 @@ public abstract class AbstractIntegrationTest {
             return Collections.singletonList(new Object[]{GradleVersion.current().getVersion()});
         }
         String[] gradleVersions = new String[]{
+                "6.8.1",
                 "6.7.1",
                 "6.6.1",
                 "6.5.1",
@@ -60,6 +61,7 @@ public abstract class AbstractIntegrationTest {
         for (String gradleVersion : gradleVersions) {
             parameters.add(new Object[]{gradleVersion});
         }
+        Collections.shuffle(parameters);
         return parameters;
     }
 

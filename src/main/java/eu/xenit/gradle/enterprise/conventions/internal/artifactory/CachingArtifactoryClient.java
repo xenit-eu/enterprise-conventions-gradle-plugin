@@ -1,10 +1,13 @@
 package eu.xenit.gradle.enterprise.conventions.internal.artifactory;
 
+import java.lang.reflect.Method;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 import javax.annotation.Nullable;
+import lombok.SneakyThrows;
 import org.gradle.api.GradleException;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
@@ -16,6 +19,7 @@ import org.gradle.cache.PersistentCache;
 import org.gradle.cache.PersistentIndexedCache;
 import org.gradle.cache.PersistentIndexedCacheParameters;
 import org.gradle.cache.internal.filelock.LockOptionsBuilder;
+import org.gradle.util.GradleVersion;
 
 public class CachingArtifactoryClient implements ArtifactoryClient {
 
@@ -46,6 +50,16 @@ public class CachingArtifactoryClient implements ArtifactoryClient {
                 .withProperties(Collections.singletonMap("cacheVersion", "3"));
     }
 
+    @SneakyThrows
+    private <K, V> V cacheGet(PersistentIndexedCache<K, V> cache) {
+        if (GradleVersion.current().compareTo(GradleVersion.version("6.8")) < 0) {
+            Method getMethod = cache.getClass().getMethod("get", Object.class);
+            return (V) getMethod.invoke(cache, this.cacheKey);
+        }
+        Method getMethod = cache.getClass().getMethod("get", Object.class, Function.class);
+        return (V) getMethod.invoke(cache, cacheKey, (Function) (__ -> null));
+    }
+
     @Override
     public List<ArtifactoryRepositorySpec> getRepositories() {
         CacheBuilder cacheBuilder = createCacheBuilder();
@@ -56,7 +70,7 @@ public class CachingArtifactoryClient implements ArtifactoryClient {
                 try {
                     PersistentIndexedCache<String, RepositoriesAndDate> repositoryMapCache = cache
                             .createCache(CACHE_PARAMETERS);
-                    repositoriesAndDate = repositoryMapCache.get(this.cacheKey);
+                    repositoriesAndDate = cacheGet(repositoryMapCache);
                 } catch (Exception e) {
                     LOGGER.error("Failed to load cached repository information", e);
                 }
