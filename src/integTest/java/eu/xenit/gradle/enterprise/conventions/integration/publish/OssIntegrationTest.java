@@ -11,7 +11,9 @@ public class OssIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     public void httpRepository() throws IOException {
-        createGradleRunner(integrationTests.resolve("publish/oss/httpRepository")).build();
+        BuildResult buildResult = createGradleRunner(integrationTests.resolve("publish/oss/httpRepository"))
+                .buildAndFail();
+        assertTrue(buildResult.getOutput().contains("Publishing to HTTP repositories is not allowed"));
     }
 
     @Test
@@ -24,11 +26,4 @@ public class OssIntegrationTest extends AbstractIntegrationTest {
         createGradleRunner(integrationTests.resolve("publish/oss/mavenCentral")).build();
     }
 
-    @Test
-    public void httpRepositoryWithCredentials() throws IOException {
-        BuildResult buildResult = createGradleRunner(
-                integrationTests.resolve("publish/oss/httpRepositoryWithCredentials")).buildAndFail();
-
-        assertTrue(buildResult.getOutput().contains("Publishing to HTTP repositories with credentials is not allowed"));
-    }
 }

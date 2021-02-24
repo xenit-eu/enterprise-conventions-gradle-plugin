@@ -2,9 +2,6 @@ package eu.xenit.gradle.enterprise.conventions.publish;
 
 import eu.xenit.gradle.enterprise.conventions.repository.BlockedRepositoryException;
 import eu.xenit.gradle.enterprise.conventions.violations.ViolationHandler;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import org.gradle.api.Project;
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository;
 import org.gradle.api.credentials.Credentials;
 import org.gradle.api.execution.TaskExecutionGraph;
@@ -20,43 +17,14 @@ import org.gradle.util.GradleVersion;
 
 public class OssPublishPlugin extends AbstractPublishPlugin {
 
-    private Logger LOGGER = Logging.getLogger(OssPublishPlugin.class);
+    private final static Logger LOGGER = Logging.getLogger(OssPublishPlugin.class);
 
     @Override
     protected void validatePublishRepository(ViolationHandler violationHandler, MavenArtifactRepository repository) {
         if (repository.getUrl().getScheme().equals("http")) {
-            boolean hasCredentials = checkHasCredentials(repository);
-            if (hasCredentials) {
-                violationHandler.handleViolation(new BlockedRepositoryException(repository.getUrl(),
-                        "Publishing to HTTP repositories with credentials is not allowed."));
-            }
+            violationHandler.handleViolation(new BlockedRepositoryException(repository.getUrl(),
+                    "Publishing to HTTP repositories is not allowed."));
         }
-    }
-
-    private boolean checkHasCredentials(MavenArtifactRepository repository) {
-        try {
-            return checkHasCredentials0(repository);
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            LOGGER.warn(
-                    "Failed to determine if repository has credentials and is HTTP. Continuing as if no credentials are configured.");
-            return false;
-        }
-    }
-
-    private boolean checkHasCredentials0(MavenArtifactRepository repository)
-            throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        if (repository instanceof AuthenticationSupportedInternal) {
-            Method method = repository.getClass().getMethod("getConfiguredCredentials");
-            // Internals have changed starting from Gradle 6.6
-            if (GradleVersion.current().compareTo(GradleVersion.version("6.6")) < 0) {
-                return method.invoke(repository) != null;
-            } else {
-                Property<Credentials> credentialsProperty = (Property<Credentials>) method.invoke(repository);
-                return credentialsProperty.isPresent();
-            }
-        }
-
-        return true;
     }
 
     @Override

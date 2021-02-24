@@ -63,8 +63,7 @@ class AbstractRepositoryPlugin implements Plugin<Project> {
     }
 
     private static URI withEndingSlash(URI uri) {
-        String path = uri.getPath();
-        return URI.create(uri.toString() + "/");
+        return URI.create(uri + "/");
     }
 
     static <T> void withEndingSlash(Map<URI, T> map) {
