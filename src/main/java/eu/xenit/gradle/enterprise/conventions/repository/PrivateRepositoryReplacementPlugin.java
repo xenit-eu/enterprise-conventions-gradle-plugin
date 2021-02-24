@@ -24,6 +24,8 @@ import org.gradle.cache.CacheRepository;
 public class PrivateRepositoryReplacementPlugin extends AbstractRepositoryPlugin {
 
     private static final Logger LOGGER = Logging.getLogger(PrivateRepositoryPlugin.class);
+    private volatile static Map<URI, URI> replacementsCache = null;
+    private static final Object REPLACEMENTS_CACHE_LOCK = new Object();
     private final CacheRepository cacheRepository;
 
     protected ArtifactoryClient artifactoryClient;
@@ -40,22 +42,29 @@ public class PrivateRepositoryReplacementPlugin extends AbstractRepositoryPlugin
     }
 
     private Map<URI, URI> getReplacements() {
-        Map<URI, URI> replacements = new HashMap<>();
+        if (replacementsCache == null) {
+            synchronized (REPLACEMENTS_CACHE_LOCK) {
+                if (replacementsCache == null) {
+                    Map<URI, URI> replacements = new HashMap<>();
 
-        List<ArtifactoryRepositorySpec> repositories = artifactoryClient.getRepositories();
+                    List<ArtifactoryRepositorySpec> repositories = artifactoryClient.getRepositories();
 
-        for (ArtifactoryRepositorySpec repository : repositories) {
-            if (repository.getType() == RepositoryType.REMOTE) {
-                String remoteUrl = repository.getUrl();
-                while (remoteUrl.endsWith("/")) {
-                    remoteUrl = remoteUrl.substring(0, remoteUrl.length() - 1);
+                    for (ArtifactoryRepositorySpec repository : repositories) {
+                        if (repository.getType() == RepositoryType.REMOTE) {
+                            String remoteUrl = repository.getUrl();
+                            while (remoteUrl.endsWith("/")) {
+                                remoteUrl = remoteUrl.substring(0, remoteUrl.length() - 1);
+                            }
+                            replacements.put(URI.create(remoteUrl), URI.create(repository.getProxyUrl()));
+                        }
+                    }
+
+                    withEndingSlash(replacements);
+                    replacementsCache = replacements;
                 }
-                replacements.put(URI.create(remoteUrl), URI.create(repository.getProxyUrl()));
             }
         }
-
-        withEndingSlash(replacements);
-        return replacements;
+        return replacementsCache;
     }
 
     @Override
