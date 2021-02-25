@@ -11,6 +11,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository;
@@ -24,8 +25,9 @@ import org.gradle.cache.CacheRepository;
 public class PrivateRepositoryReplacementPlugin extends AbstractRepositoryPlugin {
 
     private static final Logger LOGGER = Logging.getLogger(PrivateRepositoryPlugin.class);
-    private volatile static Map<URI, URI> replacementsCache = null;
-    private static final Object REPLACEMENTS_CACHE_LOCK = new Object();
+    @Nullable
+    private volatile Map<URI, URI> replacementsCache = null;
+    private final Object REPLACEMENTS_CACHE_LOCK = new Object();
     private final CacheRepository cacheRepository;
 
     protected ArtifactoryClient artifactoryClient;
@@ -46,6 +48,8 @@ public class PrivateRepositoryReplacementPlugin extends AbstractRepositoryPlugin
             synchronized (REPLACEMENTS_CACHE_LOCK) {
                 if (replacementsCache == null) {
                     Map<URI, URI> replacements = new HashMap<>();
+                    LOGGER.debug("Initializing replacements cache (hashCode={})",
+                            System.identityHashCode(replacements));
 
                     List<ArtifactoryRepositorySpec> repositories = artifactoryClient.getRepositories();
 
@@ -64,6 +68,8 @@ public class PrivateRepositoryReplacementPlugin extends AbstractRepositoryPlugin
                 }
             }
         }
+        LOGGER.debug("Using replacements cache (hashCode={})",
+                System.identityHashCode(replacementsCache));
         return replacementsCache;
     }
 
