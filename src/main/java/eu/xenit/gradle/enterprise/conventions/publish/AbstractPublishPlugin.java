@@ -1,5 +1,6 @@
 package eu.xenit.gradle.enterprise.conventions.publish;
 
+import eu.xenit.gradle.enterprise.conventions.extensions.signing.AutomaticSigningPlugin;
 import eu.xenit.gradle.enterprise.conventions.violations.ViolationHandler;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -13,10 +14,9 @@ abstract class AbstractPublishPlugin implements Plugin<Project> {
     public void apply(Project project) {
         project.getPlugins().withType(MavenPublishPlugin.class, publishPlugin -> {
             PublishingExtension publishing = project.getExtensions().getByType(PublishingExtension.class);
-            configurePublication(project, publishing);
             validatePublishRepositories(project, publishing);
         });
-
+        project.getPlugins().apply(AutomaticSigningPlugin.class);
     }
 
     private void validatePublishRepositories(Project project, PublishingExtension publishing) {
@@ -31,6 +31,4 @@ abstract class AbstractPublishPlugin implements Plugin<Project> {
 
     protected abstract void validatePublishRepository(ViolationHandler violationHandler,
             MavenArtifactRepository repository);
-
-    protected abstract void configurePublication(Project project, PublishingExtension publishing);
 }

@@ -6,7 +6,7 @@ plugins {
     id 'org.sonarqube' version '3.0'
     id 'com.gradle.plugin-publish' version '0.12.0'
     id 'be.vbgn.ci-detect' version '0.5.0'
-    id 'be.vbgn.dev-conventions.opinion' version '0.4.3'
+    id 'be.vbgn.dev-conventions.opinion' version '0.5.0'
     id 'nebula.integtest' version '7.0.9'
     id 'com.github.johnrengelman.shadow' version '6.1.0' apply false
     id "io.freefair.lombok" version "5.3.0"
@@ -89,6 +89,12 @@ gradlePlugin {
             implementationClass = 'eu.xenit.gradle.enterprise.conventions.extensions.repository.RepositoryExtensionsPlugin'
             displayName = "Xenit conventions plugin: Repository extension"
             description = "Configures additional repository shorthands"
+        }
+        signingExtensionsPlugin {
+            id = 'eu.xenit.enterprise-conventions.ext.signing'
+            implementationClass = 'eu.xenit.gradle.enterprise.conventions.extensions.signing.AutomaticSigningPlugin'
+            displayName = "Xenit conventions plugin: Signing extension"
+            description = "Automatically configures artifact signing"
         }
     }
     testSourceSets(sourceSets.integTest)
