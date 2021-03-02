@@ -146,10 +146,8 @@ Which GPG key to use for signing artifacts can be automatically configured:
   the `SIGNING_SUBKEY_ID` environment variable can be used to select the OpenPGP subkey to use for signing.
 * If the `signing.keyId`, `signing.password` and `signing.secretKeyRingFile` properties are present, these will be used
   for [default signatory credentials](https://docs.gradle.org/current/userguide/signing_plugin.html#sec:signatory_credentials)
-* If no other signatory is selected,
-  the [GnuPG signer](https://docs.gradle.org/current/userguide/signing_plugin.html#sec:using_gpg_agent) will be
-  configured. It can be configured with `signing.gnupg.*` properties or will otherwise use the defaults. Automatic
-  fallback to this signer can be disabled by setting the property `signing.gnupg=false`.
+* If the `signing.gnupg.keuName` property is present, it will be used for
+  the [GnuPG signer](https://docs.gradle.org/current/userguide/signing_plugin.html#sec:using_gpg_agent).
 
 <details>
 <summary>Example usages</summary>

@@ -10,17 +10,9 @@ import org.junit.Test;
 public class GnupgSigningMethodConfigurationTest {
 
     @Test
-    public void enabledByDefault() {
+    public void disabledByDefault() {
         Project project = ProjectBuilder.builder().build();
         SigningMethodConfiguration signingMethodConfiguration = new GnupgSigningMethodConfiguration(project);
-        assertTrue(signingMethodConfiguration.isEnabled());
-    }
-
-    @Test
-    public void disabledByConfiguration() {
-        Project project = ProjectBuilder.builder().build();
-        SigningMethodConfiguration signingMethodConfiguration = new GnupgSigningMethodConfiguration(project);
-        project.getExtensions().getExtraProperties().set("signing.gnupg", false);
         assertFalse(signingMethodConfiguration.isEnabled());
     }
 
@@ -28,7 +20,7 @@ public class GnupgSigningMethodConfigurationTest {
     public void enabledByConfiguration() {
         Project project = ProjectBuilder.builder().build();
         SigningMethodConfiguration signingMethodConfiguration = new GnupgSigningMethodConfiguration(project);
-        project.getExtensions().getExtraProperties().set("signing.gnupg", true);
+        project.getExtensions().getExtraProperties().set("signing.gnupg.keyName", "abc");
         assertTrue(signingMethodConfiguration.isEnabled());
     }
 

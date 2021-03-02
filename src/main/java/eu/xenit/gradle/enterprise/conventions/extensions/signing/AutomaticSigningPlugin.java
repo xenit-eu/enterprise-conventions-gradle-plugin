@@ -6,14 +6,18 @@ import eu.xenit.gradle.enterprise.conventions.extensions.signing.internal.InMemo
 import eu.xenit.gradle.enterprise.conventions.extensions.signing.internal.SelectingSigningMethodConfiguration;
 import eu.xenit.gradle.enterprise.conventions.extensions.signing.internal.SigningMethodConfiguration;
 import java.util.Arrays;
+import org.gradle.api.Action;
+import org.gradle.api.InvalidUserDataException;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.execution.TaskExecutionGraph;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.api.publish.PublishingExtension;
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin;
 import org.gradle.api.publish.maven.tasks.PublishToMavenRepository;
+import org.gradle.plugins.signing.Sign;
 import org.gradle.plugins.signing.SigningExtension;
 import org.gradle.plugins.signing.SigningPlugin;
 
@@ -49,20 +53,18 @@ public class AutomaticSigningPlugin implements Plugin<Project> {
             signingKeyConfiguration.configureSigning(signing);
         }
 
-        signing.setRequired(project.provider(() -> isSigningRequired(project, signingKeyConfiguration)));
+        project.getTasks().withType(Sign.class).configureEach(sign ->
+                sign.doFirst("Check for missing signing configuration",
+                        new CheckSigningConfiguration(sign, signingKeyConfiguration))
+        );
+
+        signing.setRequired(project.provider(() -> isSigningRequired(project)));
     }
 
     private boolean isSigningRequired(Project project) {
         TaskExecutionGraph taskGraph = project.getGradle().getTaskGraph();
         // Only set signing to required when non-mavenlocal repositories are being published to.
-        boolean signingRequired = project.getTasks().withType(PublishToMavenRepository.class).stream()
+        return project.getTasks().withType(PublishToMavenRepository.class).stream()
                 .anyMatch(taskGraph::hasTask);
-
-        if (signingRequired && !signingKeyConfiguration.isEnabled()) {
-            LOGGER.error("No signing configuration is enabled and signing is required. Provide {}",
-                    signingKeyConfiguration.getRequiredConfigs());
-        }
-
-        return signingRequired;
     }
 }
