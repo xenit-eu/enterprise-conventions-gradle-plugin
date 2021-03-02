@@ -1,5 +1,11 @@
 package eu.xenit.gradle.enterprise.conventions.extensions.signing;
 
+import eu.xenit.gradle.enterprise.conventions.extensions.signing.internal.DefaultSigningMethodConfiguration;
+import eu.xenit.gradle.enterprise.conventions.extensions.signing.internal.GnupgSigningMethodConfiguration;
+import eu.xenit.gradle.enterprise.conventions.extensions.signing.internal.InMemorySigningMethodConfiguration;
+import eu.xenit.gradle.enterprise.conventions.extensions.signing.internal.SelectingSigningMethodConfiguration;
+import eu.xenit.gradle.enterprise.conventions.extensions.signing.internal.SigningMethodConfiguration;
+import java.util.Arrays;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.execution.TaskExecutionGraph;
@@ -15,8 +21,6 @@ public class AutomaticSigningPlugin implements Plugin<Project> {
 
     public static final String PLUGIN_ID = "eu.xenit.enterprise.ext.signing";
     private static final Logger LOGGER = Logging.getLogger(AutomaticSigningPlugin.class);
-    private final static String SIGNING_PRIVATE_KEY_ENV = "SIGNING_PRIVATE_KEY";
-    private final static String SIGNING_PASSWORD_ENV = "SIGNING_PASSWORD";
 
     @Override
     public void apply(Project project) {
@@ -32,20 +36,33 @@ public class AutomaticSigningPlugin implements Plugin<Project> {
         PublishingExtension publishing = project.getExtensions().getByType(PublishingExtension.class);
         signing.sign(publishing.getPublications());
 
-        // When SIGNING_PRIVATE_KEY and SIGNING_PASSWORD environment variables are present, sign using an in-memory PGP key
-        String privateKey = System.getenv(SIGNING_PRIVATE_KEY_ENV);
-        String password = System.getenv(SIGNING_PASSWORD_ENV);
-        if (privateKey != null && password != null) {
-            LOGGER.debug("Found private key and password from environment variables {} & {}", SIGNING_PRIVATE_KEY_ENV,
-                    SIGNING_PASSWORD_ENV);
-            signing.useInMemoryPgpKeys(privateKey, password);
+        SigningMethodConfiguration signingKeyConfiguration = new SelectingSigningMethodConfiguration(Arrays.asList(
+                new InMemorySigningMethodConfiguration(),
+                new DefaultSigningMethodConfiguration(project),
+                new GnupgSigningMethodConfiguration(project)
+        ));
+
+        LOGGER.debug("Signing method {} (required {}, optional {})", signingKeyConfiguration.getName(),
+                signingKeyConfiguration.getRequiredConfigs(), signingKeyConfiguration.getOptionalConfigs());
+
+        if (signingKeyConfiguration.isEnabled()) {
+            signingKeyConfiguration.configureSigning(signing);
         }
-        signing.setRequired(project.provider(() -> isSigningRequired(project)));
+
+        signing.setRequired(project.provider(() -> isSigningRequired(project, signingKeyConfiguration)));
     }
 
     private boolean isSigningRequired(Project project) {
         TaskExecutionGraph taskGraph = project.getGradle().getTaskGraph();
         // Only set signing to required when non-mavenlocal repositories are being published to.
-        return project.getTasks().withType(PublishToMavenRepository.class).stream().anyMatch(taskGraph::hasTask);
+        boolean signingRequired = project.getTasks().withType(PublishToMavenRepository.class).stream()
+                .anyMatch(taskGraph::hasTask);
+
+        if (signingRequired && !signingKeyConfiguration.isEnabled()) {
+            LOGGER.error("No signing configuration is enabled and signing is required. Provide {}",
+                    signingKeyConfiguration.getRequiredConfigs());
+        }
+
+        return signingRequired;
     }
 }
