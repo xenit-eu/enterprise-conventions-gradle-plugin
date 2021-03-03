@@ -1,5 +1,7 @@
 package eu.xenit.gradle.enterprise.conventions.extensions.repository;
 
+import eu.xenit.gradle.enterprise.conventions.api.PluginApi;
+import eu.xenit.gradle.enterprise.conventions.api.PublicApi;
 import eu.xenit.gradle.enterprise.conventions.internal.ArtifactoryCredentialsUtil;
 import eu.xenit.gradle.enterprise.conventions.internal.StringConstants;
 import javax.inject.Inject;
@@ -28,10 +30,12 @@ public class RepositoryHandlerExtensions {
         this.project = project;
     }
 
+    @PublicApi
     public MavenArtifactRepository xenitPrivate() {
         return xenitPrivate(EMPTY_ACTION);
     }
 
+    @PublicApi
     public MavenArtifactRepository xenitPrivate(Action<? super MavenArtifactRepository> action) {
         return repositoryHandler.maven(repository -> {
             repository.setName("XenitPrivate");
@@ -41,10 +45,12 @@ public class RepositoryHandlerExtensions {
         });
     }
 
+    @PublicApi
     public MavenArtifactRepository xenitPrivateSnapshots() {
         return xenitPrivateSnapshots(EMPTY_ACTION);
     }
 
+    @PublicApi
     public MavenArtifactRepository xenitPrivateSnapshots(Action<? super MavenArtifactRepository> action) {
         return repositoryHandler.maven(repository -> {
             repository.setName("XenitPrivateSnapshots");
@@ -54,10 +60,12 @@ public class RepositoryHandlerExtensions {
         });
     }
 
+    @PublicApi
     public MavenArtifactRepository sonatypeSnapshots() {
         return sonatypeSnapshots(EMPTY_ACTION);
     }
 
+    @PublicApi
     public MavenArtifactRepository sonatypeSnapshots(Action<? super MavenArtifactRepository> action) {
         return repositoryHandler.maven(repository -> {
             repository.setName("SonatypeSnapshots");
@@ -66,10 +74,15 @@ public class RepositoryHandlerExtensions {
         });
     }
 
-    public static void apply(RepositoryHandler repositoryHandler, Project project) {
+    static void apply(RepositoryHandler repositoryHandler, Project project) {
         RepositoryHandlerExtensions repositoryHandlerExtensions = project.getObjects()
                 .newInstance(RepositoryHandlerExtensions.class, repositoryHandler, project);
         ((HasConvention) repositoryHandler).getConvention().getPlugins()
                 .put(RepositoryHandlerExtensions.class.getCanonicalName(), repositoryHandlerExtensions);
+    }
+
+    @PluginApi
+    public static RepositoryHandlerExtensions get(RepositoryHandler handler) {
+        return ((HasConvention) handler).getConvention().getPlugin(RepositoryHandlerExtensions.class);
     }
 }

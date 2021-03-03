@@ -20,7 +20,7 @@ abstract class AbstractPublishPlugin implements Plugin<Project> {
     }
 
     private void validatePublishRepositories(Project project, PublishingExtension publishing) {
-        ViolationHandler violationHandler = ViolationHandler.fromProject(project);
+        ViolationHandler violationHandler = ViolationHandler.fromProject(project, "publishing.repository");
         publishing.getRepositories().all(repository -> {
             if (repository instanceof MavenArtifactRepository) {
                 validatePublishRepository(violationHandler, (MavenArtifactRepository) repository);

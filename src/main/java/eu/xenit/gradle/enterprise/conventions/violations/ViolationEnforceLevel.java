@@ -1,17 +1,21 @@
 package eu.xenit.gradle.enterprise.conventions.violations;
 
-enum ViolationEnforceLevel {
-    DISABLE(new DisabledViolationHandler()),
-    ENFORCE(new FatalViolationHandler()),
-    LOG(new LogOnlyViolationHandler());
+import javax.annotation.Nonnull;
 
-    private final ViolationHandler enforcer;
+enum ViolationEnforceLevel implements ViolationHandlerFactory {
+    DISABLE(new DisabledViolationHandler.Factory()),
+    ENFORCE(new FatalViolationHandler.Factory()),
+    LOG(new LogOnlyViolationHandler.Factory());
 
-    private ViolationEnforceLevel(ViolationHandler enforcer) {
-        this.enforcer = enforcer;
+    private final ViolationHandlerFactory factory;
+
+    ViolationEnforceLevel(ViolationHandlerFactory factory) {
+        this.factory = factory;
     }
 
-    public ViolationHandler getEnforcer() {
-        return enforcer;
+    @Nonnull
+    @Override
+    public ViolationHandler createEnforcerForCategory(@Nonnull String category) {
+        return factory.createEnforcerForCategory(category);
     }
 }
