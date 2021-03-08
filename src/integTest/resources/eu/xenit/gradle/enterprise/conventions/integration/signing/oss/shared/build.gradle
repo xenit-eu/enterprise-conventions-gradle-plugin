@@ -1,0 +1,22 @@
+plugins {
+    id "eu.xenit.enterprise-conventions.ext.signing"
+    id "maven-publish"
+    id "signing"
+    id "java"
+}
+
+group 'eu.xenit.gradle.enterprise-conventions.integration'
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+    repositories {
+        maven {
+            url project.file('tmp')
+        }
+    }
+}
+
