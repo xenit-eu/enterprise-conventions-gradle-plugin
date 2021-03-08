@@ -2,6 +2,7 @@ package eu.xenit.gradle.enterprise.conventions.extensions.signing;
 
 import eu.xenit.gradle.enterprise.conventions.api.PluginApi;
 import eu.xenit.gradle.enterprise.conventions.api.PublicApi;
+import eu.xenit.gradle.enterprise.conventions.extensions.signing.internal.CheckSigningConfiguration;
 import eu.xenit.gradle.enterprise.conventions.extensions.signing.internal.DefaultSigningMethodConfiguration;
 import eu.xenit.gradle.enterprise.conventions.extensions.signing.internal.GnupgSigningMethodConfiguration;
 import eu.xenit.gradle.enterprise.conventions.extensions.signing.internal.InMemorySigningMethodConfiguration;
@@ -9,12 +10,9 @@ import eu.xenit.gradle.enterprise.conventions.extensions.signing.internal.Select
 import eu.xenit.gradle.enterprise.conventions.extensions.signing.internal.SigningMethodConfiguration;
 import eu.xenit.gradle.enterprise.conventions.violations.ViolationHandler;
 import java.util.Arrays;
-import org.gradle.api.Action;
 import org.gradle.api.GradleException;
-import org.gradle.api.InvalidUserDataException;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.Task;
 import org.gradle.api.execution.TaskExecutionGraph;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
@@ -73,8 +71,7 @@ public class AutomaticSigningPlugin implements Plugin<Project> {
     private boolean isSigningRequired(Project project) {
         TaskExecutionGraph taskGraph = project.getGradle().getTaskGraph();
         // Only set signing to required when non-mavenlocal repositories are being published to.
-        return project.getTasks().withType(PublishToMavenRepository.class).stream()
-                .anyMatch(taskGraph::hasTask);
+        return taskGraph.getAllTasks().stream().anyMatch(t -> t instanceof PublishToMavenRepository);
     }
 
     /**
@@ -101,23 +98,4 @@ public class AutomaticSigningPlugin implements Plugin<Project> {
         });
     }
 
-    private static class CheckSigningConfiguration implements Action<Task> {
-
-        private final Sign sign;
-        private final SigningMethodConfiguration signingKeyConfiguration;
-
-        public CheckSigningConfiguration(Sign sign, SigningMethodConfiguration signingKeyConfiguration) {
-            this.sign = sign;
-            this.signingKeyConfiguration = signingKeyConfiguration;
-        }
-
-        @Override
-        public void execute(Task task) {
-            if (sign.getSignatory() == null) {
-                throw new InvalidUserDataException(
-                        "No signing configuration is enabled and signing is required. Provide " +
-                                signingKeyConfiguration.getRequiredConfigs());
-            }
-        }
-    }
 }
