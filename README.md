@@ -142,9 +142,12 @@ is automatically configured for all publications.
 Which GPG key to use for signing artifacts can be automatically configured:
 
 * If the `SIGNING_PRIVATE_KEY` and `SIGNING_PASSWORD` environment variables are present, these will be used
-  for [in-memory signing](https://docs.gradle.org/current/userguide/signing_plugin.html#sec:in-memory-keys)
+  for [in-memory signing](https://docs.gradle.org/current/userguide/signing_plugin.html#sec:in-memory-keys). Optionally,
+  the `SIGNING_SUBKEY_ID` environment variable can be used to select the OpenPGP subkey to use for signing.
 * If the `signing.keyId`, `signing.password` and `signing.secretKeyRingFile` properties are present, these will be used
   for [default signatory credentials](https://docs.gradle.org/current/userguide/signing_plugin.html#sec:signatory_credentials)
+* If the `signing.gnupg.keuName` property is present, it will be used for
+  the [GnuPG signer](https://docs.gradle.org/current/userguide/signing_plugin.html#sec:using_gpg_agent).
 
 <details>
 <summary>Example usages</summary>

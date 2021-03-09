@@ -41,6 +41,8 @@ dependencies {
     implementation 'de.marcphilipp.gradle:nexus-publish-plugin:0.4.0'
     integTestImplementation "commons-io:commons-io:2.8.0"
     testImplementation 'junit:junit:4.12'
+    testImplementation 'org.mockito:mockito-core:3.7.7'
+    testImplementation 'com.github.stefanbirkner:system-rules:1.19.0'
 }
 
 task shadowJar(type: ShadowJar) {
@@ -101,7 +103,7 @@ gradlePlugin {
 }
 
 pluginBundle {
-    vcsUrl = "https://github.com/xenit-eu/enterprise-gradle-plugin"
+    vcsUrl = "https://github.com/xenit-eu/enterprise-conventions-gradle-plugin"
     website = vcsUrl
     description = "Xenit OSS and private conventions plugins"
     tags = ["conventions", "repository-replacement", "repositories", "security"]

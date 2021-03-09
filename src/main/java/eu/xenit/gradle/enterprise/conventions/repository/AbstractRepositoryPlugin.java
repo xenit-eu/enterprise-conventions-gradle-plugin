@@ -1,5 +1,7 @@
 package eu.xenit.gradle.enterprise.conventions.repository;
 
+import static eu.xenit.gradle.enterprise.conventions.internal.StringConstants.GRADLE_PROPERTIES_PREFIX;
+
 import eu.xenit.gradle.enterprise.conventions.internal.StringConstants;
 import eu.xenit.gradle.enterprise.conventions.violations.ViolationHandler;
 import java.net.URI;
@@ -19,7 +21,7 @@ import org.gradle.api.logging.Logging;
 
 class AbstractRepositoryPlugin implements Plugin<Project> {
 
-    private static final String REPOSITORY_POLICY_PREFIX = "eu.xenit.enterprise-conventions.repository.";
+    private static final String REPOSITORY_POLICY_PREFIX = GRADLE_PROPERTIES_PREFIX + ".repository.";
     public static final String REPOSITORY_BLOCK_PREFIX = REPOSITORY_POLICY_PREFIX + "block.";
     public static final String REPOSITORY_ALLOW_PREFIX = REPOSITORY_POLICY_PREFIX + "allow.";
 
@@ -80,7 +82,7 @@ class AbstractRepositoryPlugin implements Plugin<Project> {
 
     @Override
     public void apply(Project project) {
-        ViolationHandler violationHandler = ViolationHandler.fromProject(project);
+        ViolationHandler violationHandler = ViolationHandler.fromProject(project, "repository");
 
         project.getBuildscript().getRepositories()
                 .all(repository -> validateRepository(repository, project, violationHandler));

@@ -3,6 +3,8 @@ package eu.xenit.gradle.enterprise.conventions.extensions.repository;
 import de.marcphilipp.gradle.nexus.NexusPublishExtension;
 import de.marcphilipp.gradle.nexus.NexusPublishPlugin;
 import de.marcphilipp.gradle.nexus.NexusRepository;
+import eu.xenit.gradle.enterprise.conventions.api.PluginApi;
+import eu.xenit.gradle.enterprise.conventions.api.PublicApi;
 import javax.inject.Inject;
 import kotlin.text.StringsKt;
 import org.gradle.api.Action;
@@ -22,10 +24,12 @@ public class PublishRepositoryHandlerExtensions {
         this.project = project;
     }
 
+    @PublicApi
     public MavenArtifactRepository sonatypeMavenCentral() {
         return sonatypeMavenCentral(EMPTY_ACTION);
     }
 
+    @PublicApi
     public MavenArtifactRepository sonatypeMavenCentral(Action<? super MavenArtifactRepository> action) {
         project.getPlugins().apply(NexusPublishPlugin.class);
         NexusPublishExtension nexusPublishExtension = project.getExtensions().getByType(NexusPublishExtension.class);
@@ -56,7 +60,7 @@ public class PublishRepositoryHandlerExtensions {
         return artifactRepository;
     }
 
-    public static void apply(RepositoryHandler repositoryHandler, Project project) {
+    static void apply(RepositoryHandler repositoryHandler, Project project) {
         PublishRepositoryHandlerExtensions extensions = project.getObjects()
                 .newInstance(PublishRepositoryHandlerExtensions.class, project);
 
@@ -64,4 +68,8 @@ public class PublishRepositoryHandlerExtensions {
                 .put(PublishRepositoryHandlerExtensions.class.getCanonicalName(), extensions);
     }
 
+    @PluginApi
+    public static PublishRepositoryHandlerExtensions get(RepositoryHandler handler) {
+        return ((HasConvention) handler).getConvention().getPlugin(PublishRepositoryHandlerExtensions.class);
+    }
 }

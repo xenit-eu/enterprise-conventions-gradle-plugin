@@ -55,6 +55,16 @@ public class SonatypeMavenCentralPublishRepository implements MavenArtifactRepos
     }
 
     @Override
+    public boolean isAllowInsecureProtocol() {
+        throw new LimitedMavenArtifactRepositoryException();
+    }
+
+    @Override
+    public void setAllowInsecureProtocol(boolean b) {
+        throw new LimitedMavenArtifactRepositoryException();
+    }
+
+    @Override
     public Set<URI> getArtifactUrls() {
         throw new LimitedMavenArtifactRepositoryException();
     }
