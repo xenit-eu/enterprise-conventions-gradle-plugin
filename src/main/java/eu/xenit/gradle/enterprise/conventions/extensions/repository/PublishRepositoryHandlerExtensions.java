@@ -47,8 +47,8 @@ public class PublishRepositoryHandlerExtensions {
             });
         });
 
-        // Always publish to sonatype for maven central, don't use staging for SNAPSHOT releases
-        nexusPublishExtension.getUseStaging().set(false);
+        // Always use staging, as staging is required for publishing to sonatype releases
+        nexusPublishExtension.getUseStaging().set(true);
 
         // Create sonatype artifact
         NexusRepository sonatypeNexus = nexusPublishExtension.getRepositories().sonatype();
