@@ -5,7 +5,10 @@ import de.marcphilipp.gradle.nexus.NexusPublishExtension;
 import de.marcphilipp.gradle.nexus.NexusRepository;
 import eu.xenit.gradle.enterprise.conventions.api.PluginApi;
 import eu.xenit.gradle.enterprise.conventions.api.PublicApi;
-import java.util.HashMap;
+import eu.xenit.gradle.enterprise.conventions.internal.StringConstants;
+import java.net.URI;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.inject.Inject;
 import kotlin.text.StringsKt;
 import org.gradle.api.Action;
@@ -23,33 +26,28 @@ public class PublishRepositoryHandlerExtensions {
     private final Project project;
     private final RepositoryHandler repositoryHandler;
 
+    private static final Map<URI, URI> initializedNexusRepositoriesCache = new ConcurrentHashMap<>();
+
     @Inject
     public PublishRepositoryHandlerExtensions(Project project, RepositoryHandler repositoryHandler) {
         this.project = project;
         this.repositoryHandler = repositoryHandler;
+        project.getGradle().buildFinished(buildResult -> {
+            initializedNexusRepositoriesCache.clear();
+        });
     }
 
-    @PublicApi
-    public MavenArtifactRepository sonatypeMavenCentral() {
-        return sonatypeMavenCentral(EMPTY_ACTION);
-    }
-
-    @PublicApi
-    public MavenArtifactRepository sonatypeMavenCentral(Action<? super MavenArtifactRepository> action) {
+    public MavenArtifactRepository nexusRepository(Action<? super MavenArtifactRepository> action) {
         // Create a publish extension for the InitializeNexusStagingRepository task
         // Always use staging, as staging is required for publishing to sonatype releases
-        NexusPublishExtension nexusPublishExtension = project.getObjects()
-                .newInstance(NexusPublishExtension.class, project);
+        NexusPublishExtension nexusPublishExtension = new NexusPublishExtension(project);
         nexusPublishExtension.getUseStaging().set(true);
 
-        // Create sonatype artifact
-        NexusRepository nexusRepository = nexusPublishExtension.getRepositories().sonatype();
-        MavenArtifactRepository mavenRepository = repositoryHandler.maven(repo -> {
-            repo.setName(nexusRepository.getName());
-            repo.setUrl(nexusRepository.getNexusUrl());
-            action.execute(repo);
-        });
+        MavenArtifactRepository mavenRepository = repositoryHandler.maven(action);
 
+        // Create sonatype artifact
+        NexusRepository nexusRepository = nexusPublishExtension.getRepositories().create(mavenRepository.getName());
+        nexusRepository.getNexusUrl().set(project.provider(() -> mavenRepository.getUrl()));
         // Configure nexus repository username & password from maven repository username & password
         nexusRepository.getUsername().set(project.provider(() -> mavenRepository.getCredentials().getUsername()));
         nexusRepository.getPassword().set(project.provider(() -> mavenRepository.getCredentials().getPassword()));
@@ -62,7 +60,7 @@ public class PublishRepositoryHandlerExtensions {
                         project.getObjects(),
                         nexusPublishExtension,
                         nexusRepository,
-                        new HashMap<>() // Only used once
+                        initializedNexusRepositoriesCache
                 );
 
         // Make publish task depend on creating the staging repository
@@ -73,6 +71,20 @@ public class PublishRepositoryHandlerExtensions {
         });
 
         return mavenRepository;
+    }
+
+    @PublicApi
+    public MavenArtifactRepository sonatypeMavenCentral() {
+        return sonatypeMavenCentral(EMPTY_ACTION);
+    }
+
+    @PublicApi
+    public MavenArtifactRepository sonatypeMavenCentral(Action<? super MavenArtifactRepository> action) {
+        return nexusRepository(repo -> {
+            repo.setName("sonatype");
+            repo.setUrl(StringConstants.SONATYPE_SERVICE_URL);
+            action.execute(repo);
+        });
     }
 
     static void apply(RepositoryHandler repositoryHandler, Project project) {

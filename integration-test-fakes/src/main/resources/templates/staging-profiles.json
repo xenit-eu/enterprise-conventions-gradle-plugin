@@ -1,0 +1,35 @@
+{
+  "data": [
+    {
+      "resourceURI": "https://oss.sonatype.org/service/local/staging/profiles/1234",
+      "id": "1234",
+      "name": "eu.xenit",
+      "repositoryTemplateId": "default_hosted_release",
+      "repositoryType": "maven2",
+      "repositoryTargetId": "xxx",
+      "inProgress": false,
+      "order": 1,
+      "deployURI": "https://oss.sonatype.org/service/local/staging/deploy/maven2",
+      "targetGroups": [
+        "staging"
+      ],
+      "finishNotifyRoles": [],
+      "promotionNotifyRoles": [],
+      "dropNotifyRoles": [],
+      "closeRuleSets": [
+        "XXXX"
+      ],
+      "promoteRuleSets": [],
+      "promotionTargetRepository": "releases",
+      "mode": "BOTH",
+      "finishNotifyCreator": true,
+      "promotionNotifyCreator": true,
+      "dropNotifyCreator": true,
+      "autoStagingDisabled": false,
+      "repositoriesSearchable": true,
+      "properties": {
+        "@class": "linked-hash-map"
+      }
+    }
+  ]
+}

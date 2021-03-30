@@ -23,7 +23,9 @@ public class OssIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     public void mavenCentral() throws IOException {
-        createGradleRunner(integrationTests.resolve("publish/oss/mavenCentral")).build();
+        createGradleRunner(integrationTests.resolve("publish/oss/mavenCentral"))
+                .withArguments("publish", "-Peu.xenit.enterprise-conventions.violations.publishing.repository=log")
+                .build();
     }
 
 }

@@ -1,9 +1,17 @@
 plugins {
     id "eu.xenit.enterprise-conventions.oss"
     id "maven-publish"
+    id "java"
 }
 
+group "eu.xenit.gradle.enterprise-conventions.integrationtest"
+
 publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
     repositories {
         sonatypeMavenCentral {
             credentials {
