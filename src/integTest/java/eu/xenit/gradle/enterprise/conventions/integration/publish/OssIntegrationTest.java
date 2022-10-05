@@ -26,4 +26,14 @@ public class OssIntegrationTest extends AbstractIntegrationTest {
         createGradleRunner(integrationTests.resolve("publish/oss/mavenCentral")).build();
     }
 
+    @Test
+    public void mavenCentralNewUrl() throws IOException {
+        createGradleRunner(integrationTests.resolve("publish/oss/mavenCentralNewUrl")).build();
+    }
+
+    @Test
+    public void sonatypeSnapshots() throws IOException {
+        createGradleRunner(integrationTests.resolve("publish/oss/sonatypeSnapshots")).build();
+    }
+
 }

@@ -130,19 +130,36 @@ above, `sonatypeMavenCentral()` is also available, which transparently sets up
 the [nexus publish plugin](https://github.com/marcphilipp/nexus-publish-plugin)
 to automatically deploy to a staging repository.
 
+Note that you should use the `sonatypeSnapshots()` repository for publishing snapshots.
+
 <details>
 <summary>Example</summary>
 
 ```groovy
 publishing {
-    repositories {
-        sonatypeMavenCentral {
-            credentials {
-                username 'XYZ'
-                password 'some-password'
-            }
+  repositories {
+    // Switch which repository is used based on if the version is a snapshot
+    if("${project.version}".endsWith('-SNAPSHOT')) {
+      sonatypeSnapshots {
+        // The default is https://oss.sonatype.org/content/repositories/snapshots/
+        url = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+        credentials {
+          username 'XYZ'
+          password 'some-password'
         }
+      }
+    } else {
+      sonatypeMavenCentral {
+        // If you need to publish to a different repository
+        // The default is https://oss.sonatype.org/service/local/
+        url = "https://s01.oss.sonatype.org/service/local/"
+        credentials {
+          username 'XYZ'
+          password 'some-password'
+        }
+      }
     }
+  }
 }
 ```
 
