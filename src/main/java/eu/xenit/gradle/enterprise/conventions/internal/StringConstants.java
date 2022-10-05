@@ -9,6 +9,8 @@ public final class StringConstants {
             "https://s01.oss.sonatype.org/content/repositories/snapshots/"
     );
     public static final String XENIT_BASE_URL;
+    public static final String XENIT_REPO_BASE_URL = "https://repo.xenit.eu";
+    public static final String XENIT_REPO_URL = XENIT_REPO_BASE_URL+"/basic/private/maven/";
 
     public static final String GRADLE_PROPERTIES_PREFIX = "eu.xenit.enterprise-conventions";
 

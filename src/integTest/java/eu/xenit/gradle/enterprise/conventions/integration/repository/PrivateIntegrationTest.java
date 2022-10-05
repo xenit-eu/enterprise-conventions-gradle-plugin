@@ -18,6 +18,11 @@ public class PrivateIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
+    public void cloudsmithInternalRepository() throws IOException {
+        createGradleRunner(integrationTests.resolve("repository/private/cloudsmithInternalRepository")).build();
+    }
+
+    @Test
     public void internalRepository() throws IOException {
         createGradleRunner(integrationTests.resolve("repository/private/internalRepository")).build();
     }
