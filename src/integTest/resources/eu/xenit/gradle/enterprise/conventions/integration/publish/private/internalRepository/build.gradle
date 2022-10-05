@@ -6,9 +6,11 @@ plugins {
 publishing {
     repositories {
         xenitPrivate()
+        xenit()
     }
 }
 
 afterEvaluate {
-    assert publishing.repositories.stream().count() == 1
+    assert publishing.repositories.stream().count() == 2
+    assert publishing.repositories.findByName("Xenit").url == uri("https://maven.cloudsmith.io/xenit/private/")
 }

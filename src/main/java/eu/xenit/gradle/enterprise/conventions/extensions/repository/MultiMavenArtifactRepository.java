@@ -1,10 +1,10 @@
 package eu.xenit.gradle.enterprise.conventions.extensions.repository;
 
-import de.marcphilipp.gradle.nexus.NexusRepository;
-import eu.xenit.gradle.enterprise.conventions.extensions.repository.MultiMavenArtifactRepository.LimitedMavenArtifactRepositoryException;
 import java.net.URI;
+import java.util.Collection;
 import java.util.Set;
-import javax.inject.Inject;
+import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.gradle.api.Action;
 import org.gradle.api.ActionConfiguration;
 import org.gradle.api.artifacts.ComponentMetadataSupplier;
@@ -14,40 +14,63 @@ import org.gradle.api.artifacts.repositories.MavenArtifactRepository;
 import org.gradle.api.artifacts.repositories.MavenRepositoryContentDescriptor;
 import org.gradle.api.artifacts.repositories.PasswordCredentials;
 import org.gradle.api.artifacts.repositories.RepositoryContentDescriptor;
+import org.gradle.api.artifacts.repositories.UrlArtifactRepository;
 import org.gradle.api.credentials.Credentials;
-import org.gradle.api.model.ObjectFactory;
 
-/**
- * Fake {@link MavenArtifactRepository} that delegates credential setting functionality to {@link NexusRepository} so
- * publishing to maven central can happen reliably while keeping the same feel as configuring other repositories to publish to.
- */
-public class SonatypeMavenCentralPublishRepository implements MavenArtifactRepository {
-
+public class MultiMavenArtifactRepository implements MavenArtifactRepository {
     public class LimitedMavenArtifactRepositoryException extends UnsupportedOperationException {
 
         public LimitedMavenArtifactRepositoryException() {
-            super("The repository " + SonatypeMavenCentralPublishRepository.this.getName()
-                    + " only supports configuring credentials.");
+            super("The repository " + MultiMavenArtifactRepository.this.getName()
+                    + " does not support this operation.");
         }
     }
 
-    private final NexusRepository nexusRepository;
-    private final PasswordCredentials passwordCredentials;
+    private Set<? extends MavenArtifactRepository> wrappedRepositories;
 
-    @Inject
-    public SonatypeMavenCentralPublishRepository(ObjectFactory objectFactory, NexusRepository nexusRepository) {
-        this.nexusRepository = nexusRepository;
-        this.passwordCredentials = objectFactory.newInstance(WrappedPasswordCredentials.class, nexusRepository);
+    class WrappedPasswordCredentials implements PasswordCredentials {
+
+        @Nullable
+        @Override
+        public String getUsername() {
+            return findPrimary().getCredentials().getUsername();
+        }
+
+        @Override
+        public void setUsername(@Nullable String s) {
+            wrappedRepositories.forEach(repo -> repo.getCredentials().setUsername(s));
+        }
+
+        @Nullable
+        @Override
+        public String getPassword() {
+            return findPrimary().getCredentials().getPassword();
+        }
+
+        @Override
+        public void setPassword(@Nullable String s) {
+            wrappedRepositories.forEach(repo -> repo.getCredentials().setPassword(s));
+        }
+    }
+
+    public MultiMavenArtifactRepository(Set<? extends MavenArtifactRepository> wrappedRepositories) {
+        this.wrappedRepositories = wrappedRepositories;
+    }
+
+    private MavenArtifactRepository findPrimary() {
+        return this.wrappedRepositories.stream().findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("No wrapped repositories, can not retrieve primary repository"));
     }
 
     @Override
     public URI getUrl() {
-        throw new LimitedMavenArtifactRepositoryException();
+        return findPrimary().getUrl();
     }
 
     @Override
     public void setUrl(URI uri) {
         throw new LimitedMavenArtifactRepositoryException();
+
     }
 
     @Override
@@ -57,17 +80,20 @@ public class SonatypeMavenCentralPublishRepository implements MavenArtifactRepos
 
     @Override
     public boolean isAllowInsecureProtocol() {
-        throw new LimitedMavenArtifactRepositoryException();
+        return wrappedRepositories.stream().anyMatch(UrlArtifactRepository::isAllowInsecureProtocol);
     }
 
     @Override
     public void setAllowInsecureProtocol(boolean b) {
-        throw new LimitedMavenArtifactRepositoryException();
+        wrappedRepositories.forEach(repo -> repo.setAllowInsecureProtocol(b));
     }
 
     @Override
     public Set<URI> getArtifactUrls() {
-        throw new LimitedMavenArtifactRepositoryException();
+        return wrappedRepositories.stream()
+                .map(MavenArtifactRepository::getArtifactUrls)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toUnmodifiableSet());
     }
 
     @Override
@@ -87,22 +113,23 @@ public class SonatypeMavenCentralPublishRepository implements MavenArtifactRepos
 
     @Override
     public void metadataSources(Action<? super MetadataSources> action) {
-        throw new LimitedMavenArtifactRepositoryException();
+        wrappedRepositories.forEach(repo -> repo.metadataSources(action));
+
     }
 
     @Override
     public MetadataSources getMetadataSources() {
-        throw new LimitedMavenArtifactRepositoryException();
+        return findPrimary().getMetadataSources();
     }
 
     @Override
     public void mavenContent(Action<? super MavenRepositoryContentDescriptor> action) {
-        throw new LimitedMavenArtifactRepositoryException();
+        wrappedRepositories.forEach(repo -> repo.mavenContent(action));
     }
 
     @Override
     public String getName() {
-        return nexusRepository.getName();
+        return findPrimary().getName();
     }
 
     @Override
@@ -112,31 +139,30 @@ public class SonatypeMavenCentralPublishRepository implements MavenArtifactRepos
 
     @Override
     public void content(Action<? super RepositoryContentDescriptor> action) {
-        throw new LimitedMavenArtifactRepositoryException();
+        wrappedRepositories.forEach(repo -> repo.content(action));
     }
 
     @Override
     public PasswordCredentials getCredentials() {
-        return this.passwordCredentials;
+        return new WrappedPasswordCredentials();
     }
 
     @Override
     public <T extends Credentials> T getCredentials(Class<T> aClass) {
-        if (aClass.equals(PasswordCredentials.class)) {
-            return (T) getCredentials();
-        } else {
+        if(aClass != PasswordCredentials.class) {
             throw new LimitedMavenArtifactRepositoryException();
         }
+        return (T)getCredentials();
     }
 
     @Override
     public void credentials(Action<? super PasswordCredentials> action) {
-        action.execute(getCredentials());
+        wrappedRepositories.forEach(repo -> repo.credentials(action));
     }
 
     @Override
     public <T extends Credentials> void credentials(Class<T> aClass, Action<? super T> action) {
-        action.execute(getCredentials(aClass));
+        wrappedRepositories.forEach(repo -> repo.credentials(aClass, action));
     }
 
     @Override
@@ -156,53 +182,24 @@ public class SonatypeMavenCentralPublishRepository implements MavenArtifactRepos
 
     @Override
     public void setMetadataSupplier(Class<? extends ComponentMetadataSupplier> aClass) {
-        throw new LimitedMavenArtifactRepositoryException();
+        wrappedRepositories.forEach(repo -> repo.setMetadataSupplier(aClass));
     }
 
     @Override
     public void setMetadataSupplier(Class<? extends ComponentMetadataSupplier> aClass,
             Action<? super ActionConfiguration> action) {
-        throw new LimitedMavenArtifactRepositoryException();
+        wrappedRepositories.forEach(repo -> repo.setMetadataSupplier(aClass, action));
     }
 
     @Override
     public void setComponentVersionsLister(Class<? extends ComponentMetadataVersionLister> aClass) {
-        throw new LimitedMavenArtifactRepositoryException();
+
+        wrappedRepositories.forEach(repo -> repo.setComponentVersionsLister(aClass));
     }
 
     @Override
     public void setComponentVersionsLister(Class<? extends ComponentMetadataVersionLister> aClass,
             Action<? super ActionConfiguration> action) {
-        throw new LimitedMavenArtifactRepositoryException();
-    }
-
-    public static class WrappedPasswordCredentials implements PasswordCredentials {
-
-        private final NexusRepository nexusRepository;
-
-        @Inject
-        public WrappedPasswordCredentials(NexusRepository nexusRepository) {
-            this.nexusRepository = nexusRepository;
-        }
-
-        @Override
-        public String getUsername() {
-            return nexusRepository.getUsername().get();
-        }
-
-        @Override
-        public void setUsername(String s) {
-            nexusRepository.getUsername().set(s);
-        }
-
-        @Override
-        public String getPassword() {
-            return nexusRepository.getPassword().get();
-        }
-
-        @Override
-        public void setPassword(String s) {
-            nexusRepository.getPassword().set(s);
-        }
+        wrappedRepositories.forEach(repo -> repo.setComponentVersionsLister(aClass, action));
     }
 }

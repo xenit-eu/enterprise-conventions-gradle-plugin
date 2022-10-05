@@ -73,11 +73,18 @@ apply plugin: eu.xenit.gradle.enterprise.conventions.PrivateInitPlugin
 
 Both OSS and Private plugins provide additional shorthands for your `repositories {}` block:
 
-* `sonatypeSnapshots()`: Configures https://oss.sonatype.org/content/repositories/snapshots/ repository
-* `xenitPrivate()`: Configures Xenit private artifacts server (Releases) with credentials
+* `sonatypeSnapshots()`: Configures https://oss.sonatype.org/ AND https://s01.oss.sonatype.org/ snapshot repositories. Additional snapshot repositories will be added when they are created.
+* `xenit()`: Configures Xenit private repository (Release) with credentials from `eu.xenit.repo.username` and `eu.xenit.repo.password`
+* `xenitSnapshots()`: Configures Xenit private repository (Snapshots) with credentials from `eu.xenit.repo.username` and `eu.xenit.repo.password`
+* `xenitPrivate()` (**Deprecated**): Configures Xenit private artifacts server (Releases) with credentials
   from `eu.xenit.artifactory.username` and `eu.xenit.artifactory.password` properties
-* `xenitPrivateSnapshots()`: Configures Xenit private artifacts server (Snapshots) with credentials
+* `xenitPrivateSnapshots()` (**Deprecated**): Configures Xenit private artifacts server (Snapshots) with credentials
   from `eu.xenit.artifactory.username` and `eu.xenit.artifactory.password` properties
+
+Similarly, these shorthands can also be used in `settings.gradle` in a `dependencyResolutionManagement.repositories {}` block,
+which is the recommended way to configure repositories if they are used in all subprojects.
+
+`dependencyResolutionManagement` in `settings.gradle` is supported in Gradle 6.8 and newer.
 
 All repositories can be configured further by configuring it in a block.
 
@@ -87,20 +94,29 @@ All repositories can be configured further by configuring it in a block.
 ```groovy
 repositories {
     sonatypeSnapshots()
-    xenitPrivate()
-    xenitPrivateSnapshots()
+    xenit()
+    xenitSnapshots()
 }
 ```
 
 ```groovy
 repositories {
-    xenitPrivate {
+    xenit {
         // Example additional configuration.
         // See https://docs.gradle.org/current/javadoc/org/gradle/api/artifacts/repositories/MavenArtifactRepository.html
         content {
             includeGroup "eu.xenit"
         }
     }
+}
+```
+
+```groovy
+// settings.gradle
+dependencyResolutionManagement {
+  repositories {
+    xenit()
+  }
 }
 ```
 

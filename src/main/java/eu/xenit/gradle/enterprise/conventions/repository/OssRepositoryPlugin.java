@@ -42,6 +42,8 @@ public class OssRepositoryPlugin extends PrivateRepositoryReplacementPlugin {
             violationHandler.handleViolation(new BlockedRepositoryException(repository.getUrl(),
                     "Xenit internal artifactory can not be used in OSS projects."));
             return ValidationResult.BLOCKED;
+        } else if(repository.getUrl().toString().startsWith(StringConstants.XENIT_REPO_BASE_URL)) {
+            violationHandler.handleViolation(new BlockedRepositoryException(repository.getUrl(), "Xenit private repository can not be used in OSS projects."));
         }
         return super.validateRepository(repository, project, violationHandler);
     }

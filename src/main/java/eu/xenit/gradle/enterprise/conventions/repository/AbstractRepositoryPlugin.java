@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.ArtifactRepositoryContainer;
@@ -55,7 +56,7 @@ class AbstractRepositoryPlugin implements Plugin<Project> {
         blocklistMap.put(URI.create("https://jitpack.io"), "Jitpack builds artifacts from source");
 
         allowlistSet.add(URI.create(ArtifactRepositoryContainer.MAVEN_CENTRAL_URL));
-        allowlistSet.add(URI.create(StringConstants.SONATYPE_SNAPSHOTS_URL));
+        allowlistSet.addAll(StringConstants.SONATYPE_SNAPSHOTS_URLS.stream().map(URI::create).collect(Collectors.toList()));
         allowlistSet.add(URI.create(BaseRepositoryFactory.PLUGIN_PORTAL_DEFAULT_URL));
 
         withEndingSlash(blocklistMap);

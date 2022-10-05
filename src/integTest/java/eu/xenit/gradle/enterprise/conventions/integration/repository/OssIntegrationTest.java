@@ -20,6 +20,16 @@ public class OssIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
+    public void cloudsmithInternalRepository() throws IOException {
+        BuildResult buildResult = createGradleRunner(
+                integrationTests.resolve("repository/oss/cloudsmithInternalRepository"))
+                .withArguments("--stacktrace", "--info")
+                .buildAndFail();
+
+        assertTrue(buildResult.getOutput().contains("Xenit private repository can not be used in OSS projects"));
+    }
+
+    @Test
     public void otherRepositories() throws IOException {
         createGradleRunner(integrationTests.resolve("repository/oss/otherRepositories")).build();
     }

@@ -1,0 +1,13 @@
+plugins {
+    id "eu.xenit.enterprise-conventions.private"
+}
+
+dependencyResolutionManagement {
+    repositories {
+        xenit()
+    }
+}
+
+gradle.rootProject {
+    project.ext.settings = settings
+}

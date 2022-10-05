@@ -1,0 +1,24 @@
+plugins {
+    id "eu.xenit.enterprise-conventions.private"
+}
+
+repositories {
+    xenit{
+        // Doing something here to test that repository configuration closures do work
+        mavenContent {
+            releasesOnly()
+        }
+    }
+    xenitSnapshots()
+}
+
+afterEvaluate {
+    def xenit = repositories.getByName("Xenit")
+    assert xenit.url == uri("https://repo.xenit.eu/basic/private/maven/")
+    assert xenit.credentials.username == "xenit-private"
+    assert xenit.credentials.password == "xenit-password"
+    def xenitSnapshots = repositories.getByName("XenitSnapshots")
+    assert xenitSnapshots.url == uri("https://repo.xenit.eu/basic/private/maven/")
+    assert xenitSnapshots.credentials.username == "xenit-private"
+    assert xenitSnapshots.credentials.password == "xenit-password"
+}

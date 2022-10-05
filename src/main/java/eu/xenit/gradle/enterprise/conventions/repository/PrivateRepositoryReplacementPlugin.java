@@ -76,7 +76,7 @@ public class PrivateRepositoryReplacementPlugin extends AbstractRepositoryPlugin
     @Override
     protected ValidationResult validateRepository(MavenArtifactRepository repository, Project project,
             ViolationHandler violationHandler) {
-        if (repository.getUrl().toString().startsWith(StringConstants.XENIT_BASE_URL)) {
+        if (repository.getUrl().toString().startsWith(StringConstants.XENIT_BASE_URL) || repository.getUrl().toString().startsWith(StringConstants.XENIT_REPO_BASE_URL)) {
             LOGGER.debug("Allowing enterprise repository: {}", repository.getUrl());
             return ValidationResult.ALLOWED;
         }
