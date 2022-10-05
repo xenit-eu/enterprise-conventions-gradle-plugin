@@ -11,6 +11,7 @@ public final class StringConstants {
     public static final String XENIT_BASE_URL;
     public static final String XENIT_REPO_BASE_URL = "https://repo.xenit.eu";
     public static final String XENIT_REPO_URL = XENIT_REPO_BASE_URL+"/basic/private/maven/";
+    public static final String XENIT_REPO_PUBLISH_URL = "https://maven.cloudsmith.io/xenit/private/";
 
     public static final String GRADLE_PROPERTIES_PREFIX = "eu.xenit.enterprise-conventions";
 

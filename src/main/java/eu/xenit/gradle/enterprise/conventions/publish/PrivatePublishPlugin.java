@@ -14,7 +14,7 @@ public class PrivatePublishPlugin extends AbstractPublishPlugin {
         }
 
         // Allow private artifactory repository
-        if (repository.getUrl().toString().startsWith(StringConstants.XENIT_BASE_URL)) {
+        if (repository.getUrl().toString().startsWith(StringConstants.XENIT_BASE_URL) || repository.getUrl().toString().equals(StringConstants.XENIT_REPO_PUBLISH_URL)) {
             return;
         }
 

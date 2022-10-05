@@ -3,8 +3,9 @@ package eu.xenit.gradle.enterprise.conventions.extensions.repository;
 import eu.xenit.gradle.enterprise.conventions.api.PluginApi;
 import eu.xenit.gradle.enterprise.conventions.api.PublicApi;
 import eu.xenit.gradle.enterprise.conventions.internal.MultipleApplicationTargetsPlugin;
-import org.gradle.api.Plugin;
+import eu.xenit.gradle.enterprise.conventions.internal.StringConstants;
 import org.gradle.api.Project;
+import org.gradle.api.artifacts.repositories.MavenArtifactRepository;
 import org.gradle.api.initialization.Settings;
 import org.gradle.api.publish.PublishingExtension;
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin;
@@ -26,6 +27,16 @@ public class RepositoryExtensionsPlugin implements
             PublishingExtension publishing = project.getExtensions().getByType(PublishingExtension.class);
             RepositoryHandlerExtensions.apply(publishing.getRepositories(), project);
             PublishRepositoryHandlerExtensions.apply(publishing.getRepositories(), project);
+
+            // Replace publishing target for xenit private repository, because the download URL does not support upload
+            publishing.getRepositories().whenObjectAdded(artifactRepository -> {
+                if(artifactRepository instanceof MavenArtifactRepository) {
+                    MavenArtifactRepository mavenArtifactRepository = (MavenArtifactRepository) artifactRepository;
+                    if(mavenArtifactRepository.getUrl().toString().startsWith(StringConstants.XENIT_REPO_URL)) {
+                        mavenArtifactRepository.setUrl(StringConstants.XENIT_REPO_PUBLISH_URL);
+                    }
+                }
+            });
         });
     }
 
