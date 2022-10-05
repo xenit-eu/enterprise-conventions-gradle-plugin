@@ -1,0 +1,7 @@
+
+afterEvaluate {
+    def xenit = project.ext.settings.dependencyResolutionManagement.repositories.getByName("Xenit")
+    assert xenit.url == uri("https://repo.xenit.eu/basic/private/maven/")
+    assert xenit.credentials.username == "xenit-private"
+    assert xenit.credentials.password == "xenit-password"
+}

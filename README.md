@@ -81,6 +81,11 @@ Both OSS and Private plugins provide additional shorthands for your `repositorie
 * `xenitPrivateSnapshots()` (**Deprecated**): Configures Xenit private artifacts server (Snapshots) with credentials
   from `eu.xenit.artifactory.username` and `eu.xenit.artifactory.password` properties
 
+Similarly, these shorthands can also be used in `settings.gradle` in a `dependencyResolutionManagement.repositories {}` block,
+which is the recommended way to configure repositories if they are used in all subprojects.
+
+`dependencyResolutionManagement` in `settings.gradle` is supported in Gradle 6.8 and newer.
+
 All repositories can be configured further by configuring it in a block.
 
 <details>
@@ -103,6 +108,15 @@ repositories {
             includeGroup "eu.xenit"
         }
     }
+}
+```
+
+```groovy
+// settings.gradle
+dependencyResolutionManagement {
+  repositories {
+    xenit()
+  }
 }
 ```
 

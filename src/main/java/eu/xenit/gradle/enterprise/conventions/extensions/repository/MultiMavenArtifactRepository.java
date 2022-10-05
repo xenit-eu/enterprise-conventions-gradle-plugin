@@ -118,6 +118,11 @@ public class MultiMavenArtifactRepository implements MavenArtifactRepository {
     }
 
     @Override
+    public MetadataSources getMetadataSources() {
+        return findPrimary().getMetadataSources();
+    }
+
+    @Override
     public void mavenContent(Action<? super MavenRepositoryContentDescriptor> action) {
         wrappedRepositories.forEach(repo -> repo.mavenContent(action));
     }
@@ -158,6 +163,11 @@ public class MultiMavenArtifactRepository implements MavenArtifactRepository {
     @Override
     public <T extends Credentials> void credentials(Class<T> aClass, Action<? super T> action) {
         wrappedRepositories.forEach(repo -> repo.credentials(aClass, action));
+    }
+
+    @Override
+    public void credentials(Class<? extends Credentials> aClass) {
+        throw new LimitedMavenArtifactRepositoryException();
     }
 
     @Override

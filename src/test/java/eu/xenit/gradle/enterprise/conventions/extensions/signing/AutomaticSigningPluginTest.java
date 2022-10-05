@@ -9,8 +9,8 @@ import static org.junit.Assert.assertThat;
 import org.gradle.api.Project;
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin;
 import org.gradle.plugins.signing.Sign;
-import org.gradle.plugins.signing.signatory.internal.gnupg.GnupgSignatory;
 import org.gradle.plugins.signing.signatory.pgp.PgpSignatory;
+import org.gradle.security.internal.gnupg.GnupgSignatory;
 import org.gradle.testfixtures.ProjectBuilder;
 import org.junit.Test;
 

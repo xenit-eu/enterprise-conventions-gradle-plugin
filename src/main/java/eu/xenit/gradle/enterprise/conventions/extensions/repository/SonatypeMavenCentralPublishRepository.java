@@ -1,6 +1,7 @@
 package eu.xenit.gradle.enterprise.conventions.extensions.repository;
 
 import de.marcphilipp.gradle.nexus.NexusRepository;
+import eu.xenit.gradle.enterprise.conventions.extensions.repository.MultiMavenArtifactRepository.LimitedMavenArtifactRepositoryException;
 import java.net.URI;
 import java.util.Set;
 import javax.inject.Inject;
@@ -90,6 +91,11 @@ public class SonatypeMavenCentralPublishRepository implements MavenArtifactRepos
     }
 
     @Override
+    public MetadataSources getMetadataSources() {
+        throw new LimitedMavenArtifactRepositoryException();
+    }
+
+    @Override
     public void mavenContent(Action<? super MavenRepositoryContentDescriptor> action) {
         throw new LimitedMavenArtifactRepositoryException();
     }
@@ -131,6 +137,11 @@ public class SonatypeMavenCentralPublishRepository implements MavenArtifactRepos
     @Override
     public <T extends Credentials> void credentials(Class<T> aClass, Action<? super T> action) {
         action.execute(getCredentials(aClass));
+    }
+
+    @Override
+    public void credentials(Class<? extends Credentials> aClass) {
+        throw new LimitedMavenArtifactRepositoryException();
     }
 
     @Override
