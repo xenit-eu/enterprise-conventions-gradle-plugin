@@ -5,6 +5,8 @@ import de.marcphilipp.gradle.nexus.NexusPublishPlugin;
 import de.marcphilipp.gradle.nexus.NexusRepository;
 import eu.xenit.gradle.enterprise.conventions.api.PluginApi;
 import eu.xenit.gradle.enterprise.conventions.api.PublicApi;
+import eu.xenit.gradle.enterprise.conventions.internal.PropertyReader;
+import eu.xenit.gradle.enterprise.conventions.internal.StringConstants;
 import javax.inject.Inject;
 import kotlin.text.StringsKt;
 import org.gradle.api.Action;
@@ -13,15 +15,29 @@ import org.gradle.api.artifacts.dsl.RepositoryHandler;
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository;
 import org.gradle.api.internal.HasConvention;
 
-public class PublishRepositoryHandlerExtensions {
+public class PublishRepositoryHandlerExtensions extends RepositoryHandlerExtensions {
 
     private static final Action<? super MavenArtifactRepository> EMPTY_ACTION = repository -> {
     };
+
+    private final RepositoryHandler repositoryHandler;
     private final Project project;
 
     @Inject
-    public PublishRepositoryHandlerExtensions(Project project) {
+    public PublishRepositoryHandlerExtensions(Project project, RepositoryHandler repositoryHandler) {
+        super(repositoryHandler, PropertyReader.from(project));
+        this.repositoryHandler = repositoryHandler;
         this.project = project;
+    }
+
+    @PublicApi
+    @Override
+    public MavenArtifactRepository sonatypeSnapshots(Action<? super MavenArtifactRepository> action) {
+        return repositoryHandler.maven(repository -> {
+            repository.setName("SonatypeSnapshots");
+            repository.setUrl(StringConstants.SONATYPE_SNAPSHOTS_URLS.get(0));
+            action.execute(repository);
+        });
     }
 
     @PublicApi
@@ -62,7 +78,7 @@ public class PublishRepositoryHandlerExtensions {
 
     static void apply(RepositoryHandler repositoryHandler, Project project) {
         PublishRepositoryHandlerExtensions extensions = project.getObjects()
-                .newInstance(PublishRepositoryHandlerExtensions.class, project);
+                .newInstance(PublishRepositoryHandlerExtensions.class, project, repositoryHandler);
 
         ((HasConvention) repositoryHandler).getConvention().getPlugins()
                 .put(PublishRepositoryHandlerExtensions.class.getCanonicalName(), extensions);

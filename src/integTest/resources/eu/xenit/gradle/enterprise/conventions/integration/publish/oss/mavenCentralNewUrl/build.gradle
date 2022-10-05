@@ -6,6 +6,7 @@ plugins {
 publishing {
     repositories {
         sonatypeMavenCentral {
+            url = "https://s01.oss.sonatype.org/service/local/"
             credentials {
                 username "maven-central"
                 password "some-password"
@@ -16,5 +17,5 @@ publishing {
 
 afterEvaluate {
     assert publishing.repositories.stream().count() == 1
-    assert publishing.repositories.findByName("sonatype").url == uri("https://oss.sonatype.org/service/local/")
+    assert publishing.repositories.findByName("sonatype").url == uri("https://s01.oss.sonatype.org/service/local/")
 }

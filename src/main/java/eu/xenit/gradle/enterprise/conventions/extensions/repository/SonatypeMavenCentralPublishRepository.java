@@ -1,7 +1,6 @@
 package eu.xenit.gradle.enterprise.conventions.extensions.repository;
 
 import de.marcphilipp.gradle.nexus.NexusRepository;
-import eu.xenit.gradle.enterprise.conventions.extensions.repository.MultiMavenArtifactRepository.LimitedMavenArtifactRepositoryException;
 import java.net.URI;
 import java.util.Set;
 import javax.inject.Inject;
@@ -42,17 +41,17 @@ public class SonatypeMavenCentralPublishRepository implements MavenArtifactRepos
 
     @Override
     public URI getUrl() {
-        throw new LimitedMavenArtifactRepositoryException();
+        return nexusRepository.getNexusUrl().get();
     }
 
     @Override
     public void setUrl(URI uri) {
-        throw new LimitedMavenArtifactRepositoryException();
+        nexusRepository.getNexusUrl().set(uri);
     }
 
     @Override
     public void setUrl(Object o) {
-        throw new LimitedMavenArtifactRepositoryException();
+        setUrl(URI.create(o.toString()));
     }
 
     @Override

@@ -25,7 +25,6 @@ public class RepositoryExtensionsPlugin implements
 
         project.getPlugins().withType(MavenPublishPlugin.class, publishPlugin -> {
             PublishingExtension publishing = project.getExtensions().getByType(PublishingExtension.class);
-            RepositoryHandlerExtensions.apply(publishing.getRepositories(), project);
             PublishRepositoryHandlerExtensions.apply(publishing.getRepositories(), project);
 
             // Replace publishing target for xenit private repository, because the download URL does not support upload

@@ -137,6 +137,9 @@ to automatically deploy to a staging repository.
 publishing {
     repositories {
         sonatypeMavenCentral {
+            // If you need to publish to a different repository
+            url = "https://s01.oss.sonatype.org/service/local/"
+            // The default is https://oss.sonatype.org/service/local/
             credentials {
                 username 'XYZ'
                 password 'some-password'

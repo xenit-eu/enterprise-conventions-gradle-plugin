@@ -1,0 +1,19 @@
+plugins {
+    id "eu.xenit.enterprise-conventions.oss"
+    id "maven-publish"
+}
+
+publishing {
+    repositories {
+        sonatypeSnapshots {
+            credentials {
+                username "sonatype"
+                password "some-password"
+            }
+        }
+    }
+}
+
+afterEvaluate {
+    assert project.publishing.repositories.findByName("SonatypeSnapshots").url == uri("https://oss.sonatype.org/content/repositories/snapshots/")
+}
