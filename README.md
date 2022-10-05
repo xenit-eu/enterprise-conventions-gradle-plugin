@@ -73,7 +73,7 @@ apply plugin: eu.xenit.gradle.enterprise.conventions.PrivateInitPlugin
 
 Both OSS and Private plugins provide additional shorthands for your `repositories {}` block:
 
-* `sonatypeSnapshots()`: Configures https://oss.sonatype.org/content/repositories/snapshots/ repository
+* `sonatypeSnapshots()`: Configures https://oss.sonatype.org/ AND https://s01.oss.sonatype.org/ snapshot repositories. Additional snapshot repositories will be added when they are created.
 * `xenitPrivate()`: Configures Xenit private artifacts server (Releases) with credentials
   from `eu.xenit.artifactory.username` and `eu.xenit.artifactory.password` properties
 * `xenitPrivateSnapshots()`: Configures Xenit private artifacts server (Snapshots) with credentials

@@ -4,6 +4,8 @@ import eu.xenit.gradle.enterprise.conventions.api.PluginApi;
 import eu.xenit.gradle.enterprise.conventions.api.PublicApi;
 import eu.xenit.gradle.enterprise.conventions.internal.ArtifactoryCredentialsUtil;
 import eu.xenit.gradle.enterprise.conventions.internal.StringConstants;
+import java.util.HashSet;
+import java.util.Set;
 import javax.inject.Inject;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
@@ -67,11 +69,15 @@ public class RepositoryHandlerExtensions {
 
     @PublicApi
     public MavenArtifactRepository sonatypeSnapshots(Action<? super MavenArtifactRepository> action) {
-        return repositoryHandler.maven(repository -> {
-            repository.setName("SonatypeSnapshots");
-            repository.setUrl(StringConstants.SONATYPE_SNAPSHOTS_URL);
-            action.execute(repository);
-        });
+        Set<MavenArtifactRepository> repositories = new HashSet<>();
+        for (String snapshotsUrl : StringConstants.SONATYPE_SNAPSHOTS_URLS) {
+            repositories.add(repositoryHandler.maven(repository -> {
+                repository.setName("SonatypeSnapshots-"+repositories.size());
+                repository.setUrl(snapshotsUrl);
+                action.execute(repository);
+            }));
+        }
+        return new MultiMavenArtifactRepository(repositories);
     }
 
     static void apply(RepositoryHandler repositoryHandler, Project project) {
