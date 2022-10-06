@@ -1,5 +1,5 @@
 plugins {
-    id 'eu.xenit.enterprise-conventions.ext.central-requirements'
+    id 'eu.xenit.enterprise-conventions.ext.maven-central-requirements'
     id "eu.xenit.enterprise-conventions.ext.signing"
     id "maven-publish"
     id "java"
