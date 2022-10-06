@@ -17,13 +17,6 @@ final class FatalViolationHandler implements ViolationHandler {
         throw new FatalViolation(category, violation);
     }
 
-    private static final class FatalViolation extends RuntimeException {
-
-        private FatalViolation(String category, RuntimeException violation) {
-            super("Policy violation [" + category + "]: " + violation.getMessage(), violation);
-        }
-    }
-
     static final class Factory implements ViolationHandlerFactory {
 
         @Nonnull
