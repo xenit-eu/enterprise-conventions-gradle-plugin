@@ -98,6 +98,12 @@ gradlePlugin {
             displayName = "Xenit conventions plugin: Signing extension"
             description = "Automatically configures artifact signing"
         }
+        centralRequirementsPlugin {
+            id = 'eu.xenit.enterprise-conventions.ext.maven-central-requirements'
+            implementationClass = 'eu.xenit.gradle.enterprise.conventions.extensions.mavencentralrequirements.MavenCentralRequirementsCheckPlugin'
+            displayName = "Xenit conventions plugin: Maven Central requirements check"
+            description = "Performs pre-publish check for requirements for publishing to Maven Central, also when publishing snapshots"
+        }
     }
     testSourceSets(sourceSets.integTest)
 }

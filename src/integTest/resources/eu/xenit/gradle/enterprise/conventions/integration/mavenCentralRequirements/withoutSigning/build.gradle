@@ -1,0 +1,54 @@
+plugins {
+    id 'eu.xenit.enterprise-conventions.ext.central-requirements'
+    id "maven-publish"
+    id "java"
+}
+
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifact(project.tasks.javadocJar)
+            artifact(project.tasks.sourcesJar)
+            pom {
+                url = 'https://github.com/xenit-eu/enterprise-conventions-gradle-plugin'
+                name = 'enterprise-conventions-gradle-plugin-test'
+                description = 'Some testing description'
+
+                scm {
+                    connection = 'scm:git:git@github.com:xenit-eu/enterprise-conventions-gradle-plugin.git'
+                    developerConnection = 'scm:git:git@github.com:xenit-eu/enterprise-conventions-gradle-plugin.git'
+                    url = 'https://github.com/xenit-eu/enterprise-conventions-gradle-plugin.git'
+                }
+
+                developers {
+                    developer {
+                        name = "XeniT"
+                    }
+                }
+
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            url = "https://oss.sonatype.org/obviously-invalid"
+        }
+    }
+}

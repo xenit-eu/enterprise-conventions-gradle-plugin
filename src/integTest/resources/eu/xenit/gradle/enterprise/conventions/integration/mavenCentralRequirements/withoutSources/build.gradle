@@ -1,0 +1,42 @@
+plugins {
+    id 'eu.xenit.enterprise-conventions.ext.central-requirements'
+    id "maven-publish"
+    id "java"
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            pom {
+                url = 'https://github.com/xenit-eu/enterprise-conventions-gradle-plugin'
+                name = 'enterprise-conventions-gradle-plugin-test'
+                description = 'Some testing description'
+
+                scm {
+                    connection = 'scm:git:git@github.com:xenit-eu/enterprise-conventions-gradle-plugin.git'
+                    developerConnection = 'scm:git:git@github.com:xenit-eu/enterprise-conventions-gradle-plugin.git'
+                    url = 'https://github.com/xenit-eu/enterprise-conventions-gradle-plugin.git'
+                }
+
+                developers {
+                    developer {
+                        name = "XeniT"
+                    }
+                }
+
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            url = "https://oss.sonatype.org/obviously-invalid"
+        }
+    }
+}

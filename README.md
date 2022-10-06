@@ -204,6 +204,26 @@ With properties:
 
 </details>
 
+## Publication validation
+
+When the `eu.xenit.enterprise-conventions.oss` plugin is applied,
+adherence to the [Maven Central requirements](https://central.sonatype.org/publish/requirements/#answer) is validated when publishing
+to the Sonatype OSS repositories, also when `SNAPSHOT` builds are published to the snapshot repository.
+
+This prevents the annoying occurrence when your fully finished and tagged release is rejected when closing your staging repository,
+because it did not adhere to all requirements.
+
+Not all requirements can be checked automatically, only those that can are checked here:
+
+ * Presence of `javadoc.jar` and `sources.jar` when a `jar` is published. (There is no such requirement when publishing other artifact types, like Alfresco `.amp`)
+ * All artifacts must be signed with GPG
+ * POM contains following metadata:
+   * `name`, `description`, `url`
+   * At least one `license`, every license must contain `name` and `url`
+   * At least one `developer`, every developer must contain `name`
+   * `scm` must contain `connection`, `developerConnection` and `url`
+
+
 ## Repository blocking
 
 In the `eu.xenit.enterprise-conventions.oss` plugin, all artifact repositories are allowed by default, except for the
