@@ -8,36 +8,42 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.gradle.api.Action;
+import org.gradle.api.Task;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.publish.internal.PublicationArtifactSet;
 import org.gradle.api.publish.maven.MavenArtifact;
+import org.gradle.api.publish.maven.MavenPublication;
 import org.gradle.api.publish.maven.internal.publication.MavenPomInternal;
 import org.gradle.api.publish.maven.internal.publication.MavenPublicationInternal;
 import org.gradle.api.publish.maven.tasks.PublishToMavenRepository;
 
 @RequiredArgsConstructor
-public class ValidatePublicationAction implements Action<PublishToMavenRepository> {
+public class ValidatePublicationAction implements Action<Task> {
     private static final Logger LOGGER = Logging.getLogger(ValidatePublicationAction.class);
+    private final Supplier<MavenPublication> publication;
     private final ViolationHandler violationHandler;
 
     @Override
-    public void execute(PublishToMavenRepository publishToMavenRepository) {
-        var isSonatypeRepo = Optional.ofNullable(publishToMavenRepository.getRepository().getUrl())
-                .map(URI::getHost)
-                .map(host -> host.endsWith("oss.sonatype.org"))
-                .orElse(false);
+    public void execute(Task task) {
+        if(task instanceof PublishToMavenRepository ) {
+            var isSonatypeRepo = Optional.ofNullable(((PublishToMavenRepository)task).getRepository().getUrl())
+                    .map(URI::getHost)
+                    .map(host -> host.endsWith("oss.sonatype.org"))
+                    .orElse(false);
 
-        if(!isSonatypeRepo) {
-            return;
+            if (Boolean.FALSE.equals(isSonatypeRepo)) {
+                return;
+            }
         }
         try {
-            var publication = (MavenPublicationInternal) publishToMavenRepository.getPublication();
-            checkPomRequirements(publication.getPom());
+            var publicationInternal = (MavenPublicationInternal) this.publication.get();
+            checkPomRequirements(publicationInternal.getPom());
             String artifactPrefix =
                     publicationInternal.getCoordinates().getName() + "-" + publicationInternal.getCoordinates().getVersion();
             if (publicationInternal.getPublishableArtifacts().stream()
@@ -53,13 +59,13 @@ public class ValidatePublicationAction implements Action<PublishToMavenRepositor
         } catch(Throwable e) {
             // We are using internal APIs in here, catch potential errors thrown in future versions
             // if these internals have moved around/changed
-            LOGGER.warn("Failed to perform publication validation on task {}: Unexpected exception (Gradle internals changed?)", publishToMavenRepository.getName(), e);
+            LOGGER.warn("Failed to perform publication validation on task {}: Unexpected exception (Gradle internals changed?)", task.getName(), e);
         }
     }
 
     private void checkArtifactWithClassifierPresent(String artifactPrefix, String classifier, PublicationArtifactSet<MavenArtifact> publishableArtifacts) {
         if(publishableArtifacts.stream().noneMatch(artifact -> Objects.equals(artifact.getClassifier(), classifier) && artifact.getExtension().equals("jar"))) {
-            violationHandler.handleViolation(new ArtifactValidationException(artifactPrefix+"-"+classifier+".jar"));
+            violationHandler.handleViolation(new ArtifactValidationException(publication.get(), artifactPrefix+"-"+classifier+".jar"));
         }
     }
 
@@ -86,6 +92,7 @@ public class ValidatePublicationAction implements Action<PublishToMavenRepositor
             if(!signatureArtifactIdentifiers.contains(nonSignatureArtifactIdentifier+".asc")) {
                 violationHandler.handleViolation(
                         new SignatureValidationException(
+                                publication.get(),
                                 artifactPrefix+nonSignatureArtifactIdentifier,
                                 artifactPrefix+nonSignatureArtifactIdentifier+".asc"
                         )
@@ -122,16 +129,16 @@ public class ValidatePublicationAction implements Action<PublishToMavenRepositor
 
     private void validateStringPropertyThrowing(String name, Provider<String> prop) {
         if(!prop.isPresent()) {
-            throw new PomValidationException(name, ErrorType.ABSENT);
+            throw new PomValidationException(publication.get(), name, ErrorType.ABSENT);
         }
         if(prop.get().isBlank()) {
-            throw new PomValidationException(name, ErrorType.EMPTY);
+            throw new PomValidationException(publication.get(), name, ErrorType.EMPTY);
         }
     }
 
     private <T> void validateListProperty(String name, List<T> items, Action<T> validator) {
         if(items.isEmpty()) {
-            violationHandler.handleViolation(new PomValidationException(name, ErrorType.EMPTY));
+            violationHandler.handleViolation(new PomValidationException(publication.get(), name, ErrorType.EMPTY));
             return;
         }
         for (int i = 0; i < items.size(); i++) {
@@ -139,9 +146,11 @@ public class ValidatePublicationAction implements Action<PublishToMavenRepositor
                 validator.execute(items.get(i));
             } catch(PomValidationException pomValidationException) {
                 violationHandler.handleViolation(new PomValidationException(
+                        publication.get(),
                         name+"["+i+"]",
                         ErrorType.INVALID,
                         new PomValidationException(
+                                publication.get(),
                                 name+"["+i+"]"+pomValidationException.getName(),
                                 pomValidationException.getErrorType()
                         )

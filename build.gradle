@@ -38,6 +38,7 @@ repositories {
 
 dependencies {
     packaged 'org.json:json:20201115'
+    packaged 'commons-lang:commons-lang:2.5'
     implementation 'de.marcphilipp.gradle:nexus-publish-plugin:0.4.0'
     integTestImplementation "commons-io:commons-io:2.8.0"
     testImplementation 'junit:junit:4.12'

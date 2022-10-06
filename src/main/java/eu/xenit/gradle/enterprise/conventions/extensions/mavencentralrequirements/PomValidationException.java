@@ -24,14 +24,14 @@ public class PomValidationException extends
     @Getter
     private final ErrorType errorType;
 
-    public PomValidationException(String name, ErrorType errorType) {
-        super(String.format("Property '%s' is %s", name, errorType.description));
+    public PomValidationException(MavenPublication publication, String name, ErrorType errorType) {
+        super(publication, String.format("POM property '%s' is %s", name, errorType.description));
         this.name = name;
         this.errorType = errorType;
     }
 
-    public PomValidationException(String name, ErrorType errorType, Throwable cause) {
-        super(String.format("Property '%s' is %s: %s", name, errorType.description, cause.getMessage()));
+    public PomValidationException(MavenPublication publication, String name, ErrorType errorType, Throwable cause) {
+        super(publication, String.format("POM property '%s' is %s: %s", name, errorType.description, cause.getMessage()));
         this.name = name;
         this.errorType = errorType;
         initCause(cause);
