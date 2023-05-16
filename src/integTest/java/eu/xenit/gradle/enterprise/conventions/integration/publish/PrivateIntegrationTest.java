@@ -20,6 +20,6 @@ public class PrivateIntegrationTest extends AbstractIntegrationTest {
                 integrationTests.resolve("publish/private/publicRepository")).buildAndFail();
 
         assertTrue(buildResult.getOutput()
-                .contains("Only publishing to internal artifactory or to local repository is allowed"));
+                .contains("Only publishing to Xenit private or to local repository is allowed"));
     }
 }

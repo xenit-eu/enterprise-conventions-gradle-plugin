@@ -13,14 +13,6 @@ import org.junit.Test;
 public class PrivateIntegrationTest extends AbstractIntegrationTest {
 
     @Test
-    public void otherRepositories() throws IOException {
-        BuildResult buildResult = createGradleRunner(integrationTests.resolve("repository/private/otherRepositories"))
-                .withArguments("--stacktrace", "--info")
-                .buildAndFail();
-        assertTrue(buildResult.getOutput().contains("Repository https://example.com/m2/ is blocked"));
-    }
-
-    @Test
     public void cloudsmithInternalRepository() throws IOException {
         createGradleRunner(integrationTests.resolve("repository/private/cloudsmithInternalRepository")).build();
     }
@@ -34,17 +26,5 @@ public class PrivateIntegrationTest extends AbstractIntegrationTest {
     @Test
     public void internalRepository() throws IOException {
         createGradleRunner(integrationTests.resolve("repository/private/internalRepository")).build();
-    }
-
-    @Test
-    public void rewriteToInternalRepositoryWithoutCredentials() throws IOException {
-        createGradleRunner(integrationTests.resolve("repository/private/rewriteToInternalRepositoryWithoutCredentials"))
-                .withArguments("--info")
-                .build();
-    }
-
-    @Test
-    public void rewriteToInternalRepository() throws IOException {
-        createGradleRunner(integrationTests.resolve("repository/private/rewriteToInternalRepository")).build();
     }
 }

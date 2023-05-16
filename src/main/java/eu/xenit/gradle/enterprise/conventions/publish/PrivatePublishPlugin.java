@@ -19,6 +19,6 @@ public class PrivatePublishPlugin extends AbstractPublishPlugin {
         }
 
         violationHandler.handleViolation(new BlockedPublishRepositoryException(repository.getUrl(),
-                "Only publishing to internal artifactory or to local repository is allowed."));
+                "Only publishing to Xenit private or to local repository is allowed."));
     }
 }

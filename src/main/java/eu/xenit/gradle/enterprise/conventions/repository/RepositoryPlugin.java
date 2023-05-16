@@ -20,7 +20,7 @@ import org.gradle.api.internal.artifacts.BaseRepositoryFactory;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 
-class AbstractRepositoryPlugin implements Plugin<Project> {
+public class RepositoryPlugin implements Plugin<Project> {
 
     private static final String REPOSITORY_POLICY_PREFIX = GRADLE_PROPERTIES_PREFIX + ".repository.";
     public static final String REPOSITORY_BLOCK_PREFIX = REPOSITORY_POLICY_PREFIX + "block.";
@@ -45,7 +45,7 @@ class AbstractRepositoryPlugin implements Plugin<Project> {
     private static final Map<URI, String> blocklist;
     private static final Set<URI> allowlist;
 
-    private static final Logger LOGGER = Logging.getLogger(AbstractRepositoryPlugin.class);
+    private static final Logger LOGGER = Logging.getLogger(RepositoryPlugin.class);
 
     static {
         Map<URI, String> blocklistMap = new HashMap<>();
