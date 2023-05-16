@@ -4,7 +4,7 @@ import eu.xenit.gradle.enterprise.conventions.api.PluginApi;
 import eu.xenit.gradle.enterprise.conventions.api.PublicApi;
 import eu.xenit.gradle.enterprise.conventions.extensions.repository.RepositoryExtensionsPlugin;
 import eu.xenit.gradle.enterprise.conventions.publish.PrivatePublishPlugin;
-import eu.xenit.gradle.enterprise.conventions.repository.PrivateRepositoryPlugin;
+import eu.xenit.gradle.enterprise.conventions.repository.RepositoryPlugin;
 import org.gradle.api.Project;
 import org.gradle.api.initialization.Settings;
 
@@ -17,7 +17,7 @@ public class PrivatePlugin extends BasePlugin {
     @Override
     public void apply(Project project) {
         project.getPluginManager().apply(RepositoryExtensionsPlugin.class);
-        project.getPluginManager().apply(PrivateRepositoryPlugin.class);
+        project.getPluginManager().apply(RepositoryPlugin.class);
         project.getPluginManager().apply(PrivatePublishPlugin.class);
     }
 

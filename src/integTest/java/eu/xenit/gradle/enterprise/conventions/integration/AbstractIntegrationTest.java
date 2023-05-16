@@ -95,11 +95,6 @@ public abstract class AbstractIntegrationTest {
                 .filter(arg -> arg.startsWith("-javaagent"))
                 .map(agent -> agent.replace("build/", System.getProperty("user.dir") + "/build/"))
                 .collect(Collectors.toList());
-        // Override default artifactory URL with our test fake
-        agentOpts.add(String
-                .format("-Deu.xenit.gradle.enterprise.conventions.artifactory-override=http://%s:%s/artifactory/",
-                        System.getProperty("artifactory.host"),
-                        System.getProperty("artifactory.tcp.80")));
         agentOpts.add(String.format("-Deu.xenit.gradle.enterprise.conventions.integration.plugin-classpath=%s",
                 gradleRunner.getPluginClasspath().stream().map(
                         File::toString).collect(Collectors.joining(":"))));

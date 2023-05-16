@@ -1,7 +1,0 @@
-initscript {
-    def pluginClasspath = System.getProperty("eu.xenit.gradle.enterprise.conventions.integration.plugin-classpath").split(":")
-    dependencies {
-        classpath files(pluginClasspath)
-    }
-}
-apply plugin: eu.xenit.gradle.enterprise.conventions.PrivateInitPlugin

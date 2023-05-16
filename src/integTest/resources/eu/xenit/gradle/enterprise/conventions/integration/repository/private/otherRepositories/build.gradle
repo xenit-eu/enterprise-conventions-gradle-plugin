@@ -1,9 +1,0 @@
-plugins {
-    id "eu.xenit.enterprise-conventions.private"
-}
-
-repositories {
-    maven {
-        url 'https://example.com/m2/'
-    }
-}

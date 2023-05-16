@@ -33,19 +33,4 @@ public class OssIntegrationTest extends AbstractIntegrationTest {
     public void otherRepositories() throws IOException {
         createGradleRunner(integrationTests.resolve("repository/oss/otherRepositories")).build();
     }
-
-    @Test
-    public void otherRepositoriesWithPrivateInit() throws IOException {
-        createGradleRunner(integrationTests.resolve("repository/oss/otherRepositoriesWithPrivateInit"))
-                .withTestKitDir(testProjectDir.getRoot().toPath().resolve("gradleHome").toFile())
-                .build();
-    }
-
-    @Test
-    public void otherRepositoriesWithPrivateInitWithoutCredentials() throws IOException {
-        createGradleRunner(
-                integrationTests.resolve("repository/oss/otherRepositoriesWithPrivateInitWithoutCredentials"))
-                .withTestKitDir(testProjectDir.getRoot().toPath().resolve("gradleHome").toFile())
-                .build();
-    }
 }

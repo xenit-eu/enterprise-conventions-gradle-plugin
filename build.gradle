@@ -75,12 +75,6 @@ gradlePlugin {
             displayName = "Xenit private conventions plugin"
             description = "Configures conventions for Xenit private packages"
         }
-        privateInitPlugin {
-            id = 'eu.xenit.enterprise-conventions.private.init'
-            implementationClass = 'eu.xenit.gradle.enterprise.conventions.PrivateInitPlugin'
-            displayName = "Xenit private initscript plugin"
-            description = "Configures conventions for Xenit private & oss packages: initscript plugin for Xenit build servers"
-        }
         ossPlugin {
             id = 'eu.xenit.enterprise-conventions.oss'
             implementationClass = 'eu.xenit.gradle.enterprise.conventions.OssPlugin'
@@ -115,10 +109,6 @@ pluginBundle {
     description = "Xenit OSS and private conventions plugins"
     tags = ["conventions", "repository-replacement", "repositories", "security"]
 }
-
-evaluationDependsOn(":integration-test-fakes")
-
-project(":integration-test-fakes").dockerCompose.isRequiredBy(integrationTest)
 
 integrationTest {
     if (gradle.startParameter.offline) {

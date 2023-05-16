@@ -38,35 +38,6 @@ plugins {
 
 </details>
 
-Additionally, the `eu.xenit.enterprise-conventions.private.init` plugin should be applied to Xenit private CI servers.
-
-<details>
-<summary>Configure Xenit CI server</summary>
-
-Locate your `~/.gradle/init.d/` folder for configuration:
-
-* On Windows: A (hidden) `.gradle` folder is located in your user folder.
-* On Linux: You can browse to the `~/.gradle/init.d/` folder.
-
-Create a new file in this folder named `xenit-enterprise-conventions.gradle` with the following contents:
-
-```groovy
-initscript {
-    repositories {
-        maven {
-            url "https://plugins.gradle.org/m2/"
-        }
-    }
-    dependencies {
-        classpath 'eu.xenit.gradle:enterprise-conventions-plugin:+'
-    }
-}
-
-apply plugin: eu.xenit.gradle.enterprise.conventions.PrivateInitPlugin
-```
-
-</details>
-
 ## Usage
 
 ### Repository shorthands
@@ -229,11 +200,6 @@ Not all requirements can be checked automatically, only those that can are check
 In the `eu.xenit.enterprise-conventions.oss` plugin, all artifact repositories are allowed by default, except for the
 Xenit private artifacts server. This is to avoid accidentally depending on this private server for open source software
 that we publish.
-
-In the `eu.xenit.enterprise-conventions.private` plugin, only select artifact repositories are allowed: Maven Central,
-Gradle Plugin Portal and all artifact repositories that are proxied by the Xenit private artifacts server. These
-repositories are selected as trusted sources because they verify groupId ownership and don't allow artifacts to be
-replaced or delete after publication.
 
 In all cases, local `file:///` repositories are allowed and `http://` repositories are blocked. It is possible to add
 additional repositories to the allow- or blocklists by adding properties to `gradle.properties` (either globally or
