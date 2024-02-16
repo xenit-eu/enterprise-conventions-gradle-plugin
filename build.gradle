@@ -8,6 +8,7 @@ plugins {
     id 'nebula.integtest' version '7.0.9'
     id 'com.github.johnrengelman.shadow' version '6.1.0' apply false
     id "io.freefair.lombok" version "5.3.0"
+    id 'groovy'
 }
 
 
@@ -25,6 +26,10 @@ facets {
     java17 {
         parentSourceSet = 'main'
     }
+}
+
+lombok {
+    version = "1.18.30"
 }
 
 sourceCompatibility = 11
@@ -73,6 +78,8 @@ repositories {
 dependencies {
     packaged 'commons-lang:commons-lang:2.5'
     implementation 'de.marcphilipp.gradle:nexus-publish-plugin:0.4.0'
+
+    compileOnly 'com.bmuschko:gradle-docker-plugin:9.4.0'
     java17CompileOnly 'org.springframework.boot:spring-boot-gradle-plugin:3.2.2'
 
     integTestImplementation "commons-io:commons-io:2.8.0"
@@ -84,7 +91,6 @@ dependencies {
 task shadowJar(type: ShadowJar) {
     from sourceSets.main.output
     configurations = [project.configurations.packaged]
-    archiveClassifier = "shadow"
     mergeServiceFiles()
     exclude "META-INF/*.SF"
     exclude "META-INF/*.RSA"
@@ -94,26 +100,20 @@ task configureShadowJar(type: ConfigureShadowRelocation) {
     target = shadowJar
     prefix = "eu.xenit.gradle.enterprise.conventions.internal.shadow"
 }
-
 shadowJar.dependsOn(configureShadowJar)
 
 jar {
-    from project.provider { zipTree(shadowJar.outputs.files.singleFile) }
-    dependsOn(shadowJar)
+    enabled = false
 }
 
 task java17Jar(type: ShadowJar) {
+    from provider({ zipTree(shadowJar.archiveFile.get()) })
     from sourceSets.java17.output
-    configurations = [project.configurations.packaged]
     archiveClassifier = "java17"
     mergeServiceFiles()
     exclude "META-INF/*.SF"
     exclude "META-INF/*.RSA"
-}
-
-task configureJava17Jar(type: ConfigureShadowRelocation) {
-    target = java17Jar
-    prefix = "eu.xenit.gradle.enterprise.conventions.internal.shadow"
+    dependsOn(shadowJar)
 }
 
 compileJava17Java {
@@ -124,6 +124,12 @@ compileJava17Java {
 }
 
 artifacts {
+    apiElements(shadowJar.archiveFile) {
+        builtBy(shadowJar)
+    }
+    runtimeElements(shadowJar.archiveFile) {
+        builtBy(shadowJar)
+    }
     java17ApiElements(java17Jar.archiveFile) {
         builtBy(java17Jar)
     }
@@ -171,6 +177,12 @@ gradlePlugin {
             implementationClass = 'eu.xenit.gradle.enterprise.conventions.extensions.mavencentralrequirements.MavenCentralRequirementsCheckPlugin'
             displayName = "Xenit conventions plugin: Maven Central requirements check"
             description = "Performs pre-publish check for requirements for publishing to Maven Central, also when publishing snapshots"
+        }
+        dockerImageLabelsPlugin {
+            id = 'eu.xenit.enterprise-conventions.ext.docker-image-labels'
+            implementationClass = 'eu.xenit.gradle.enterprise.conventions.extensions.dockerimagelabels.DockerImageLabelsPlugin'
+            displayName = "Xenit conventions plugin: OCI source labels for Docker images"
+            description = "Adds OCI annotations to Docker images indicating the source repository and commit"
         }
     }
     testSourceSets(sourceSets.integTest)
