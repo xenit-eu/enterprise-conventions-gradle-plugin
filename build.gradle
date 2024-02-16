@@ -21,12 +21,48 @@ reckon {
     stageFromProp('alpha', 'beta', 'rc', 'final')
 }
 
+facets {
+    java17 {
+        parentSourceSet = 'main'
+    }
+}
+
 sourceCompatibility = 11
 
 configurations {
     packaged
     compileOnly.extendsFrom(packaged)
     testCompile.extendsFrom(packaged)
+    matching({ config -> config.name.startsWith('java17')}).configureEach {
+        attributes {
+            attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 17)
+        }
+    }
+
+    java17ApiElements {
+        canBeConsumed = true
+        canBeResolved = false
+        extendsFrom(apiElements)
+        attributes {
+            attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category, Category.LIBRARY))
+            attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, Usage.JAVA_API))
+            attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling, Bundling.EXTERNAL))
+            attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 17)
+            attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, LibraryElements.JAR))
+        }
+    }
+    java17RuntimeElements {
+        canBeConsumed = true
+        canBeResolved = false
+        extendsFrom(runtimeElements)
+        attributes {
+            attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category, Category.LIBRARY))
+            attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, Usage.JAVA_RUNTIME))
+            attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling, Bundling.EXTERNAL))
+            attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 17)
+            attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, LibraryElements.JAR))
+        }
+    }
 }
 
 repositories {
@@ -37,6 +73,8 @@ repositories {
 dependencies {
     packaged 'commons-lang:commons-lang:2.5'
     implementation 'de.marcphilipp.gradle:nexus-publish-plugin:0.4.0'
+    java17CompileOnly 'org.springframework.boot:spring-boot-gradle-plugin:3.2.2'
+
     integTestImplementation "commons-io:commons-io:2.8.0"
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.mockito:mockito-core:3.7.7'
@@ -62,6 +100,44 @@ shadowJar.dependsOn(configureShadowJar)
 jar {
     from project.provider { zipTree(shadowJar.outputs.files.singleFile) }
     dependsOn(shadowJar)
+}
+
+task java17Jar(type: ShadowJar) {
+    from sourceSets.java17.output
+    configurations = [project.configurations.packaged]
+    archiveClassifier = "java17"
+    mergeServiceFiles()
+    exclude "META-INF/*.SF"
+    exclude "META-INF/*.RSA"
+}
+
+task configureJava17Jar(type: ConfigureShadowRelocation) {
+    target = java17Jar
+    prefix = "eu.xenit.gradle.enterprise.conventions.internal.shadow"
+}
+
+compileJava17Java {
+    javaCompiler = javaToolchains.compilerFor {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+    sourceCompatibility = 17
+}
+
+artifacts {
+    java17ApiElements(java17Jar.archiveFile) {
+        builtBy(java17Jar)
+    }
+    java17RuntimeElements(java17Jar.archiveFile) {
+        builtBy(java17Jar)
+    }
+}
+
+AdhocComponentWithVariants javaComponent = (AdhocComponentWithVariants) project.components.findByName("java")
+javaComponent.addVariantsFromConfiguration(configurations.java17ApiElements) {
+
+}
+javaComponent.addVariantsFromConfiguration(configurations.java17RuntimeElements) {
+
 }
 
 gradlePlugin {
