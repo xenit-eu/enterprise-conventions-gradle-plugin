@@ -36,42 +36,18 @@ java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(11)
     }
+    registerFeature('java17') {
+        usingSourceSet(sourceSets.java17)
+        // This creates a feature that covers just the "main" capability (the same capability as the main sourceset)
+        capability(project.group.toString(), project.name, project.version.toString())
+    }
 }
 
 configurations {
     packaged
     compileOnly.extendsFrom(packaged)
     testCompile.extendsFrom(packaged)
-    matching({ config -> config.name.startsWith('java17')}).configureEach {
-        attributes {
-            attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 17)
-        }
-    }
-
-    java17ApiElements {
-        canBeConsumed = true
-        canBeResolved = false
-        extendsFrom(apiElements)
-        attributes {
-            attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category, Category.LIBRARY))
-            attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, Usage.JAVA_API))
-            attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling, Bundling.EXTERNAL))
-            attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 17)
-            attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, LibraryElements.JAR))
-        }
-    }
-    java17RuntimeElements {
-        canBeConsumed = true
-        canBeResolved = false
-        extendsFrom(runtimeElements)
-        attributes {
-            attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category, Category.LIBRARY))
-            attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, Usage.JAVA_RUNTIME))
-            attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling, Bundling.EXTERNAL))
-            attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 17)
-            attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, LibraryElements.JAR))
-        }
-    }
+    java17Implementation.extendsFrom(implementation)
 }
 
 repositories {
@@ -107,10 +83,11 @@ task configureShadowJar(type: ConfigureShadowRelocation) {
 shadowJar.dependsOn(configureShadowJar)
 
 jar {
+    archiveClassifier = "disabled"
     enabled = false
 }
 
-task java17Jar(type: ShadowJar) {
+task java17ShadowJar(type: ShadowJar) {
     from provider({ zipTree(shadowJar.archiveFile.get()) })
     from sourceSets.java17.output
     archiveClassifier = "java17"
@@ -120,11 +97,15 @@ task java17Jar(type: ShadowJar) {
     dependsOn(shadowJar)
 }
 
+java17Jar {
+    archiveClassifier = "java17-disabled"
+    enabled = false
+}
+
 compileJava17Java {
     javaCompiler = javaToolchains.compilerFor {
         languageVersion = JavaLanguageVersion.of(17)
     }
-    sourceCompatibility = 17
 }
 
 artifacts {
@@ -134,20 +115,12 @@ artifacts {
     runtimeElements(shadowJar.archiveFile) {
         builtBy(shadowJar)
     }
-    java17ApiElements(java17Jar.archiveFile) {
-        builtBy(java17Jar)
+    java17ApiElements(java17ShadowJar.archiveFile) {
+        builtBy(java17ShadowJar)
     }
-    java17RuntimeElements(java17Jar.archiveFile) {
-        builtBy(java17Jar)
+    java17RuntimeElements(java17ShadowJar.archiveFile) {
+        builtBy(java17ShadowJar)
     }
-}
-
-AdhocComponentWithVariants javaComponent = (AdhocComponentWithVariants) project.components.findByName("java")
-javaComponent.addVariantsFromConfiguration(configurations.java17ApiElements) {
-
-}
-javaComponent.addVariantsFromConfiguration(configurations.java17RuntimeElements) {
-
 }
 
 gradlePlugin {
