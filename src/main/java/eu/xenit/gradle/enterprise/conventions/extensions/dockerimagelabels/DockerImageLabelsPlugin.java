@@ -1,11 +1,13 @@
 package eu.xenit.gradle.enterprise.conventions.extensions.dockerimagelabels;
 
+import eu.xenit.gradle.enterprise.conventions.BasePlugin;
+import eu.xenit.gradle.enterprise.conventions.internal.MultipleApplicationTargetsPlugin;
 import java.util.ServiceLoader;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.provider.Provider;
 
-public class DockerImageLabelsPlugin implements Plugin<Project> {
+public class DockerImageLabelsPlugin extends BasePlugin {
 
     @Override
     public void apply(Project project) {

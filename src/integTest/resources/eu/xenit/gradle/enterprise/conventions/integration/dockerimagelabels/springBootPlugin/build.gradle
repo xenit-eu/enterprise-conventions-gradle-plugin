@@ -1,0 +1,14 @@
+plugins {
+    id "java"
+    id "org.springframework.boot" version "3.2.2"
+}
+
+description = "Spring Boot test project"
+
+check {
+    doFirst {
+        assert project.tasks.bootBuildImage.environment.get()["BP_OCI_SOURCE"] == "https://github.example/test/example"
+        assert project.tasks.bootBuildImage.environment.get()["BP_OCI_REVISION"] == "af554b096e332a30dc90d9e77f42b9fbf1589201"
+        assert project.tasks.bootBuildImage.environment.get()["BP_OCI_DESCRIPTION"] == "Spring Boot test project"
+    }
+}

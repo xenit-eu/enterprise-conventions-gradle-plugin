@@ -1,0 +1,14 @@
+plugins {
+    id "base"
+    id "eu.xenit.docker-alfresco" version "5.4.0"
+}
+
+description = "Docker-alfresco test project"
+
+check {
+    doFirst {
+        assert project.tasks.buildDockerImage.labels["org.opencontainers.image.source"].get() == "https://github.example/test/example"
+        assert project.tasks.buildDockerImage.labels["org.opencontainers.image.revision"].get() == "af554b096e332a30dc90d9e77f42b9fbf1589201"
+        assert project.tasks.buildDockerImage.labels["org.opencontainers.image.description"].get() == "Docker-alfresco test project"
+    }
+}

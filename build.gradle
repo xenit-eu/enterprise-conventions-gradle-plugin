@@ -204,3 +204,34 @@ integrationTest {
 pluginUnderTestMetadata {
     pluginClasspath.from(configurations.packaged)
 }
+
+task pluginUnderTestMetadataJava17(type: PluginUnderTestMetadata) {
+    outputDirectory = project.layout.buildDirectory.dir(it.name)
+    pluginClasspath.from(
+            pluginUnderTestMetadata.pluginClasspath,
+            sourceSets.java17.output
+    )
+}
+
+tasks.register("integrationTestJava17", Test).configure {
+    if (gradle.startParameter.offline) {
+        systemProperty "eu.xenit.enterprise.conventions.integration.gradle-offline", "true"
+    }
+    jacoco {
+        enabled = false
+    }
+    testClassesDirs = sourceSets.integTest.output.classesDirs
+    classpath.from(
+            // Runtime classpath, but filter out the default plugin under test metadata,
+            // so we can replace it with the one containing the Java 17 classpath
+            sourceSets.integTest.runtimeClasspath.filter { it != tasks.pluginUnderTestMetadata.outputDirectory.asFile.get() },
+            project.layout.files(tasks.pluginUnderTestMetadataJava17)
+    )
+    group 'verification'
+    javaLauncher = javaToolchains.launcherFor {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+    shouldRunAfter(tasks.test)
+}
+
+check.dependsOn(integrationTestJava17)

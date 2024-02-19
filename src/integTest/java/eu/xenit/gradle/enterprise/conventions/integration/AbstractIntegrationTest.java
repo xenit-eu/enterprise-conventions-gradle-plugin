@@ -10,8 +10,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
+import org.gradle.api.JavaVersion;
 import org.gradle.testkit.runner.GradleRunner;
 import org.gradle.testkit.runner.internal.DefaultGradleRunner;
 import org.gradle.util.GradleVersion;
@@ -35,12 +37,18 @@ public abstract class AbstractIntegrationTest {
         }
     }
 
+    private static final Map<JavaVersion, GradleVersion> COMPAT_MAP = Map.of(
+            JavaVersion.VERSION_11, GradleVersion.version("5.0"),
+            JavaVersion.VERSION_17, GradleVersion.version("7.3")
+    );
+
     @Parameters(name = "Gradle v{0}")
     public static Collection<Object[]> testData() {
         if (Boolean.getBoolean("eu.xenit.enterprise.conventions.integration.gradle-offline")) {
             return Collections.singletonList(new Object[]{GradleVersion.current().getVersion()});
         }
         String[] gradleVersions = new String[]{
+                "8.6",
                 "8.1.1",
                 "8.0.2",
                 "7.6.1",
@@ -65,7 +73,9 @@ public abstract class AbstractIntegrationTest {
         List<Object[]> parameters = new ArrayList<>();
 
         for (String gradleVersion : gradleVersions) {
-            parameters.add(new Object[]{gradleVersion});
+            if(COMPAT_MAP.get(JavaVersion.current()).compareTo(GradleVersion.version(gradleVersion)) <= 0) {
+                parameters.add(new Object[]{gradleVersion});
+            }
         }
         Collections.shuffle(parameters);
         return parameters;

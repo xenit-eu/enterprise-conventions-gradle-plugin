@@ -4,7 +4,7 @@ import eu.xenit.gradle.enterprise.conventions.internal.MultipleApplicationTarget
 import org.gradle.api.Project;
 import org.gradle.api.initialization.Settings;
 
-abstract class BasePlugin implements MultipleApplicationTargetsPlugin {
+public abstract class BasePlugin implements MultipleApplicationTargetsPlugin {
 
     public abstract void apply(Project project);
 
