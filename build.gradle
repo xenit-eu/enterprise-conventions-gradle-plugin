@@ -32,7 +32,11 @@ lombok {
     version = "1.18.30"
 }
 
-sourceCompatibility = 11
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(11)
+    }
+}
 
 configurations {
     packaged
