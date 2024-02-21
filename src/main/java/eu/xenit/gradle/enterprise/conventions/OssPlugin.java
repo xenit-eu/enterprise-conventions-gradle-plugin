@@ -2,6 +2,7 @@ package eu.xenit.gradle.enterprise.conventions;
 
 import eu.xenit.gradle.enterprise.conventions.api.PluginApi;
 import eu.xenit.gradle.enterprise.conventions.api.PublicApi;
+import eu.xenit.gradle.enterprise.conventions.extensions.dockerimagelabels.DockerImageLabelsPlugin;
 import eu.xenit.gradle.enterprise.conventions.extensions.mavencentralrequirements.MavenCentralRequirementsCheckPlugin;
 import eu.xenit.gradle.enterprise.conventions.extensions.repository.RepositoryExtensionsPlugin;
 import eu.xenit.gradle.enterprise.conventions.publish.OssPublishPlugin;
@@ -21,6 +22,7 @@ public class OssPlugin extends BasePlugin {
         project.getPluginManager().apply(RepositoryExtensionsPlugin.class);
         project.getPluginManager().apply(OssRepositoryPlugin.class);
         project.getPluginManager().apply(OssPublishPlugin.class);
+        project.getPluginManager().apply(DockerImageLabelsPlugin.class);
     }
 
     @Override

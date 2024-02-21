@@ -8,6 +8,7 @@ plugins {
     id 'nebula.integtest' version '7.0.9'
     id 'com.github.johnrengelman.shadow' version '6.1.0' apply false
     id "io.freefair.lombok" version "5.3.0"
+    id 'groovy'
 }
 
 
@@ -21,7 +22,15 @@ reckon {
     stageFromProp('alpha', 'beta', 'rc', 'final')
 }
 
-sourceCompatibility = 11
+lombok {
+    version = "1.18.30"
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(11)
+    }
+}
 
 configurations {
     packaged
@@ -37,6 +46,7 @@ repositories {
 dependencies {
     packaged 'commons-lang:commons-lang:2.5'
     implementation 'de.marcphilipp.gradle:nexus-publish-plugin:0.4.0'
+
     integTestImplementation "commons-io:commons-io:2.8.0"
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.mockito:mockito-core:3.7.7'
@@ -46,7 +56,6 @@ dependencies {
 task shadowJar(type: ShadowJar) {
     from sourceSets.main.output
     configurations = [project.configurations.packaged]
-    archiveClassifier = "shadow"
     mergeServiceFiles()
     exclude "META-INF/*.SF"
     exclude "META-INF/*.RSA"
@@ -56,12 +65,20 @@ task configureShadowJar(type: ConfigureShadowRelocation) {
     target = shadowJar
     prefix = "eu.xenit.gradle.enterprise.conventions.internal.shadow"
 }
-
 shadowJar.dependsOn(configureShadowJar)
 
 jar {
-    from project.provider { zipTree(shadowJar.outputs.files.singleFile) }
-    dependsOn(shadowJar)
+    archiveClassifier = "disabled"
+    enabled = false
+}
+
+artifacts {
+    apiElements(shadowJar.archiveFile) {
+        builtBy(shadowJar)
+    }
+    runtimeElements(shadowJar.archiveFile) {
+        builtBy(shadowJar)
+    }
 }
 
 gradlePlugin {
@@ -96,6 +113,12 @@ gradlePlugin {
             displayName = "Xenit conventions plugin: Maven Central requirements check"
             description = "Performs pre-publish check for requirements for publishing to Maven Central, also when publishing snapshots"
         }
+        dockerImageLabelsPlugin {
+            id = 'eu.xenit.enterprise-conventions.ext.docker-image-labels'
+            implementationClass = 'eu.xenit.gradle.enterprise.conventions.extensions.dockerimagelabels.DockerImageLabelsPlugin'
+            displayName = "Xenit conventions plugin: OCI source labels for Docker images"
+            description = "Adds OCI annotations to Docker images indicating the source repository and commit"
+        }
     }
     testSourceSets(sourceSets.integTest)
 }
@@ -116,3 +139,21 @@ integrationTest {
 pluginUnderTestMetadata {
     pluginClasspath.from(configurations.packaged)
 }
+
+tasks.register("integrationTestJava17", Test).configure {
+    if (gradle.startParameter.offline) {
+        systemProperty "eu.xenit.enterprise.conventions.integration.gradle-offline", "true"
+    }
+    jacoco {
+        enabled = false
+    }
+    testClassesDirs = sourceSets.integTest.output.classesDirs
+    classpath.from(sourceSets.integTest.runtimeClasspath)
+    group 'verification'
+    javaLauncher = javaToolchains.launcherFor {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+    shouldRunAfter(tasks.test)
+}
+
+check.dependsOn(integrationTestJava17)

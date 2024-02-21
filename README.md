@@ -195,6 +195,22 @@ Not all requirements can be checked automatically, only those that can are check
    * `scm` must contain `connection`, `developerConnection` and `url`
 
 
+## Docker image source labels
+
+When building docker images with the [Gradle Docker plugin](https://github.com/bmuschko/gradle-docker-plugin), [Alfresco Docker Gradle plugin](https://github.com/xenit-eu/alfresco-docker-gradle-plugin) or the [Spring Boot Gradle Plugin](https://docs.spring.io/spring-boot/docs/current/gradle-plugin/reference/htmlsingle/),
+some predefined [OCI annotations](https://github.com/opencontainers/image-spec/blob/main/annotations.md) are automatically applied:
+
+* `org.opencontainers.image.source`: Set to the repository URL (if available from a supported source provider)
+* `org.opencontainers.image.revision`: Set to the current commit (if available from a supported source provider)
+* `org.opencontainers.image.version`: Set to the version of the Gradle project the Docker image is built in
+* `org.opencontainers.image.title`: Set to the name of the Gradle project the Docker image is built in
+* `org.opencontainers.image.description`: Set to the description of the Gradle project the Docker image is built in
+
+### Supported source providers
+
+* GitHub Actions: information is read from environment variables set by GitHub Actions
+* Supporting other sources: provide a jar containing a [`BuildContextInformationSupplier](src/main/java/eu/xenit/gradle/enterprise/conventions/extensions/dockerimagelabels/BuildContextInformationSupplier.java) SPI
+
 ## Repository blocking
 
 In the `eu.xenit.enterprise-conventions.oss` plugin, all artifact repositories are allowed by default, except for the

@@ -2,6 +2,7 @@ package eu.xenit.gradle.enterprise.conventions;
 
 import eu.xenit.gradle.enterprise.conventions.api.PluginApi;
 import eu.xenit.gradle.enterprise.conventions.api.PublicApi;
+import eu.xenit.gradle.enterprise.conventions.extensions.dockerimagelabels.DockerImageLabelsPlugin;
 import eu.xenit.gradle.enterprise.conventions.extensions.repository.RepositoryExtensionsPlugin;
 import eu.xenit.gradle.enterprise.conventions.publish.PrivatePublishPlugin;
 import eu.xenit.gradle.enterprise.conventions.repository.RepositoryPlugin;
@@ -19,6 +20,7 @@ public class PrivatePlugin extends BasePlugin {
         project.getPluginManager().apply(RepositoryExtensionsPlugin.class);
         project.getPluginManager().apply(RepositoryPlugin.class);
         project.getPluginManager().apply(PrivatePublishPlugin.class);
+        project.getPluginManager().apply(DockerImageLabelsPlugin.class);
     }
 
     @Override

@@ -1,0 +1,2 @@
+eu.xenit.gradle.enterprise.conventions.extensions.dockerimagelabels.GradleDockerPluginImageLabelsApplier
+eu.xenit.gradle.enterprise.conventions.extensions.dockerimagelabels.SpringBootDockerImageLabelsApplier
