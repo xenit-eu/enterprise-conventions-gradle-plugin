@@ -34,4 +34,5 @@ class GradleDockerPluginImageLabelsApplier implements BuildContextInformationApp
                     }
         }
     }
+
 }
