@@ -1,8 +1,6 @@
 package eu.xenit.gradle.enterprise.conventions.extensions.mavencentralrequirements;
 
 
-import static org.apache.commons.lang.StringUtils.capitalize;
-
 import eu.xenit.gradle.enterprise.conventions.api.PluginApi;
 import eu.xenit.gradle.enterprise.conventions.api.PublicApi;
 import eu.xenit.gradle.enterprise.conventions.violations.ViolationHandler;
@@ -50,6 +48,17 @@ public class MavenCentralRequirementsCheckPlugin implements Plugin<Project> {
             task.setGroup(PublishingPlugin.PUBLISH_TASK_GROUP);
             task.dependsOn(project.getTasks().withType(CheckMavenCentralRequirements.class));
         });
+    }
+
+    private static String capitalize(String str) {
+        int strLen;
+        if (str == null || (strLen = str.length()) == 0) {
+            return str;
+        }
+        return new StringBuffer(strLen)
+                .append(Character.toTitleCase(str.charAt(0)))
+                .append(str.substring(1))
+                .toString();
     }
 
 }

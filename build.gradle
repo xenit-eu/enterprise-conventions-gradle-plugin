@@ -6,14 +6,9 @@ plugins {
     id 'be.vbgn.ci-detect' version '0.5.0'
     id 'be.vbgn.dev-conventions.opinion' version '0.5.0'
     id 'nebula.integtest' version '7.0.9'
-    id 'com.github.johnrengelman.shadow' version '6.1.0' apply false
     id "io.freefair.lombok" version "5.3.0"
     id 'groovy'
 }
-
-
-import com.github.jengelman.gradle.plugins.shadow.tasks.ConfigureShadowRelocation
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 group 'eu.xenit.gradle'
 
@@ -32,53 +27,18 @@ java {
     }
 }
 
-configurations {
-    packaged
-    compileOnly.extendsFrom(packaged)
-    testCompile.extendsFrom(packaged)
-}
-
 repositories {
     mavenCentral()
     gradlePluginPortal()
 }
 
 dependencies {
-    packaged 'commons-lang:commons-lang:2.5'
     implementation 'de.marcphilipp.gradle:nexus-publish-plugin:0.4.0'
 
     integTestImplementation "commons-io:commons-io:2.8.0"
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.mockito:mockito-core:3.7.7'
     testImplementation 'com.github.stefanbirkner:system-rules:1.19.0'
-}
-
-task shadowJar(type: ShadowJar) {
-    from sourceSets.main.output
-    configurations = [project.configurations.packaged]
-    mergeServiceFiles()
-    exclude "META-INF/*.SF"
-    exclude "META-INF/*.RSA"
-}
-
-task configureShadowJar(type: ConfigureShadowRelocation) {
-    target = shadowJar
-    prefix = "eu.xenit.gradle.enterprise.conventions.internal.shadow"
-}
-shadowJar.dependsOn(configureShadowJar)
-
-jar {
-    archiveClassifier = "disabled"
-    enabled = false
-}
-
-artifacts {
-    apiElements(shadowJar.archiveFile) {
-        builtBy(shadowJar)
-    }
-    runtimeElements(shadowJar.archiveFile) {
-        builtBy(shadowJar)
-    }
 }
 
 gradlePlugin {
@@ -134,10 +94,6 @@ integrationTest {
     if (gradle.startParameter.offline) {
         systemProperty "eu.xenit.enterprise.conventions.integration.gradle-offline", "true"
     }
-}
-
-pluginUnderTestMetadata {
-    pluginClasspath.from(configurations.packaged)
 }
 
 tasks.register("integrationTestJava17", Test).configure {
