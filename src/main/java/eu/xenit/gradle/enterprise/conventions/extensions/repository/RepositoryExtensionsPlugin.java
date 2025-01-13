@@ -3,10 +3,14 @@ package eu.xenit.gradle.enterprise.conventions.extensions.repository;
 import eu.xenit.gradle.enterprise.conventions.api.PluginApi;
 import eu.xenit.gradle.enterprise.conventions.api.PublicApi;
 import eu.xenit.gradle.enterprise.conventions.internal.MultipleApplicationTargetsPlugin;
+import eu.xenit.gradle.enterprise.conventions.internal.PropertyReader;
 import eu.xenit.gradle.enterprise.conventions.internal.StringConstants;
+import javax.inject.Inject;
 import org.gradle.api.Project;
+import org.gradle.api.artifacts.dsl.RepositoryHandler;
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository;
 import org.gradle.api.initialization.Settings;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.publish.PublishingExtension;
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin;
 import org.gradle.util.GradleVersion;
@@ -17,6 +21,13 @@ public class RepositoryExtensionsPlugin implements
 
     @PluginApi
     public static final String PLUGIN_ID = "eu.xenit.enterprise.ext.repository";
+
+    private final ObjectFactory objectFactory;
+
+    @Inject
+    public RepositoryExtensionsPlugin(ObjectFactory objectFactory) {
+        this.objectFactory = objectFactory;
+    }
 
     @Override
     public void apply(Project project) {
@@ -43,7 +54,8 @@ public class RepositoryExtensionsPlugin implements
     public void apply(Settings settings) {
         // Supported starting from 6.8
         if(GradleVersion.current().compareTo(GradleVersion.version("6.8")) >= 0) {
-            RepositoryHandlerExtensions.apply(settings.getDependencyResolutionManagement().getRepositories(), settings);
+            RepositoryHandler repositoryHandler = settings.getDependencyResolutionManagement().getRepositories();
+            RepositoryHandlerExtensions.apply(repositoryHandler, PropertyReader.from(settings), objectFactory);
         }
     }
 }

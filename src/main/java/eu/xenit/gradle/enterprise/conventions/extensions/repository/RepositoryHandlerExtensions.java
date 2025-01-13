@@ -13,13 +13,10 @@ import org.gradle.api.Project;
 import org.gradle.api.artifacts.dsl.RepositoryHandler;
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository;
 import org.gradle.api.artifacts.repositories.PasswordCredentials;
-import org.gradle.api.initialization.Settings;
 import org.gradle.api.internal.HasConvention;
-import org.gradle.api.internal.model.InstantiatorBackedObjectFactory;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.internal.reflect.DirectInstantiator;
 
 /**
  * Convention that is applied to the project's {@link RepositoryHandler} to add xenitPrivate() and xenitPrivateSnapshots() repositories.
@@ -148,11 +145,7 @@ public class RepositoryHandlerExtensions {
         apply(repositoryHandler, PropertyReader.from(project), project.getObjects());
     }
 
-    static void apply(RepositoryHandler repositoryHandler, Settings settings) {
-        apply(repositoryHandler, PropertyReader.from(settings), new InstantiatorBackedObjectFactory(DirectInstantiator.INSTANCE));
-    }
-
-    private static void apply(RepositoryHandler repositoryHandler, PropertyReader reader, ObjectFactory objectFactory) {
+    static void apply(RepositoryHandler repositoryHandler, PropertyReader reader, ObjectFactory objectFactory) {
         RepositoryHandlerExtensions repositoryHandlerExtensions = objectFactory.newInstance(RepositoryHandlerExtensions.class, repositoryHandler, reader);
         ((HasConvention) repositoryHandler).getConvention().getPlugins()
                 .put(RepositoryHandlerExtensions.class.getCanonicalName(), repositoryHandlerExtensions);
