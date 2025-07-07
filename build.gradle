@@ -55,12 +55,6 @@ gradlePlugin {
             displayName = "Xenit OSS conventions plugin"
             description = "Configures conventions for Xenit open source packages"
         }
-        repositoryExtensionsPlugin {
-            id = 'eu.xenit.enterprise-conventions.ext.repository'
-            implementationClass = 'eu.xenit.gradle.enterprise.conventions.extensions.repository.RepositoryExtensionsPlugin'
-            displayName = "Xenit conventions plugin: Repository extension"
-            description = "Configures additional repository shorthands"
-        }
         signingExtensionsPlugin {
             id = 'eu.xenit.enterprise-conventions.ext.signing'
             implementationClass = 'eu.xenit.gradle.enterprise.conventions.extensions.signing.AutomaticSigningPlugin'
@@ -69,7 +63,7 @@ gradlePlugin {
         }
         centralRequirementsPlugin {
             id = 'eu.xenit.enterprise-conventions.ext.maven-central-requirements'
-            implementationClass = 'eu.xenit.gradle.enterprise.conventions.extensions.mavencentralrequirements.MavenCentralRequirementsCheckPlugin'
+            implementationClass = 'eu.xenit.gradle.enterprise.conventions.extensions.mavencentral.requirements.MavenCentralRequirementsCheckPlugin'
             displayName = "Xenit conventions plugin: Maven Central requirements check"
             description = "Performs pre-publish check for requirements for publishing to Maven Central, also when publishing snapshots"
         }

@@ -1,4 +1,4 @@
-package eu.xenit.gradle.enterprise.conventions.extensions.mavencentralrequirements;
+package eu.xenit.gradle.enterprise.conventions.extensions.mavencentral.requirements;
 
 import org.gradle.api.publish.maven.MavenPublication;
 

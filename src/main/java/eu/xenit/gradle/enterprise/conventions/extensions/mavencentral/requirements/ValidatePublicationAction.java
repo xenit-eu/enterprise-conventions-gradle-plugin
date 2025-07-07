@@ -1,6 +1,6 @@
-package eu.xenit.gradle.enterprise.conventions.extensions.mavencentralrequirements;
+package eu.xenit.gradle.enterprise.conventions.extensions.mavencentral.requirements;
 
-import eu.xenit.gradle.enterprise.conventions.extensions.mavencentralrequirements.PomValidationException.ErrorType;
+import eu.xenit.gradle.enterprise.conventions.extensions.mavencentral.requirements.PomValidationException.ErrorType;
 import eu.xenit.gradle.enterprise.conventions.violations.FatalViolation;
 import eu.xenit.gradle.enterprise.conventions.violations.ViolationHandler;
 import java.net.URI;
