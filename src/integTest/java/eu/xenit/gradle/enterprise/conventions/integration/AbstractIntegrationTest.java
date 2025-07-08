@@ -48,27 +48,14 @@ public abstract class AbstractIntegrationTest {
             return Collections.singletonList(new Object[]{GradleVersion.current().getVersion()});
         }
         String[] gradleVersions = new String[]{
+                "8.14.3",
                 "8.12",
                 "8.6",
                 "8.1.1",
                 "8.0.2",
                 "7.6.4",
                 "7.5.1",
-                "7.0",
-                "6.9.1",
-                "6.8.1",
-                "6.7.1",
-                "6.6.1",
-                "6.5.1",
-                "6.4.1",
-                "6.3",
-                "6.2.2",
-                "6.1.1",
-                "6.0.1",
-                "5.6.4",
-                "5.5.1",
-                "5.4.1",
-                "5.3.1",
+                "7.3.3",
         };
 
         List<Object[]> parameters = new ArrayList<>();

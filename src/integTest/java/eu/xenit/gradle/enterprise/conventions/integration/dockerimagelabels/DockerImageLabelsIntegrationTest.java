@@ -21,14 +21,10 @@ public class DockerImageLabelsIntegrationTest extends AbstractIntegrationTest {
             "GITHUB_SHA", "af554b096e332a30dc90d9e77f42b9fbf1589201"
     );
 
-    @Before
-    public void checkGradleVersion() {
-        assumeThat(GradleVersion.version(gradleVersion), new GradleVersionCompatibilityMatcher(GradleVersion.version("6.1")));
-    }
-
     @Test
     public void springBootPlugin() throws IOException {
         assumeThat(JavaVersion.current(), new JavaVersionCompatibilityMatcher(JavaVersion.VERSION_17));
+        assumeThat(GradleVersion.version(gradleVersion), new GradleVersionCompatibilityMatcher(GradleVersion.version("7.4")));
 
         createGradleRunner(integrationTests.resolve("dockerimagelabels/springBootPlugin"))
                 .withEnvironment(GHA_ENV)

@@ -1,7 +1,6 @@
 package eu.xenit.gradle.enterprise.conventions.violations;
 
 import eu.xenit.gradle.enterprise.conventions.api.PluginApi;
-import eu.xenit.gradle.enterprise.conventions.internal.StringConstants;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
@@ -19,7 +18,7 @@ public interface ViolationHandler {
     @Nonnull
     static ViolationHandler fromProject(@Nonnull Project project, @Nonnull String category) {
         Objects.requireNonNull(project, "project");
-        final String propertyName = StringConstants.GRADLE_PROPERTIES_PREFIX + ".violations";
+        final String propertyName = "eu.xenit.enterprise-conventions.violations";
         final String categoryPropertyName = propertyName + "." + Objects.requireNonNull(category, "category");
         ViolationEnforceLevel enforceLevel = Optional.ofNullable(project.findProperty(categoryPropertyName))
                 .or(() -> Optional.ofNullable(project.findProperty(propertyName)))

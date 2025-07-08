@@ -23,7 +23,7 @@ lombok {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(11)
+        languageVersion = JavaLanguageVersion.of(17)
     }
 }
 
@@ -33,7 +33,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'de.marcphilipp.gradle:nexus-publish-plugin:0.4.0'
+    implementation 'org.jreleaser:org.jreleaser.gradle.plugin:1.19.0'
 
     integTestImplementation "commons-io:commons-io:2.8.0"
     testImplementation 'junit:junit:4.12'
@@ -55,21 +55,21 @@ gradlePlugin {
             displayName = "Xenit OSS conventions plugin"
             description = "Configures conventions for Xenit open source packages"
         }
-        repositoryExtensionsPlugin {
-            id = 'eu.xenit.enterprise-conventions.ext.repository'
-            implementationClass = 'eu.xenit.gradle.enterprise.conventions.extensions.repository.RepositoryExtensionsPlugin'
-            displayName = "Xenit conventions plugin: Repository extension"
-            description = "Configures additional repository shorthands"
-        }
         signingExtensionsPlugin {
             id = 'eu.xenit.enterprise-conventions.ext.signing'
             implementationClass = 'eu.xenit.gradle.enterprise.conventions.extensions.signing.AutomaticSigningPlugin'
             displayName = "Xenit conventions plugin: Signing extension"
             description = "Automatically configures artifact signing"
         }
+        centralPublishPlugin {
+            id = 'eu.xenit.enterprise-conventions.ext.maven-central-publish'
+            implementationClass = 'eu.xenit.gradle.enterprise.conventions.extensions.mavencentral.publish.MavenCentralPublishPlugin'
+            displayName = "Xenit conventions plugin: Maven Central publish"
+            description = "Configures publication to Maven Central using the Sonatype Central Portal"
+        }
         centralRequirementsPlugin {
             id = 'eu.xenit.enterprise-conventions.ext.maven-central-requirements'
-            implementationClass = 'eu.xenit.gradle.enterprise.conventions.extensions.mavencentralrequirements.MavenCentralRequirementsCheckPlugin'
+            implementationClass = 'eu.xenit.gradle.enterprise.conventions.extensions.mavencentral.requirements.MavenCentralRequirementsCheckPlugin'
             displayName = "Xenit conventions plugin: Maven Central requirements check"
             description = "Performs pre-publish check for requirements for publishing to Maven Central, also when publishing snapshots"
         }
@@ -95,21 +95,3 @@ integrationTest {
         systemProperty "eu.xenit.enterprise.conventions.integration.gradle-offline", "true"
     }
 }
-
-tasks.register("integrationTestJava17", Test).configure {
-    if (gradle.startParameter.offline) {
-        systemProperty "eu.xenit.enterprise.conventions.integration.gradle-offline", "true"
-    }
-    jacoco {
-        enabled = false
-    }
-    testClassesDirs = sourceSets.integTest.output.classesDirs
-    classpath.from(sourceSets.integTest.runtimeClasspath)
-    group 'verification'
-    javaLauncher = javaToolchains.launcherFor {
-        languageVersion = JavaLanguageVersion.of(17)
-    }
-    shouldRunAfter(tasks.test)
-}
-
-check.dependsOn(integrationTestJava17)
