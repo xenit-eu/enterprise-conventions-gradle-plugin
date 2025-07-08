@@ -23,7 +23,7 @@ lombok {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(11)
+        languageVersion = JavaLanguageVersion.of(17)
     }
 }
 
@@ -95,21 +95,3 @@ integrationTest {
         systemProperty "eu.xenit.enterprise.conventions.integration.gradle-offline", "true"
     }
 }
-
-tasks.register("integrationTestJava17", Test).configure {
-    if (gradle.startParameter.offline) {
-        systemProperty "eu.xenit.enterprise.conventions.integration.gradle-offline", "true"
-    }
-    jacoco {
-        enabled = false
-    }
-    testClassesDirs = sourceSets.integTest.output.classesDirs
-    classpath.from(sourceSets.integTest.runtimeClasspath)
-    group 'verification'
-    javaLauncher = javaToolchains.launcherFor {
-        languageVersion = JavaLanguageVersion.of(17)
-    }
-    shouldRunAfter(tasks.test)
-}
-
-check.dependsOn(integrationTestJava17)

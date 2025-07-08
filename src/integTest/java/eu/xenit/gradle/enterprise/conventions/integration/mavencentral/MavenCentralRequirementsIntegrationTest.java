@@ -64,8 +64,8 @@ public class MavenCentralRequirementsIntegrationTest extends AbstractIntegration
 
     @Test
     public void everythingOkTaskCheck() throws IOException {
-        BuildResult buildResult = createGradleRunner(integrationTests.resolve("mavencentral/jreleaserPublish"))
-                .withArguments("checkMavenCentralRequirements")
+        createGradleRunner(integrationTests.resolve("mavencentral/jreleaserPublish"))
+                .withArguments("checkMavenCentralRequirements", "--stacktrace")
                 .build();
     }
 }

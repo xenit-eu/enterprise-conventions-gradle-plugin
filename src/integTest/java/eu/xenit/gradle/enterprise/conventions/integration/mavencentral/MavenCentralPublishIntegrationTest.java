@@ -31,7 +31,6 @@ public class MavenCentralPublishIntegrationTest extends AbstractIntegrationTest 
 
     @Test
     public void publishRelease() throws IOException {
-        assumeThat(GradleVersion.version(gradleVersion), new GradleVersionCompatibilityMatcher(GradleVersion.version("7.0")));
         var gradleRunner = createGradleRunner(integrationTests.resolve("mavencentral/jreleaserPublish"));
         var projectDir = gradleRunner.getProjectDir();
         setupGitRepo(projectDir);
@@ -50,7 +49,6 @@ public class MavenCentralPublishIntegrationTest extends AbstractIntegrationTest 
 
     @Test
     public void publishSnapshot() throws IOException {
-        assumeThat(GradleVersion.version(gradleVersion), new GradleVersionCompatibilityMatcher(GradleVersion.version("7.0")));
         var gradleRunner = createGradleRunner(integrationTests.resolve("mavencentral/jreleaserPublish"));
         var projectDir = gradleRunner.getProjectDir();
         setupGitRepo(projectDir);
@@ -61,6 +59,13 @@ public class MavenCentralPublishIntegrationTest extends AbstractIntegrationTest 
         assertEquals(buildResult.task(":publishMavenJavaPublicationToCentralSnapshotsRepository").getOutcome(), TaskOutcome.SUCCESS);
         assertEquals(buildResult.task(":publishMavenJavaPublicationToJReleaserStagingRepository").getOutcome(), TaskOutcome.SKIPPED);
         assertThat(buildResult.getOutput(), CoreMatchers.containsString("Deploying is not enabled. Skipping"));
+    }
+
+    @Test
+    public void worksWithoutCredentialsProvided() throws IOException {
+        createGradleRunner(integrationTests.resolve("mavencentral/jreleaserPublish"))
+                .withArguments("jar")
+                .build();
     }
 
     private void exec(File directory, String... args) throws IOException, InterruptedException {

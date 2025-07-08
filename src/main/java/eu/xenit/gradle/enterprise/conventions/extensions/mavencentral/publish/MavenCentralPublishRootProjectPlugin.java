@@ -6,9 +6,10 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import javax.inject.Inject;
+import lombok.ToString;
+import lombok.Value;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.credentials.PasswordCredentials;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.BasePlugin;
@@ -17,8 +18,8 @@ import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.publish.PublishingExtension;
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin;
 import org.gradle.api.publish.maven.tasks.PublishToMavenRepository;
-import org.gradle.api.publish.plugins.PublishingPlugin;
 import org.gradle.api.tasks.TaskCollection;
+import org.gradle.util.GradleVersion;
 import org.jreleaser.gradle.plugin.JReleaserExtension;
 import org.jreleaser.gradle.plugin.JReleaserPlugin;
 import org.jreleaser.gradle.plugin.tasks.AbstractJReleaserTask;
@@ -27,12 +28,32 @@ import org.jreleaser.model.Active;
 public class MavenCentralPublishRootProjectPlugin implements Plugin<Project> {
     private final DirectoryProperty stagingRepo;
     private final Set<TaskCollection<PublishToMavenRepository>> dependencies = new HashSet<>();
-    private final Provider<PasswordCredentials> publishCredentials;
+    private final Provider<Credentials> publishCredentials;
+
+    static {
+        if(GradleVersion.current().compareTo(GradleVersion.version("7.3.0")) < 0) {
+            throw new RuntimeException("At least Gradle 7.3 is required for this plugin");
+        }
+    }
+
+    @Value
+    private static class Credentials {
+        String username;
+
+        @ToString.Exclude
+        String password;
+    }
 
     @Inject
     public MavenCentralPublishRootProjectPlugin(ObjectFactory objectFactory, ProviderFactory providers) {
         stagingRepo = objectFactory.directoryProperty();
-        publishCredentials = providers.credentials(PasswordCredentials.class, "mavenCentralPublish");
+        // Not using providers.credentials(), because that throws when credentials are not available
+        // (even when checking isPresent() only)
+        publishCredentials = providers.zip(
+                providers.gradleProperty("mavenCentralPublishUsername").forUseAtConfigurationTime(),
+                providers.gradleProperty("mavenCentralPublishPassword").forUseAtConfigurationTime(),
+                Credentials::new
+        ).forUseAtConfigurationTime();
     }
 
     public void registerPublication(Project project) {
@@ -43,12 +64,12 @@ public class MavenCentralPublishRootProjectPlugin implements Plugin<Project> {
             var snapshotRepo = publishingExtension.getRepositories().maven(snapshotRepository -> {
                 snapshotRepository.setName("CentralSnapshots");
                 snapshotRepository.setUrl("https://central.sonatype.com/repository/maven-snapshots/");
-                if(publishCredentials.isPresent()) {
-                    snapshotRepository.credentials(creds -> {
+                snapshotRepository.credentials(creds -> {
+                    if(publishCredentials.isPresent()) {
                         creds.setUsername(publishCredentials.get().getUsername());
                         creds.setPassword(publishCredentials.get().getPassword());
-                    });
-                }
+                    }
+                });
             });
 
             // Release Repository
@@ -99,8 +120,8 @@ public class MavenCentralPublishRootProjectPlugin implements Plugin<Project> {
                         );
                         mavenCentral.getSign().convention(false);
                         mavenCentral.getApplyMavenCentralRules().convention(true);
-                        mavenCentral.getUsername().set(publishCredentials.map(PasswordCredentials::getUsername));
-                        mavenCentral.getPassword().set(publishCredentials.map(PasswordCredentials::getPassword));
+                        mavenCentral.getUsername().set(publishCredentials.map(Credentials::getUsername));
+                        mavenCentral.getPassword().set(publishCredentials.map(Credentials::getPassword));
                     });
             jreleaserExtension.getGitRootSearch().convention(true);
 

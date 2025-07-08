@@ -1,8 +1,10 @@
 package eu.xenit.gradle.enterprise.conventions.extensions.mavencentral.publish;
 
+import eu.xenit.gradle.enterprise.conventions.api.PublicApi;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
+@PublicApi
 public class MavenCentralPublishPlugin implements Plugin<Project> {
 
     @Override
