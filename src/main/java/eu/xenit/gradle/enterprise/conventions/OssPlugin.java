@@ -5,6 +5,7 @@ import eu.xenit.gradle.enterprise.conventions.api.PublicApi;
 import eu.xenit.gradle.enterprise.conventions.extensions.dockerimagelabels.DockerImageLabelsPlugin;
 import eu.xenit.gradle.enterprise.conventions.extensions.mavencentral.publish.MavenCentralPublishPlugin;
 import eu.xenit.gradle.enterprise.conventions.extensions.mavencentral.requirements.MavenCentralRequirementsCheckPlugin;
+import eu.xenit.gradle.enterprise.conventions.extensions.signing.AutomaticSigningPlugin;
 import org.gradle.api.Project;
 
 @PublicApi
@@ -17,6 +18,7 @@ public class OssPlugin extends BasePlugin {
     public void apply(Project project) {
         project.getPluginManager().apply(MavenCentralRequirementsCheckPlugin.class);
         project.getPluginManager().apply(MavenCentralPublishPlugin.class);
+        project.getPluginManager().apply(AutomaticSigningPlugin.class);
         project.getPluginManager().apply(DockerImageLabelsPlugin.class);
     }
 }
