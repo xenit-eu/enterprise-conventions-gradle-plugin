@@ -33,7 +33,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'de.marcphilipp.gradle:nexus-publish-plugin:0.4.0'
+    implementation 'org.jreleaser:org.jreleaser.gradle.plugin:1.19.0'
 
     integTestImplementation "commons-io:commons-io:2.8.0"
     testImplementation 'junit:junit:4.12'
@@ -60,6 +60,12 @@ gradlePlugin {
             implementationClass = 'eu.xenit.gradle.enterprise.conventions.extensions.signing.AutomaticSigningPlugin'
             displayName = "Xenit conventions plugin: Signing extension"
             description = "Automatically configures artifact signing"
+        }
+        centralPublishPlugin {
+            id = 'eu.xenit.enterprise-conventions.ext.maven-central-publish'
+            implementationClass = 'eu.xenit.gradle.enterprise.conventions.extensions.mavencentral.publish.MavenCentralPublishPlugin'
+            displayName = "Xenit conventions plugin: Maven Central publish"
+            description = "Configures publication to Maven Central using the Sonatype Central Portal"
         }
         centralRequirementsPlugin {
             id = 'eu.xenit.enterprise-conventions.ext.maven-central-requirements'

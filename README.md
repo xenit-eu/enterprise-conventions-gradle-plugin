@@ -40,103 +40,107 @@ plugins {
 
 ## Usage
 
-### Repository shorthands
+### Publishing to Maven Central
 
-Both OSS and Private plugins provide additional shorthands for your `repositories {}` block:
+When using the `eu.xenit.enterprise-conventions.oss` and the [`maven-publish`](https://docs.gradle.org/current/userguide/publishing_maven.html) plugin;
+releases to Maven Central using the [Central Portal Publish API](https://central.sonatype.org/publish/publish-portal-api/) are automatically set up using [JReleaser](https://jreleaser.org/).
 
-* `sonatypeSnapshots()`: Configures https://oss.sonatype.org/ AND https://s01.oss.sonatype.org/ snapshot repositories. Additional snapshot repositories will be added when they are created.
-* `xenit()`: Configures Xenit private repository (Release) with credentials from `eu.xenit.repo.username` and `eu.xenit.repo.password`
-* `xenitSnapshots()`: Configures Xenit private repository (Snapshots) with credentials from `eu.xenit.repo.username` and `eu.xenit.repo.password`
-* `xenitPrivate()` (**Deprecated**): Configures Xenit private artifacts server (Releases) with credentials
-  from `eu.xenit.artifactory.username` and `eu.xenit.artifactory.password` properties
-* `xenitPrivateSnapshots()` (**Deprecated**): Configures Xenit private artifacts server (Snapshots) with credentials
-  from `eu.xenit.artifactory.username` and `eu.xenit.artifactory.password` properties
+Set the Gradle properties `mavenCentralPublishUsername` and `mavenCentralPublishPassword` to configure the publication username and password.
+Publication can be done using the `jreleaserFullRelease` task.
 
-Similarly, these shorthands can also be used in `settings.gradle` in a `dependencyResolutionManagement.repositories {}` block,
-which is the recommended way to configure repositories if they are used in all subprojects.
+You can set these properties in 2 ways, using command-line properties, or using environment variables.
 
-`dependencyResolutionManagement` in `settings.gradle` is supported in Gradle 6.8 and newer.
+| Command-line properties                                                                 | Environment variables                                                                                                                    |
+|-----------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------|
+| `./gradlew publish -PmavenCentralPublishUsername=XXX -PmavenCentralPublishPassword=YYY` | `export ORG_GRADLE_PROJECT_mavenCentralPublishUsername=XXX;export ORG_GRADLE_PROJECT_mavenCentralPublishPassword=YYY; ./gradlew publish` |
 
-All repositories can be configured further by configuring it in a block.
+
+Note that Maven Central requires publication signing and complete POMs for releases; which needs to be set up as well.
 
 <details>
-<summary>Example</summary>
-
-```groovy
-repositories {
-    sonatypeSnapshots()
-    xenit()
-    xenitSnapshots()
-}
-```
-
-```groovy
-repositories {
-    xenit {
-        // Example additional configuration.
-        // See https://docs.gradle.org/current/javadoc/org/gradle/api/artifacts/repositories/MavenArtifactRepository.html
-        content {
-            includeGroup "eu.xenit"
-        }
-    }
-}
-```
+<summary>Full configuration example</summary>
 
 ```groovy
 // settings.gradle
-dependencyResolutionManagement {
-  repositories {
-    xenit()
-  }
+plugins {
+    id 'eu.xenit.enterprise-conventions.oss' version ...
 }
 ```
-
-</details>
-
-### Publishing shorthands
-
-When the [`maven-publish` plugin](https://docs.gradle.org/current/userguide/publishing_maven.html) is used, additional
-repository shorthands are available on the `publishing.repositories {}` block. In addition to the repositories listed
-above, `sonatypeMavenCentral()` is also available, which transparently sets up
-the [nexus publish plugin](https://github.com/marcphilipp/nexus-publish-plugin)
-to automatically deploy to a staging repository.
-
-Note that you should use the `sonatypeSnapshots()` repository for publishing snapshots.
-
-<details>
-<summary>Example</summary>
 
 ```groovy
-publishing {
-  repositories {
-    // Switch which repository is used based on if the version is a snapshot
-    if("${project.version}".endsWith('-SNAPSHOT')) {
-      sonatypeSnapshots {
-        // The default is https://oss.sonatype.org/content/repositories/snapshots/
-        url = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
-        credentials {
-          username 'XYZ'
-          password 'some-password'
+// root build.gradle
+allprojects {
+    pluginManager.withPlugin('maven-publish') {
+        // Always apply signing plugin; signing is required for publishing to maven central
+        apply plugin: 'signing'
+        
+        // Configure POM with all required fields for publishing to maven central
+        publishing {
+            publications {
+                all {
+                    pom {
+                        url = ...
+                        name = project.name
+                        description = project.description
+
+                        scm {
+                            connection = ...
+                            developerConnection = ...
+                            url = ...
+                        }
+
+                        developers {
+                            developer {
+                                name = ...
+                                organization = ...
+                            }
+                        }
+
+                        licenses {
+                            license {
+                                name = ...
+                                url = ...
+                            }
+                        }
+                    }
+                }
+            }
         }
-      }
-    } else {
-      sonatypeMavenCentral {
-        // If you need to publish to a different repository
-        // The default is https://oss.sonatype.org/service/local/
-        url = "https://s01.oss.sonatype.org/service/local/"
-        credentials {
-          username 'XYZ'
-          password 'some-password'
+        
+        // Configure publication of the library when using java-library plugin
+        pluginManager.withPlugin('java-library') {
+            publishing {
+                publications {
+                    library(MavenPublication) {
+                        from components.java
+                    }
+                }
+            }
         }
-      }
+        
+        // Configure publication of BOMs/platforms when using the platform plugin
+        pluginManager.withPlugin('java-platform') {
+            publishing {
+                publications {
+                    platform(MavenPublication) {
+                        from components.javaPlatform
+                    }
+                }
+            }
+        }
     }
-  }
+    
+    // Optionally; make check task always include the maven central requirements check
+    pluginManager.withPlugin('base') {
+        tasks.named('check').configure {
+            dependsOn('checkMavenCentralRequirements')
+        }
+    }
 }
 ```
-
 </details>
 
-### Publication signing
+#### Publication signing
 
 When the `eu.xenit.enterprise-conventions.oss`,
 the [`maven-publish`](https://docs.gradle.org/current/userguide/publishing_maven.html) and
@@ -175,7 +179,7 @@ With properties:
 
 </details>
 
-## Publication validation
+#### Publication validation
 
 When the `eu.xenit.enterprise-conventions.oss` plugin is applied,
 adherence to the [Maven Central requirements](https://central.sonatype.org/publish/requirements/#answer) is validated when publishing
@@ -195,7 +199,7 @@ Not all requirements can be checked automatically, only those that can are check
    * `scm` must contain `connection`, `developerConnection` and `url`
 
 
-## Docker image source labels
+### Docker image source labels
 
 When building docker images with the [Gradle Docker plugin](https://github.com/bmuschko/gradle-docker-plugin), [Alfresco Docker Gradle plugin](https://github.com/xenit-eu/alfresco-docker-gradle-plugin) or the [Spring Boot Gradle Plugin](https://docs.spring.io/spring-boot/docs/current/gradle-plugin/reference/htmlsingle/),
 some predefined [OCI annotations](https://github.com/opencontainers/image-spec/blob/main/annotations.md) are automatically applied:
@@ -206,35 +210,7 @@ some predefined [OCI annotations](https://github.com/opencontainers/image-spec/b
 * `org.opencontainers.image.title`: Set to the name of the Gradle project the Docker image is built in
 * `org.opencontainers.image.description`: Set to the description of the Gradle project the Docker image is built in
 
-### Supported source providers
+#### Supported source providers
 
 * GitHub Actions: information is read from environment variables set by GitHub Actions
 * Supporting other sources: provide a jar containing a [`BuildContextInformationSupplier](src/main/java/eu/xenit/gradle/enterprise/conventions/extensions/dockerimagelabels/BuildContextInformationSupplier.java) SPI
-
-## Repository blocking
-
-In the `eu.xenit.enterprise-conventions.oss` plugin, all artifact repositories are allowed by default, except for the
-Xenit private artifacts server. This is to avoid accidentally depending on this private server for open source software
-that we publish.
-
-In all cases, local `file:///` repositories are allowed and `http://` repositories are blocked. It is possible to add
-additional repositories to the allow- or blocklists by adding properties to `gradle.properties` (either globally or
-per-project):
-`eu.xenit.enterprise-conventions.repository.allow.<hostname>=true`
-or `eu.xenit.enterprise-conventions.repository.block.<hostname>=true`
-Entries that are added to the blocklist in this way take priority over entries that are added to the allowlist.
-
-<details>
-<summary>Example</summary>
-
-These properties-files can be placed in `~/.gradle/gradle.properties`, or locally in your project as `gradle.properties`
-.
-
-```properties
-# Allow jcenter back, even though it is blocked by default
-eu.xenit.enterprise-conventions.repository.allow.jcenter.org=true
-# Block repository on example.com, even though it may be allowed by default
-eu.xenit.enterprise-conventions.repository.block.example.com=true
-```
-
-</details>

@@ -34,7 +34,7 @@ public class ValidatePublicationAction implements Action<Task> {
         if(task instanceof PublishToMavenRepository ) {
             var isSonatypeRepo = Optional.ofNullable(((PublishToMavenRepository)task).getRepository().getUrl())
                     .map(URI::getHost)
-                    .map(host -> host.endsWith("oss.sonatype.org"))
+                    .map(host -> host.endsWith("oss.sonatype.org") || host.equalsIgnoreCase("central.sonatype.com"))
                     .orElse(false);
 
             if (Boolean.FALSE.equals(isSonatypeRepo)) {

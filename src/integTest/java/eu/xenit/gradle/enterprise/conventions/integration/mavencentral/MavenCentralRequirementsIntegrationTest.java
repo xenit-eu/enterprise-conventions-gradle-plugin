@@ -1,4 +1,4 @@
-package eu.xenit.gradle.enterprise.conventions.integration.mavenCentralRequirements;
+package eu.xenit.gradle.enterprise.conventions.integration.mavencentral;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -11,7 +11,7 @@ import org.junit.Test;
 public class MavenCentralRequirementsIntegrationTest extends AbstractIntegrationTest {
     @Test
     public void withoutSigning() throws IOException {
-        BuildResult buildResult = createGradleRunner(integrationTests.resolve("mavenCentralRequirements/withoutSigning"))
+        BuildResult buildResult = createGradleRunner(integrationTests.resolve("mavencentral/withoutSigning"))
                 .withArguments("publish")
                 .buildAndFail();
         assertTrue(buildResult.getOutput().contains("Publication 'mavenJava': Artifact 'integration-test-1.0.jar' must be signed, but signature 'integration-test-1.0.jar.asc' is missing."));
@@ -21,7 +21,7 @@ public class MavenCentralRequirementsIntegrationTest extends AbstractIntegration
 
     @Test
     public void withoutSources() throws IOException {
-        BuildResult buildResult = createGradleRunner(integrationTests.resolve("mavenCentralRequirements/withoutSources"))
+        BuildResult buildResult = createGradleRunner(integrationTests.resolve("mavencentral/withoutSources"))
                 .withArguments("publish")
                 .buildAndFail();
         assertTrue(buildResult.getOutput().contains("Publication 'mavenJava': missing required artifact 'integration-test-1.0-sources.jar'"));
@@ -30,7 +30,7 @@ public class MavenCentralRequirementsIntegrationTest extends AbstractIntegration
 
     @Test
     public void pomOnlyWithoutSources() throws IOException {
-        BuildResult buildResult = createGradleRunner(integrationTests.resolve("mavenCentralRequirements/pomOnlyWithoutSources"))
+        BuildResult buildResult = createGradleRunner(integrationTests.resolve("mavencentral/pomOnlyWithoutSources"))
                 .withArguments("publish")
                 .buildAndFail();
         assertFalse(buildResult.getOutput().contains("Publication 'mavenJava': missing required artifact"));
@@ -38,7 +38,7 @@ public class MavenCentralRequirementsIntegrationTest extends AbstractIntegration
 
     @Test
     public void withoutPom() throws IOException {
-        BuildResult buildResult = createGradleRunner(integrationTests.resolve("mavenCentralRequirements/withoutPom"))
+        BuildResult buildResult = createGradleRunner(integrationTests.resolve("mavencentral/withoutPom"))
                 .withArguments("publish")
                 .buildAndFail();
         assertTrue(buildResult.getOutput().contains("Publication 'mavenJava': POM property 'developers' is required but is empty"));
@@ -47,7 +47,7 @@ public class MavenCentralRequirementsIntegrationTest extends AbstractIntegration
 
     @Test
     public void withoutPomTaskCheck() throws IOException {
-        BuildResult buildResult = createGradleRunner(integrationTests.resolve("mavenCentralRequirements/withoutPom"))
+        BuildResult buildResult = createGradleRunner(integrationTests.resolve("mavencentral/withoutPom"))
                 .withArguments("checkMavenCentralRequirements")
                 .buildAndFail();
         assertTrue(buildResult.getOutput().contains("Publication 'mavenJava': POM property 'developers' is required but is empty"));
@@ -56,7 +56,7 @@ public class MavenCentralRequirementsIntegrationTest extends AbstractIntegration
 
     @Test
     public void everythingOk() throws IOException {
-        BuildResult buildResult = createGradleRunner(integrationTests.resolve("mavenCentralRequirements/everythingOk"))
+        BuildResult buildResult = createGradleRunner(integrationTests.resolve("mavencentral/jreleaserPublish"))
                 .withArguments("publish")
                 .buildAndFail();
         assertFalse(buildResult.getOutput().contains("Policy violation"));
@@ -64,7 +64,7 @@ public class MavenCentralRequirementsIntegrationTest extends AbstractIntegration
 
     @Test
     public void everythingOkTaskCheck() throws IOException {
-        BuildResult buildResult = createGradleRunner(integrationTests.resolve("mavenCentralRequirements/everythingOk"))
+        BuildResult buildResult = createGradleRunner(integrationTests.resolve("mavencentral/jreleaserPublish"))
                 .withArguments("checkMavenCentralRequirements")
                 .build();
     }

@@ -1,5 +1,6 @@
 plugins {
     id 'eu.xenit.enterprise-conventions.ext.maven-central-requirements'
+    id 'eu.xenit.enterprise-conventions.ext.maven-central-publish'
     id "eu.xenit.enterprise-conventions.ext.signing"
     id "maven-publish"
     id "java"
@@ -48,9 +49,17 @@ publishing {
             }
         }
     }
-    repositories {
-        maven {
-            url = "https://oss.sonatype.org/obviously-invalid"
-        }
-    }
+
 }
+
+// This is part of the test itself, only doing dry-runs; not actually publishing
+jreleaser {
+    dryrun = true
+}
+
+tasks.withType(PublishToMavenRepository)
+    .matching { it.repository.name == "CentralSnapshots" }
+    .configureEach {
+        // Remove all actions; so the publish does not actually do any work
+        it.actions.clear()
+    }
