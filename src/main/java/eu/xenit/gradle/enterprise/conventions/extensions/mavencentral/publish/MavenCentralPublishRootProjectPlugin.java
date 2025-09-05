@@ -50,10 +50,10 @@ public class MavenCentralPublishRootProjectPlugin implements Plugin<Project> {
         // Not using providers.credentials(), because that throws when credentials are not available
         // (even when checking isPresent() only)
         publishCredentials = providers.zip(
-                providers.gradleProperty("mavenCentralPublishUsername").forUseAtConfigurationTime(),
-                providers.gradleProperty("mavenCentralPublishPassword").forUseAtConfigurationTime(),
+                providers.gradleProperty("mavenCentralPublishUsername"),
+                providers.gradleProperty("mavenCentralPublishPassword"),
                 Credentials::new
-        ).forUseAtConfigurationTime();
+        );
     }
 
     public void registerPublication(Project project) {
