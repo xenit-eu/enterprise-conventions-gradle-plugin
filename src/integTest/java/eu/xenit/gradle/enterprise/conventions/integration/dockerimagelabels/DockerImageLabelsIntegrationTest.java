@@ -4,12 +4,9 @@ import static org.junit.Assume.assumeThat;
 
 import eu.xenit.gradle.enterprise.conventions.integration.AbstractIntegrationTest;
 import eu.xenit.gradle.enterprise.conventions.integration.GradleVersionCompatibilityMatcher;
-import eu.xenit.gradle.enterprise.conventions.integration.JavaVersionCompatibilityMatcher;
 import java.io.IOException;
 import java.util.Map;
-import org.gradle.api.JavaVersion;
 import org.gradle.util.GradleVersion;
-import org.junit.Before;
 import org.junit.Test;
 
 public class DockerImageLabelsIntegrationTest extends AbstractIntegrationTest {
@@ -23,7 +20,6 @@ public class DockerImageLabelsIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     public void springBootPlugin() throws IOException {
-        assumeThat(JavaVersion.current(), new JavaVersionCompatibilityMatcher(JavaVersion.VERSION_17));
         assumeThat(GradleVersion.version(gradleVersion), new GradleVersionCompatibilityMatcher(GradleVersion.version("7.4")));
 
         createGradleRunner(integrationTests.resolve("dockerimagelabels/springBootPlugin"))
