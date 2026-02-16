@@ -1,11 +1,12 @@
 package eu.xenit.gradle.enterprise.conventions.violations;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.gradle.api.Project;
 import org.gradle.testfixtures.ProjectBuilder;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ViolationHandlerTest {
 
@@ -54,10 +55,12 @@ public class ViolationHandlerTest {
         assertThat(handler, instanceOf(DisabledViolationHandler.class));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testInvalidLevel() {
         Project project = ProjectBuilder.builder().build();
         project.getExtensions().getExtraProperties().set("eu.xenit.enterprise-conventions.violations", "invalid-value");
-        ViolationHandler.fromProject(project, "category");
+        assertThrows(IllegalArgumentException.class, () ->
+                ViolationHandler.fromProject(project, "category")
+        );
     }
 }

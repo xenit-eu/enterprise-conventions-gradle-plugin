@@ -1,9 +1,8 @@
 package eu.xenit.gradle.enterprise.conventions.integration.mavencentral;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import eu.xenit.gradle.enterprise.conventions.integration.AbstractIntegrationTest;
 import eu.xenit.gradle.enterprise.conventions.integration.GradleVersionCompatibilityMatcher;
@@ -15,7 +14,8 @@ import org.gradle.testkit.runner.BuildTask;
 import org.gradle.testkit.runner.TaskOutcome;
 import org.gradle.util.GradleVersion;
 import org.hamcrest.CoreMatchers;
-import org.junit.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 public class MavenCentralPublishIntegrationTest extends AbstractIntegrationTest {
 
@@ -29,8 +29,10 @@ public class MavenCentralPublishIntegrationTest extends AbstractIntegrationTest 
         exec(projectDir, "git", "remote", "add", "origin", "https://github.com/xenit-eu/enterprise-conventions-gradle-plugin");
     }
 
-    @Test
-    public void publishRelease() throws IOException {
+    @ParameterizedTest(name = "Gradle v{0}")
+    @MethodSource("gradleVersions")
+    public void publishRelease(String gradleVersion) throws IOException {
+        this.gradleVersion = gradleVersion;
         var gradleRunner = createGradleRunner(integrationTests.resolve("mavencentral/jreleaserPublish"));
         var projectDir = gradleRunner.getProjectDir();
         setupGitRepo(projectDir);
@@ -47,8 +49,10 @@ public class MavenCentralPublishIntegrationTest extends AbstractIntegrationTest 
         ));
     }
 
-    @Test
-    public void publishSnapshot() throws IOException {
+    @ParameterizedTest(name = "Gradle v{0}")
+    @MethodSource("gradleVersions")
+    public void publishSnapshot(String gradleVersion) throws IOException {
+        this.gradleVersion = gradleVersion;
         var gradleRunner = createGradleRunner(integrationTests.resolve("mavencentral/jreleaserPublish"));
         var projectDir = gradleRunner.getProjectDir();
         setupGitRepo(projectDir);
@@ -61,8 +65,10 @@ public class MavenCentralPublishIntegrationTest extends AbstractIntegrationTest 
         assertThat(buildResult.getOutput(), CoreMatchers.containsString("Deploying is not enabled. Skipping"));
     }
 
-    @Test
-    public void worksWithoutCredentialsProvided() throws IOException {
+    @ParameterizedTest(name = "Gradle v{0}")
+    @MethodSource("gradleVersions")
+    public void worksWithoutCredentialsProvided(String gradleVersion) throws IOException {
+        this.gradleVersion = gradleVersion;
         createGradleRunner(integrationTests.resolve("mavencentral/jreleaserPublish"))
                 .withArguments("jar")
                 .build();

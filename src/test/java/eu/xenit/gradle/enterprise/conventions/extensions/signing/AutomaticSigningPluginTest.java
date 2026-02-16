@@ -1,10 +1,10 @@
 package eu.xenit.gradle.enterprise.conventions.extensions.signing;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.gradle.api.Project;
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin;
@@ -12,7 +12,7 @@ import org.gradle.plugins.signing.Sign;
 import org.gradle.plugins.signing.signatory.pgp.PgpSignatory;
 import org.gradle.security.internal.gnupg.GnupgSignatory;
 import org.gradle.testfixtures.ProjectBuilder;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class AutomaticSigningPluginTest extends AbstractSigningPluginSetup {
 
@@ -50,26 +50,27 @@ public class AutomaticSigningPluginTest extends AbstractSigningPluginSetup {
     }
 
     @Test
-    public void configuresSigningWithEnvironmentVariable() {
-        Project project = createProject(this::configureSigningWithInMemory);
+    public void configuresSigningWithEnvironmentVariable() throws Exception {
+        withInMemorySigningEnv(() -> {
+            Project project = createProject(p -> {});
 
-        Sign signTask = project.getTasks().withType(Sign.class).getByName("signMavenJavaPublication");
+            Sign signTask = project.getTasks().withType(Sign.class).getByName("signMavenJavaPublication");
 
-        assertThat(signTask.getSignatory(), instanceOf(PgpSignatory.class));
-        assertEquals("32C2FC7D", signTask.getSignatory().getKeyId());
+            assertThat(signTask.getSignatory(), instanceOf(PgpSignatory.class));
+            assertEquals("32C2FC7D", signTask.getSignatory().getKeyId());
+        });
     }
 
     @Test
-    public void configuresSigningSubkeyWithEnvironmentVariable() {
-        Project project = createProject(p -> {
-            configureSigningWithInMemory(p);
-            environmentVariables.set("SIGNING_SUBKEY_ID", "E99CFF0D");
+    public void configuresSigningSubkeyWithEnvironmentVariable() throws Exception {
+        withInMemorySigningEnvAndSubkey("E99CFF0D", () -> {
+            Project project = createProject(p -> {});
+
+            Sign signTask = project.getTasks().withType(Sign.class).getByName("signMavenJavaPublication");
+
+            assertThat(signTask.getSignatory(), instanceOf(PgpSignatory.class));
+            assertEquals("E99CFF0D", signTask.getSignatory().getKeyId());
         });
-
-        Sign signTask = project.getTasks().withType(Sign.class).getByName("signMavenJavaPublication");
-
-        assertThat(signTask.getSignatory(), instanceOf(PgpSignatory.class));
-        assertEquals("E99CFF0D", signTask.getSignatory().getKeyId());
     }
 
     @Test

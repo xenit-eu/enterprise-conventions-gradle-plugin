@@ -5,25 +5,17 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
-import org.gradle.api.JavaVersion;
 import org.gradle.testkit.runner.GradleRunner;
 import org.gradle.testkit.runner.internal.DefaultGradleRunner;
 import org.gradle.util.GradleVersion;
-import org.junit.Rule;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameter;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.api.io.TempDir;
 
-@RunWith(Parameterized.class)
 public abstract class AbstractIntegrationTest {
 
     protected final Path integrationTests;
@@ -36,45 +28,31 @@ public abstract class AbstractIntegrationTest {
         }
     }
 
-    @Parameters(name = "Gradle v{0}")
-    public static Collection<Object[]> testData() {
+    protected static Stream<String> gradleVersions() {
         if (Boolean.getBoolean("eu.xenit.enterprise.conventions.integration.gradle-offline")) {
-            return Collections.singletonList(new Object[]{GradleVersion.current().getVersion()});
+            return Stream.of(GradleVersion.current().getVersion());
         }
-        String[] gradleVersions = new String[]{
+        String[] versions = new String[]{
                 "9.0.0",
                 "8.14.3",
-                "8.12",
-                "8.6",
-                "8.1.1",
-                "8.0.2",
-                "7.6.4",
-                "7.5.1",
-                "7.3.3",
         };
-
-        List<Object[]> parameters = new ArrayList<>();
-
-        for (String gradleVersion : gradleVersions) {
-            parameters.add(new Object[]{gradleVersion});
-        }
-        Collections.shuffle(parameters);
-        return parameters;
+        List<String> list = Arrays.asList(versions);
+        Collections.shuffle(list);
+        return list.stream();
     }
 
-    @Parameter(0)
-    public String gradleVersion;
+    protected String gradleVersion;
 
-    @Rule
-    public final TemporaryFolder testProjectDir = new TemporaryFolder();
+    @TempDir
+    protected Path testProjectDir;
 
 
     protected GradleRunner createGradleRunner(Path projectFolder) throws IOException {
-        FileUtils.copyDirectory(projectFolder.toFile(), testProjectDir.getRoot());
+        FileUtils.copyDirectory(projectFolder.toFile(), testProjectDir.toFile());
 
         GradleRunner gradleRunner = GradleRunner.create()
                 .withPluginClasspath()
-                .withProjectDir(testProjectDir.getRoot())
+                .withProjectDir(testProjectDir.toFile())
                 .forwardOutput();
 
         if (!Boolean.getBoolean("eu.xenit.enterprise.integration.gradle-offline")) {
@@ -85,7 +63,6 @@ public abstract class AbstractIntegrationTest {
         String[] myCommandLine = ProcessHandle.current().info().arguments().get();
         List<String> agentOpts = Arrays.stream(myCommandLine)
                 .filter(arg -> arg.startsWith("-javaagent"))
-                .map(agent -> agent.replace("build/", System.getProperty("user.dir") + "/build/"))
                 .collect(Collectors.toList());
         agentOpts.add(String.format("-Deu.xenit.gradle.enterprise.conventions.integration.plugin-classpath=%s",
                 gradleRunner.getPluginClasspath().stream().map(

@@ -1,20 +1,18 @@
 package eu.xenit.gradle.enterprise.conventions.extensions.signing.internal;
 
-import static org.junit.Assert.assertNotNull;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import eu.xenit.gradle.enterprise.conventions.extensions.signing.AbstractSigningPluginSetup;
 import org.gradle.api.InvalidUserDataException;
 import org.gradle.api.Project;
 import org.gradle.plugins.signing.Sign;
 import org.gradle.plugins.signing.SigningExtension;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
 public class CheckSigningConfigurationTest extends AbstractSigningPluginSetup {
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     @Test
     public void throwsOnNonExistingSignatory() {
@@ -26,9 +24,10 @@ public class CheckSigningConfigurationTest extends AbstractSigningPluginSetup {
         CheckSigningConfiguration checkSigningConfiguration = new CheckSigningConfiguration(signTask,
                 new MockSigningMethodConfiguration());
 
-        expectedException.expect(InvalidUserDataException.class);
-        expectedException.expectMessage("No signing configuration is enabled and signing is required.");
-        checkSigningConfiguration.execute(signTask);
+        InvalidUserDataException exception = assertThrows(InvalidUserDataException.class, () ->
+                checkSigningConfiguration.execute(signTask)
+        );
+        assertThat(exception.getMessage(), containsString("No signing configuration is enabled and signing is required."));
     }
 
     @Test

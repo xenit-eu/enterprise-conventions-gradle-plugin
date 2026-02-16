@@ -29,9 +29,17 @@ dependencies {
     implementation 'org.jreleaser:org.jreleaser.gradle.plugin:1.19.0'
 
     integTestImplementation "commons-io:commons-io:2.8.0"
-    testImplementation 'junit:junit:4.12'
-    testImplementation 'org.mockito:mockito-core:3.7.7'
-    testImplementation 'com.github.stefanbirkner:system-rules:1.19.0'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.4'
+    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.11.4'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.11.4'
+
+    testImplementation 'org.hamcrest:hamcrest:3.0'
+
+    testImplementation 'org.mockito:mockito-core:5.14.2'
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.14.2'
+
+    testImplementation 'com.github.stefanbirkner:system-lambda:1.2.1'
 }
 
 gradlePlugin {
@@ -78,7 +86,17 @@ gradlePlugin {
     testSourceSets(sourceSets.integTest)
 }
 
+test {
+    useJUnitPlatform()
+    // Required for System Lambda to manipulate environment variables in Java 17+
+    jvmArgs = [
+            '--add-opens=java.base/java.util=ALL-UNNAMED',
+            '--add-opens=java.base/java.lang=ALL-UNNAMED'
+    ]
+}
+
 integrationTest {
+    useJUnitPlatform()
     if (gradle.startParameter.offline) {
         systemProperty "eu.xenit.enterprise.conventions.integration.gradle-offline", "true"
     }
