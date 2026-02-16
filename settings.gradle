@@ -1,1 +1,9 @@
+plugins {
+    id 'org.ajoberstar.reckon.settings' version '1.0.1'
+}
 rootProject.name = 'enterprise-conventions-plugin'
+reckon {
+    defaultInferredScope = 'patch'
+    scopeFromProp()
+    stageFromProp('alpha', 'beta', 'rc', 'final')
+}
