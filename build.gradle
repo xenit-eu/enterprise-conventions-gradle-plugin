@@ -3,9 +3,8 @@ plugins {
     id 'org.sonarqube' version '3.0'
     id 'com.gradle.plugin-publish' version '1.2.0'
     id 'be.vbgn.ci-detect' version '0.5.0'
-    id 'be.vbgn.dev-conventions.opinion' version '0.5.0'
-    id 'nebula.integtest' version '7.0.9'
-    id "io.freefair.lombok" version "5.3.0"
+    id 'com.netflix.nebula.integtest' version '13.0.1'
+    id "io.freefair.lombok" version "9.2.0"
     id 'groovy'
 }
 
@@ -36,6 +35,8 @@ dependencies {
 }
 
 gradlePlugin {
+    vcsUrl = "https://github.com/xenit-eu/enterprise-conventions-gradle-plugin"
+    website = vcsUrl
     plugins {
         privatePlugin {
             id = 'eu.xenit.enterprise-conventions.private'
@@ -75,13 +76,6 @@ gradlePlugin {
         }
     }
     testSourceSets(sourceSets.integTest)
-}
-
-pluginBundle {
-    vcsUrl = "https://github.com/xenit-eu/enterprise-conventions-gradle-plugin"
-    website = vcsUrl
-    description = "Xenit OSS and private conventions plugins"
-    tags = ["conventions", "repository-replacement", "repositories", "security"]
 }
 
 integrationTest {
