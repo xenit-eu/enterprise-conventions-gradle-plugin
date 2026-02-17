@@ -23,7 +23,7 @@ Apply for all projects in a build:
 ```groovy
 // settings.gradle
 plugins {
-    id 'eu.xenit.enterprise-conventions.oss' version '0.1.0'
+    id 'eu.xenit.enterprise-conventions.oss' version ...
 }
 ```
 
@@ -32,7 +32,7 @@ Or only apply to a particular sub-project:
 ```groovy
 // build.gradle
 plugins {
-    id 'eu.xenit.enterprise-conventions.oss' version '0.1.0'
+    id 'eu.xenit.enterprise-conventions.oss' version ...
 }
 ```
 
@@ -43,10 +43,10 @@ plugins {
 ### Publishing to Maven Central
 
 When using the `eu.xenit.enterprise-conventions.oss` and the [`maven-publish`](https://docs.gradle.org/current/userguide/publishing_maven.html) plugin;
-releases to Maven Central using the [Central Portal Publish API](https://central.sonatype.org/publish/publish-portal-api/) are automatically set up using [JReleaser](https://jreleaser.org/).
+releases to Maven Central using the [Central Portal Publish API](https://central.sonatype.org/publish/publish-portal-api/) are automatically set up using [NMCP](https://gradleup.com/nmcp/).
 
 Set the Gradle properties `mavenCentralPublishUsername` and `mavenCentralPublishPassword` to configure the publication username and password.
-Publication can be done using the `jreleaserFullRelease` task.
+Publication can be done using the `publish` task.
 
 You can set these properties in 2 ways, using command-line properties, or using environment variables.
 

@@ -1,16 +1,19 @@
 package eu.xenit.gradle.enterprise.conventions.integration.mavencentral;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import eu.xenit.gradle.enterprise.conventions.integration.AbstractIntegrationTest;
 import java.io.IOException;
 import org.gradle.testkit.runner.BuildResult;
-import org.junit.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 public class MavenCentralRequirementsIntegrationTest extends AbstractIntegrationTest {
-    @Test
-    public void withoutSigning() throws IOException {
+    @ParameterizedTest(name = "Gradle v{0}")
+    @MethodSource("gradleVersions")
+    public void withoutSigning(String gradleVersion) throws IOException {
+        this.gradleVersion = gradleVersion;
         BuildResult buildResult = createGradleRunner(integrationTests.resolve("mavencentral/withoutSigning"))
                 .withArguments("publish")
                 .buildAndFail();
@@ -19,8 +22,10 @@ public class MavenCentralRequirementsIntegrationTest extends AbstractIntegration
         assertTrue(buildResult.getOutput().contains("Publication 'mavenJava': Artifact 'integration-test-1.0-sources.jar' must be signed, but signature 'integration-test-1.0-sources.jar.asc' is missing."));
     }
 
-    @Test
-    public void withoutSources() throws IOException {
+    @ParameterizedTest(name = "Gradle v{0}")
+    @MethodSource("gradleVersions")
+    public void withoutSources(String gradleVersion) throws IOException {
+        this.gradleVersion = gradleVersion;
         BuildResult buildResult = createGradleRunner(integrationTests.resolve("mavencentral/withoutSources"))
                 .withArguments("publish")
                 .buildAndFail();
@@ -28,16 +33,20 @@ public class MavenCentralRequirementsIntegrationTest extends AbstractIntegration
         assertTrue(buildResult.getOutput().contains("Publication 'mavenJava': missing required artifact 'integration-test-1.0-javadoc.jar'"));
     }
 
-    @Test
-    public void pomOnlyWithoutSources() throws IOException {
+    @ParameterizedTest(name = "Gradle v{0}")
+    @MethodSource("gradleVersions")
+    public void pomOnlyWithoutSources(String gradleVersion) throws IOException {
+        this.gradleVersion = gradleVersion;
         BuildResult buildResult = createGradleRunner(integrationTests.resolve("mavencentral/pomOnlyWithoutSources"))
                 .withArguments("publish")
                 .buildAndFail();
         assertFalse(buildResult.getOutput().contains("Publication 'mavenJava': missing required artifact"));
     }
 
-    @Test
-    public void withoutPom() throws IOException {
+    @ParameterizedTest(name = "Gradle v{0}")
+    @MethodSource("gradleVersions")
+    public void withoutPom(String gradleVersion) throws IOException {
+        this.gradleVersion = gradleVersion;
         BuildResult buildResult = createGradleRunner(integrationTests.resolve("mavencentral/withoutPom"))
                 .withArguments("publish")
                 .buildAndFail();
@@ -45,8 +54,10 @@ public class MavenCentralRequirementsIntegrationTest extends AbstractIntegration
         assertTrue(buildResult.getOutput().contains("Publication 'mavenJava': POM property 'description' is required but is absent"));
     }
 
-    @Test
-    public void withoutPomTaskCheck() throws IOException {
+    @ParameterizedTest(name = "Gradle v{0}")
+    @MethodSource("gradleVersions")
+    public void withoutPomTaskCheck(String gradleVersion) throws IOException {
+        this.gradleVersion = gradleVersion;
         BuildResult buildResult = createGradleRunner(integrationTests.resolve("mavencentral/withoutPom"))
                 .withArguments("checkMavenCentralRequirements")
                 .buildAndFail();
@@ -54,17 +65,21 @@ public class MavenCentralRequirementsIntegrationTest extends AbstractIntegration
         assertTrue(buildResult.getOutput().contains("Publication 'mavenJava': POM property 'description' is required but is absent"));
     }
 
-    @Test
-    public void everythingOk() throws IOException {
-        BuildResult buildResult = createGradleRunner(integrationTests.resolve("mavencentral/jreleaserPublish"))
+    @ParameterizedTest(name = "Gradle v{0}")
+    @MethodSource("gradleVersions")
+    public void everythingOk(String gradleVersion) throws IOException {
+        this.gradleVersion = gradleVersion;
+        BuildResult buildResult = createGradleRunner(integrationTests.resolve("mavencentral/nmcpPublish"))
                 .withArguments("publish")
                 .buildAndFail();
         assertFalse(buildResult.getOutput().contains("Policy violation"));
     }
 
-    @Test
-    public void everythingOkTaskCheck() throws IOException {
-        createGradleRunner(integrationTests.resolve("mavencentral/jreleaserPublish"))
+    @ParameterizedTest(name = "Gradle v{0}")
+    @MethodSource("gradleVersions")
+    public void everythingOkTaskCheck(String gradleVersion) throws IOException {
+        this.gradleVersion = gradleVersion;
+        createGradleRunner(integrationTests.resolve("mavencentral/nmcpPublish"))
                 .withArguments("checkMavenCentralRequirements", "--stacktrace")
                 .build();
     }

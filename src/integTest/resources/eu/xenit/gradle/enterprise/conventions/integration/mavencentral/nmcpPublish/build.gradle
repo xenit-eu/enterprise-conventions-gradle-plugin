@@ -7,6 +7,10 @@ plugins {
     id "signing"
 }
 
+repositories {
+    mavenCentral()
+}
+
 task javadocJar(type: Jar) {
     archiveClassifier = 'javadoc'
     from javadoc
@@ -52,14 +56,13 @@ publishing {
 
 }
 
-// This is part of the test itself, only doing dry-runs; not actually publishing
-jreleaser {
-    dryrun = true
+// Prevent actual nmcp tasks from uploading during tests
+tasks.named("nmcpPublishAggregationToCentralPortal") {
+    // Clear actions to prevent actual upload, but let the task run to test conditions
+    actions.clear()
 }
 
-tasks.withType(PublishToMavenRepository)
-    .matching { it.repository.name == "CentralSnapshots" }
-    .configureEach {
-        // Remove all actions; so the publish does not actually do any work
-        it.actions.clear()
-    }
+tasks.named("nmcpPublishAggregationToCentralPortalSnapshots") {
+    // Clear actions to prevent actual upload, but let the task run to test conditions
+    actions.clear()
+}

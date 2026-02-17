@@ -1,21 +1,16 @@
 package eu.xenit.gradle.enterprise.conventions.integration.mavencentral;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import eu.xenit.gradle.enterprise.conventions.integration.AbstractIntegrationTest;
-import eu.xenit.gradle.enterprise.conventions.integration.GradleVersionCompatibilityMatcher;
 import java.io.File;
 import java.io.IOException;
 import lombok.SneakyThrows;
 import org.gradle.testkit.runner.BuildResult;
-import org.gradle.testkit.runner.BuildTask;
 import org.gradle.testkit.runner.TaskOutcome;
-import org.gradle.util.GradleVersion;
-import org.hamcrest.CoreMatchers;
-import org.junit.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 public class MavenCentralPublishIntegrationTest extends AbstractIntegrationTest {
 
@@ -29,41 +24,41 @@ public class MavenCentralPublishIntegrationTest extends AbstractIntegrationTest 
         exec(projectDir, "git", "remote", "add", "origin", "https://github.com/xenit-eu/enterprise-conventions-gradle-plugin");
     }
 
-    @Test
-    public void publishRelease() throws IOException {
-        var gradleRunner = createGradleRunner(integrationTests.resolve("mavencentral/jreleaserPublish"));
+    @ParameterizedTest(name = "Gradle v{0}")
+    @MethodSource("gradleVersions")
+    public void publishRelease(String gradleVersion) throws IOException {
+        this.gradleVersion = gradleVersion;
+        var gradleRunner = createGradleRunner(integrationTests.resolve("mavencentral/nmcpPublish"));
         var projectDir = gradleRunner.getProjectDir();
         setupGitRepo(projectDir);
         BuildResult buildResult = gradleRunner
-                .withArguments("publish", "-PmavenCentralPublishUsername=test", "-PmavenCentralPublishPassword=test")
+                .withArguments("publish", "-PmavenCentralPublishUsername=test", "-PmavenCentralPublishPassword=test", "--stacktrace", "-i")
                 .build();
 
-        assertEquals(buildResult.task(":publishMavenJavaPublicationToCentralSnapshotsRepository").getOutcome(), TaskOutcome.SKIPPED);
-        assertEquals(buildResult.task(":publishMavenJavaPublicationToJReleaserStagingRepository").getOutcome(), TaskOutcome.SUCCESS);
-        assertEquals(buildResult.task(":jreleaserDeploy").getOutcome(), TaskOutcome.SUCCESS);
-        assertThat(buildResult.getOutput(), CoreMatchers.allOf(
-                CoreMatchers.containsString("JReleaser succeeded"),
-                CoreMatchers.containsString("Deploying all staged artifacts")
-        ));
+        assertNull(buildResult.task(":publishAggregationToCentralSnapshots")); // task was not executed
+        assertEquals(TaskOutcome.SUCCESS, buildResult.task(":publishAggregationToCentralPortal").getOutcome());
     }
 
-    @Test
-    public void publishSnapshot() throws IOException {
-        var gradleRunner = createGradleRunner(integrationTests.resolve("mavencentral/jreleaserPublish"));
+    @ParameterizedTest(name = "Gradle v{0}")
+    @MethodSource("gradleVersions")
+    public void publishSnapshot(String gradleVersion) throws IOException {
+        this.gradleVersion = gradleVersion;
+        var gradleRunner = createGradleRunner(integrationTests.resolve("mavencentral/nmcpPublish"));
         var projectDir = gradleRunner.getProjectDir();
         setupGitRepo(projectDir);
         BuildResult buildResult = gradleRunner
-                .withArguments("publish", "-PmavenCentralPublishUsername=test", "-PmavenCentralPublishPassword=test", "-Pversion=0.1-SNAPSHOT")
+                .withArguments("publish", "-PmavenCentralPublishUsername=test", "-PmavenCentralPublishPassword=test", "-Pversion=0.1-SNAPSHOT", "--stacktrace", "-i")
                 .build();
 
-        assertEquals(buildResult.task(":publishMavenJavaPublicationToCentralSnapshotsRepository").getOutcome(), TaskOutcome.SUCCESS);
-        assertEquals(buildResult.task(":publishMavenJavaPublicationToJReleaserStagingRepository").getOutcome(), TaskOutcome.SKIPPED);
-        assertThat(buildResult.getOutput(), CoreMatchers.containsString("Deploying is not enabled. Skipping"));
+        assertNull(buildResult.task(":publishAggregationToCentralPortal")); // task was not executed
+        assertEquals(TaskOutcome.SUCCESS, buildResult.task(":publishAggregationToCentralSnapshots").getOutcome());
     }
 
-    @Test
-    public void worksWithoutCredentialsProvided() throws IOException {
-        createGradleRunner(integrationTests.resolve("mavencentral/jreleaserPublish"))
+    @ParameterizedTest(name = "Gradle v{0}")
+    @MethodSource("gradleVersions")
+    public void worksWithoutCredentialsProvided(String gradleVersion) throws IOException {
+        this.gradleVersion = gradleVersion;
+        createGradleRunner(integrationTests.resolve("mavencentral/nmcpPublish"))
                 .withArguments("jar")
                 .build();
     }
