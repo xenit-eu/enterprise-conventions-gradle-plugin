@@ -51,36 +51,42 @@ gradlePlugin {
             implementationClass = 'eu.xenit.gradle.enterprise.conventions.PrivatePlugin'
             displayName = "Xenit private conventions plugin"
             description = "Configures conventions for Xenit private packages"
+            tags = ["conventions"]
         }
         ossPlugin {
             id = 'eu.xenit.enterprise-conventions.oss'
             implementationClass = 'eu.xenit.gradle.enterprise.conventions.OssPlugin'
             displayName = "Xenit OSS conventions plugin"
             description = "Configures conventions for Xenit open source packages"
+            tags = ["conventions"]
         }
         signingExtensionsPlugin {
             id = 'eu.xenit.enterprise-conventions.ext.signing'
             implementationClass = 'eu.xenit.gradle.enterprise.conventions.extensions.signing.AutomaticSigningPlugin'
             displayName = "Xenit conventions plugin: Signing extension"
             description = "Automatically configures artifact signing"
+            tags = ["conventions", "signing"]
         }
         centralPublishPlugin {
             id = 'eu.xenit.enterprise-conventions.ext.maven-central-publish'
             implementationClass = 'eu.xenit.gradle.enterprise.conventions.extensions.mavencentral.publish.MavenCentralPublishPlugin'
             displayName = "Xenit conventions plugin: Maven Central publish"
             description = "Configures publication to Maven Central using the Sonatype Central Portal"
+            tags = ["conventions", "maven-central", "publishing"]
         }
         centralRequirementsPlugin {
             id = 'eu.xenit.enterprise-conventions.ext.maven-central-requirements'
             implementationClass = 'eu.xenit.gradle.enterprise.conventions.extensions.mavencentral.requirements.MavenCentralRequirementsCheckPlugin'
             displayName = "Xenit conventions plugin: Maven Central requirements check"
             description = "Performs pre-publish check for requirements for publishing to Maven Central, also when publishing snapshots"
+            tags = ["conventions", "maven-central"]
         }
         dockerImageLabelsPlugin {
             id = 'eu.xenit.enterprise-conventions.ext.docker-image-labels'
             implementationClass = 'eu.xenit.gradle.enterprise.conventions.extensions.dockerimagelabels.DockerImageLabelsPlugin'
             displayName = "Xenit conventions plugin: OCI source labels for Docker images"
             description = "Adds OCI annotations to Docker images indicating the source repository and commit"
+            tags = ["conventions"]
         }
     }
     testSourceSets(sourceSets.integTest)
