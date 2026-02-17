@@ -69,7 +69,7 @@ public class MavenCentralRequirementsIntegrationTest extends AbstractIntegration
     @MethodSource("gradleVersions")
     public void everythingOk(String gradleVersion) throws IOException {
         this.gradleVersion = gradleVersion;
-        BuildResult buildResult = createGradleRunner(integrationTests.resolve("mavencentral/jreleaserPublish"))
+        BuildResult buildResult = createGradleRunner(integrationTests.resolve("mavencentral/nmcpPublish"))
                 .withArguments("publish")
                 .buildAndFail();
         assertFalse(buildResult.getOutput().contains("Policy violation"));
@@ -79,7 +79,7 @@ public class MavenCentralRequirementsIntegrationTest extends AbstractIntegration
     @MethodSource("gradleVersions")
     public void everythingOkTaskCheck(String gradleVersion) throws IOException {
         this.gradleVersion = gradleVersion;
-        createGradleRunner(integrationTests.resolve("mavencentral/jreleaserPublish"))
+        createGradleRunner(integrationTests.resolve("mavencentral/nmcpPublish"))
                 .withArguments("checkMavenCentralRequirements", "--stacktrace")
                 .build();
     }

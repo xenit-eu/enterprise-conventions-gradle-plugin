@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -33,8 +34,10 @@ public abstract class AbstractIntegrationTest {
             return Stream.of(GradleVersion.current().getVersion());
         }
         String[] versions = new String[]{
+                "9.3.1",
                 "9.0.0",
-                "8.14.3",
+                "8.14.4",
+                "8.0.2"
         };
         List<String> list = Arrays.asList(versions);
         Collections.shuffle(list);
@@ -59,11 +62,7 @@ public abstract class AbstractIntegrationTest {
             gradleRunner.withGradleVersion(gradleVersion);
         }
 
-        // Configure java commandline options so integration tests are run with coverage information
-        String[] myCommandLine = ProcessHandle.current().info().arguments().get();
-        List<String> agentOpts = Arrays.stream(myCommandLine)
-                .filter(arg -> arg.startsWith("-javaagent"))
-                .collect(Collectors.toList());
+        List<String> agentOpts = new ArrayList<>();
         agentOpts.add(String.format("-Deu.xenit.gradle.enterprise.conventions.integration.plugin-classpath=%s",
                 gradleRunner.getPluginClasspath().stream().map(
                         File::toString).collect(Collectors.joining(":"))));
