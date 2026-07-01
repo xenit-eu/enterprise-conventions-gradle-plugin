@@ -214,3 +214,29 @@ some predefined [OCI annotations](https://github.com/opencontainers/image-spec/b
 
 * GitHub Actions: information is read from environment variables set by GitHub Actions
 * Supporting other sources: provide a jar containing a [`BuildContextInformationSupplier](src/main/java/eu/xenit/gradle/enterprise/conventions/extensions/dockerimagelabels/BuildContextInformationSupplier.java) SPI
+
+### Multi-arch Docker images
+
+Plugin id: `eu.xenit.enterprise-conventions.ext.docker-multiarch`
+
+[Buildpacks](https://docs.spring.io/spring-boot/gradle-plugin/packaging-oci-image.html) (`bootBuildImage`)
+build a single architecture per run, so a multi-arch image is produced by building each architecture
+separately and combining the results into one manifest. This extension keeps that orchestration in Gradle
+(so it is portable across CI systems): a build only ever calls `./gradlew`.
+
+* Setting the `imagePlatform` project property makes `bootBuildImage` build for that platform and tags the
+  image with an architecture suffix (e.g. `my-image:1.0-amd64`). On Spring Boot &lt; 3.4 (which has no
+  `imagePlatform` support) only the tag suffix is applied.
+* The `combineImageManifest` task combines the per-architecture images into the base tag using
+  `docker buildx imagetools create` (requires Docker with Buildx).
+
+Typical build:
+
+```sh
+./gradlew bootBuildImage --publishImage -PimagePlatform=linux/amd64
+./gradlew bootBuildImage --publishImage -PimagePlatform=linux/arm64
+./gradlew combineImageManifest
+```
+
+This publishes `<image>:<tag>-amd64` and `<image>:<tag>-arm64`, then combines them into the multi-arch
+`<image>:<tag>`.

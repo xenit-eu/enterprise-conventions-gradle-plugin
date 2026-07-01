@@ -1,0 +1,29 @@
+plugins {
+    id "java"
+    id "org.springframework.boot" version "3.2.2"
+}
+
+description = "Spring Boot multi-arch test project"
+
+bootBuildImage {
+    imageName = "example/test-app:1.0"
+}
+
+check {
+    doFirst {
+        // The combine task is always registered when the Spring Boot plugin is applied.
+        assert project.tasks.findByName("combineImageManifest") != null:
+                "combineImageManifest task should be registered"
+
+        def platform = project.findProperty("imagePlatform")
+        def imageName = project.tasks.bootBuildImage.imageName.get()
+        if (platform) {
+            def arch = platform.toString().split("/")[1]
+            assert imageName == "example/test-app:1.0-" + arch:
+                    "imageName should get the arch suffix, was: " + imageName
+        } else {
+            assert imageName == "example/test-app:1.0":
+                    "imageName should be unchanged without imagePlatform, was: " + imageName
+        }
+    }
+}

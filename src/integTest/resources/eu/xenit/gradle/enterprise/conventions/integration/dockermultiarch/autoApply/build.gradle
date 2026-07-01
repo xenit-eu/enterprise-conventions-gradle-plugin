@@ -1,0 +1,15 @@
+plugins {
+    id "java"
+    id "org.springframework.boot" version "3.2.2"
+}
+
+description = "Multi-arch auto-apply test project"
+
+check {
+    doFirst {
+        // combineImageManifest must exist purely because the .private conventions plugin was applied,
+        // proving the docker-multiarch extension is auto-applied (not opted into explicitly).
+        assert project.tasks.findByName("combineImageManifest") != null:
+                "combineImageManifest should be auto-applied via the .private conventions plugin"
+    }
+}
