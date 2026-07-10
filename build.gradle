@@ -88,6 +88,13 @@ gradlePlugin {
             description = "Adds OCI annotations to Docker images indicating the source repository and commit"
             tags = ["conventions"]
         }
+        dockerMultiArchPlugin {
+            id = 'eu.xenit.enterprise-conventions.ext.docker-multiarch'
+            implementationClass = 'eu.xenit.gradle.enterprise.conventions.extensions.dockermultiarch.DockerMultiArchPlugin'
+            displayName = "Xenit conventions plugin: Multi-arch Docker images"
+            description = "Registers per-architecture variants of the Spring Boot bootBuildImage task (bootBuildLinuxAmd64Image, bootBuildLinuxArm64Image)"
+            tags = ["conventions", "docker", "multi-arch"]
+        }
     }
     testSourceSets(sourceSets.integTest)
 }

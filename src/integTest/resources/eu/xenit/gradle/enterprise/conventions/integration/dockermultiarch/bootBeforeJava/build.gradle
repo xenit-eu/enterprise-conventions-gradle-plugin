@@ -1,0 +1,15 @@
+plugins {
+    id "org.springframework.boot" version "3.5.16"
+    id "java"
+}
+
+description = "Multi-arch test project applying the Spring Boot plugin before the java plugin"
+
+check {
+    doFirst {
+        // Spring Boot only registers bootBuildImage once the java plugin is applied; the extension must
+        // tolerate this plugin order instead of failing on a missing bootBuildImage task.
+        assert project.tasks.findByName("bootBuildLinuxAmd64Image") != null
+        assert project.tasks.findByName("bootBuildLinuxArm64Image") != null
+    }
+}
