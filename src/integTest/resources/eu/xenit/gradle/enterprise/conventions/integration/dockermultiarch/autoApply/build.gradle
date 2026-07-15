@@ -1,0 +1,17 @@
+plugins {
+    id "java"
+    id "org.springframework.boot" version "3.5.16"
+}
+
+description = "Multi-arch auto-apply test project"
+
+check {
+    doFirst {
+        // The per-arch tasks must exist purely because the .private conventions plugin was applied,
+        // proving the docker-multiarch extension is auto-applied (not opted into explicitly).
+        assert project.tasks.findByName("bootBuildLinuxAmd64Image") != null:
+                "bootBuildLinuxAmd64Image should be auto-applied via the .private conventions plugin"
+        assert project.tasks.findByName("bootBuildLinuxArm64Image") != null:
+                "bootBuildLinuxArm64Image should be auto-applied via the .private conventions plugin"
+    }
+}

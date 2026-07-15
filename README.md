@@ -214,3 +214,48 @@ some predefined [OCI annotations](https://github.com/opencontainers/image-spec/b
 
 * GitHub Actions: information is read from environment variables set by GitHub Actions
 * Supporting other sources: provide a jar containing a [`BuildContextInformationSupplier](src/main/java/eu/xenit/gradle/enterprise/conventions/extensions/dockerimagelabels/BuildContextInformationSupplier.java) SPI
+
+### Multi-arch Docker images
+
+Plugin id: `eu.xenit.enterprise-conventions.ext.docker-multiarch`
+
+[Buildpacks](https://docs.spring.io/spring-boot/gradle-plugin/packaging-oci-image.html) (`bootBuildImage`)
+build a single architecture per run, so multi-arch support is provided as separate per-architecture images.
+For every project with the Spring Boot plugin, this extension registers two extra tasks:
+
+* `bootBuildLinuxAmd64Image` and `bootBuildLinuxArm64Image` build (and with `--publishImage`, publish) the
+  image configured on `bootBuildImage` for that specific platform. The image name and tags are derived from
+  `bootBuildImage`, with an architecture suffix (e.g. `my-image:1.0-amd64`).
+* The amd64 image also carries the unsuffixed name and tags, so existing consumers of those keep working
+  and amd64 is only built once.
+* `bootBuildImage` itself is untouched: it remains the host-architecture build for local development.
+* The `docker.publishRegistry` credentials and the buildpack `environment` configured on `bootBuildImage`
+  apply to the per-arch tasks too; no additional configuration is needed.
+
+The derived configuration is: `archiveFile`, `imageName`, `tags`, `environment` and `docker.publishRegistry`.
+Other `bootBuildImage` customizations (`builder`, `runImage`, `bindings`, ...) are not derived; configure
+those on the per-arch tasks explicitly if a project uses them.
+
+Requires Spring Boot >= 3.4 (`imagePlatform` support); on older versions the tasks fail when they are used.
+When upgrading a project that already registers its own `bootBuildLinuxAmd64Image`/`bootBuildLinuxArm64Image`
+tasks, remove those local definitions: the names would collide with the tasks this extension registers.
+
+#### CI configuration
+
+Building the non-native architecture uses emulation, so the CI runner needs QEMU. A typical publish job:
+
+```yaml
+      - name: Set up QEMU for cross-architecture image builds
+        if: ${{ startsWith(github.ref, 'refs/heads/main') || startsWith(github.ref, 'refs/tags/v') }}
+        uses: docker/setup-qemu-action@96fe6ef7f33517b61c61be40b68a1882f3264fb8 # v4.2.0
+      - name: Push docker images
+        if: ${{ startsWith(github.ref, 'refs/heads/main') || startsWith(github.ref, 'refs/tags/v') }}
+        run: ./gradlew bootBuildLinuxAmd64Image --publishImage bootBuildLinuxArm64Image --publishImage
+        env:
+          ORG_GRADLE_PROJECT_DOCKER_PUBLISH_REGISTRY_URL: docker.xenit.eu
+          ORG_GRADLE_PROJECT_DOCKER_PUBLISH_REGISTRY_USERNAME: ${{ secrets.HARBOR_USER }}
+          ORG_GRADLE_PROJECT_DOCKER_PUBLISH_REGISTRY_PASSWORD: ${{ secrets.HARBOR_PASSWORD }}
+```
+
+(The `ORG_GRADLE_PROJECT_*` environment variables assume the project wires `docker.publishRegistry` from
+Gradle properties, as is the convention; adjust to the project's own credential configuration otherwise.)

@@ -1,0 +1,62 @@
+plugins {
+    id "java"
+    id "org.springframework.boot" version "3.5.16"
+}
+
+description = "Spring Boot multi-arch test project"
+
+bootBuildImage {
+    imageName = "example/test-app:1.0"
+    // With -PreleaseIdiom this mimics the fleet-wide `tags = isSnapshot ? [...] : null` release idiom,
+    // which makes the tags property absent
+    tags = project.hasProperty("releaseIdiom") ? null : ["example/test-app:latest"]
+    environment = ["BP_JVM_TYPE": "JDK"]
+
+    docker {
+        publishRegistry {
+            url = "https://registry.example.invalid"
+            username = "example-user"
+            password = "example-password"
+        }
+    }
+}
+
+check {
+    doFirst {
+        def bootBuildImage = project.tasks.getByName("bootBuildImage")
+        def amd64 = project.tasks.getByName("bootBuildLinuxAmd64Image")
+        def arm64 = project.tasks.getByName("bootBuildLinuxArm64Image")
+
+        // bootBuildImage itself stays untouched: unsuffixed name, no platform pinned
+        assert bootBuildImage.imageName.get() == "example/test-app:1.0"
+        assert !bootBuildImage.imagePlatform.isPresent()
+
+        assert amd64.imagePlatform.get() == "linux/amd64"
+        assert arm64.imagePlatform.get() == "linux/arm64"
+
+        // Per-arch names and tags are derived from bootBuildImage with an architecture suffix
+        assert amd64.imageName.get() == "example/test-app:1.0-amd64"
+        assert arm64.imageName.get() == "example/test-app:1.0-arm64"
+
+        if (project.hasProperty("releaseIdiom")) {
+            // Even with an absent tags property, the amd64 image must keep the unsuffixed name as tag
+            assert amd64.tags.get() == ["example/test-app:1.0"]
+            assert arm64.tags.get() == []
+        } else {
+            assert arm64.tags.get() == ["example/test-app:latest-arm64"]
+            // The amd64 image also carries the unsuffixed name and tags, for existing consumers
+            assert amd64.tags.get() == [
+                    "example/test-app:latest-amd64",
+                    "example/test-app:1.0",
+                    "example/test-app:latest",
+            ]
+        }
+
+        // Buildpack environment and publish registry from bootBuildImage apply to the per-arch tasks too
+        assert amd64.environment.get() == ["BP_JVM_TYPE": "JDK"]
+        assert arm64.environment.get() == ["BP_JVM_TYPE": "JDK"]
+        assert amd64.docker.publishRegistry.url.get() == "https://registry.example.invalid"
+        assert amd64.docker.publishRegistry.username.get() == "example-user"
+        assert arm64.docker.publishRegistry.password.get() == "example-password"
+    }
+}
