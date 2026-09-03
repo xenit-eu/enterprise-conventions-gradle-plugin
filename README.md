@@ -264,17 +264,16 @@ Gradle properties, as is the convention; adjust to the project's own credential 
 
 Plugin id: `eu.xenit.enterprise-conventions.ext.spotless`
 
-A default set of steps is centralised, but opting in and choosing the Spotless version stay with the project.
-Nothing happens unless the project applies the [Spotless plugin](https://github.com/diffplug/spotless)
-itself, and this extension is never compiled against Spotless, so the project decides which version to use.
+A set of spotless steps that are applicable to most repositories. These steps are centralised, 
+but opting in and choosing the Spotless version stay with the project.
 
 A project that applies the Spotless plugin and the `java` plugin gets these steps added to its Spotless
 `java` format:
 
 * `removeUnusedImports()`
-* `expandWildcardImports()` (requires Spotless >= 8.2)
+* `expandWildcardImports()` (requires Spotless >= 8.2, >= 8.10 is recommended, see below)
 
-To configure a project to use the defaults ad provided by the convention plugin, Add the following:
+To configure a project to use the defaults as provided by the convention plugin, Add the following:
 
 * To settings.gradle
 ```groovy
@@ -301,29 +300,16 @@ plugins {
 
 [`expandWildcardImports`](https://github.com/diffplug/spotless/tree/main/plugin-gradle#expandwildcardimports)
 replaces wildcard imports with the types they actually stand for, static wildcards
-(`import static org.junit.jupiter.api.Assertions.*`) included, so `spotlessApply` fixes them rather than only
-reporting them. That costs build time: it resolves the type solver from the compile classpath when
+(`import static org.junit.jupiter.api.Assertions.*`) included. 
+This happens at build time. The step resolves the type solver from the compile classpath when
 `spotlessJava` is configured, and it parses the full source to resolve the names. Spotless 8.10 narrowed that
 resolution to the java source sets' compile classpaths; earlier 8.x versions resolve every resolvable
 configuration, so 8.10 or newer is recommended.
 
-
 #### Defining your own rules
 
-The defaults are in place before the project's own `spotless` block runs, so the project's steps are added
-after them:
-
-```groovy
-spotless {
-    java {
-        importOrder('java', 'javax', '')
-    }
-}
-// steps: removeUnusedImports, expandwildcardimports, importOrder
-```
-
-A project that declares its own steps has to make sure they do not clash with the defaults. Spotless rejects
-a duplicate step name outright:
+You are free to declare additional spotless steps in the projects' build.gradle. However, spotless rejects duplicate
+steps, so you have to make sure there are no conflicts with the conventions' steps.
 
 ```
 Multiple steps with name 'removeUnusedImports' for spotless format 'java'
@@ -343,17 +329,16 @@ spotless {
 // steps: removeUnusedImports, importOrder
 ```
 
-#### Spotless versions that lack a default step
+#### Older Spotless versions that don't have a step
 
-A default step the project's Spotless version does not have fails the build:
+A step added by this plugin that isn't included in the project's Spotless version fails the build:
 
 ```
 Spotless step 'expandWildcardImports' is not supported by the Spotless version of project ':'.
 Upgrade Spotless to a version that provides it; the conventions do not apply a reduced set of steps.
 ```
 
-There is no flag to soften this, and `clearSteps()` does not help either: the conventions run first, so the
-build has already failed by the time the project's own block would clear anything. Upgrade Spotless.
+If you run into this, either update the spotless plugin (recommended) or downgrade the conventions plugin until they are compatible.
 
 #### Other formats
 
