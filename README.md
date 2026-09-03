@@ -259,3 +259,124 @@ Building the non-native architecture uses emulation, so the CI runner needs QEMU
 
 (The `ORG_GRADLE_PROJECT_*` environment variables assume the project wires `docker.publishRegistry` from
 Gradle properties, as is the convention; adjust to the project's own credential configuration otherwise.)
+
+### Spotless defaults
+
+Plugin id: `eu.xenit.enterprise-conventions.ext.spotless`
+
+A default set of steps is centralised, but opting in and choosing the Spotless version stay with the project.
+Nothing happens unless the project applies the [Spotless plugin](https://github.com/diffplug/spotless)
+itself, and this extension is never compiled against Spotless, so the project decides which version to use.
+
+A project that applies the Spotless plugin and the `java` plugin gets these steps added to its Spotless
+`java` format:
+
+* `removeUnusedImports()`
+* `expandWildcardImports()` (requires Spotless >= 8.2; on older versions this step is skipped with a warning)
+
+To configure a project to use the defaults ad provided by the convention plugin, Add the following:
+
+* To settings.gradle
+```groovy
+pluginManagement {
+    plugins {
+        id 'com.diffplug.spotless' version '8.10.0' // the project picks the version
+    }
+}
+plugins {
+    id 'eu.xenit.enterprise-conventions.oss' version ...
+}
+```
+
+* To build.gradle
+```groovy
+plugins {
+    id 'java'
+    id 'com.diffplug.spotless' // opting in is enough, no spotless {} block needed
+}
+```
+
+`removeUnusedImports()` resolves `google-java-format` and `expandWildcardImports()` resolves
+`javaparser-symbol-solver-core`, so the project needs a repository to resolve dependencies from.
+
+[`expandWildcardImports`](https://github.com/diffplug/spotless/tree/main/plugin-gradle#expandwildcardimports)
+replaces wildcard imports with the types they actually stand for, static wildcards
+(`import static org.junit.jupiter.api.Assertions.*`) included, so `spotlessApply` fixes them rather than only
+reporting them. That costs build time: it resolves the type solver from the compile classpath when
+`spotlessJava` is configured, and it parses the full source to resolve the names. Spotless 8.10 narrowed that
+resolution to the java source sets' compile classpaths; earlier 8.x versions resolve every resolvable
+configuration, so 8.10 or newer is recommended.
+
+
+#### Overriding the defaults
+
+The defaults are merged into whatever the project configures itself, and are always appended after it:
+
+```groovy
+spotless {
+    java {
+        importOrder('java', 'javax', '')
+    }
+}
+// steps: importOrder, removeUnusedImports, expandwildcardimports
+```
+
+Configuring a default step yourself takes precedence, and the convention leaves it alone. This is how to
+change a default rather than remove it:
+
+```groovy
+spotless {
+    java {
+        // The convention no longer adds its own removeUnusedImports; this configuration wins.
+        removeUnusedImports('cleanthat-javaparser-unnecessaryimport')
+    }
+}
+```
+
+Note that Spotless' own `clearSteps()` does not work as an opt-out: it runs before the conventions are
+merged in, so the defaults come back afterwards.
+
+#### Opting out
+
+To remove a default without replacing it, use the `spotlessConventions` extension:
+
+```groovy
+spotlessConventions {
+    java {
+        // Keep removeUnusedImports, but skip the expensive wildcard expansion in this project.
+        expandWildcardImports = false
+    }
+}
+```
+
+To opt out of everything, including any defaults added for other formats later:
+
+```groovy
+spotlessConventions {
+    enabled = false
+}
+```
+
+The conventions are scoped to the `java` format only. Configuring other formats does not affect them:
+
+```groovy
+spotless {
+    format 'misc', {
+        target '*.md'
+        endWithNewline()
+    }
+}
+// java still gets removeUnusedImports() and expandWildcardImports()
+```
+
+#### Conventions applied too late
+
+For the step-merging to work, the conventions plugin has to be applied *before* the spotless configurations. Which is the case
+if the conventions plugin is applied in `settings.gradle`, as is recommended.
+
+When the conventions plugin is applied later than a `spotless { java { ... } }` block in a `build.gradle`,
+its defaults would be silently dropped. That is reported as a policy violation instead:
+
+```
+Policy violation [spotless]: ...
+```

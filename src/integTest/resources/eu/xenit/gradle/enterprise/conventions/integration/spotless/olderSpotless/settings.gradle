@@ -1,0 +1,11 @@
+package eu.xenit.gradle.enterprise.conventions.integration.spotless.olderSpotless
+
+pluginManagement {
+    plugins {
+        // Spotless 7 predates expandWildcardImports, which was added in Spotless 8.2.
+        id 'com.diffplug.spotless' version '7.2.1'
+    }
+}
+plugins {
+    id "eu.xenit.enterprise-conventions.private"
+}

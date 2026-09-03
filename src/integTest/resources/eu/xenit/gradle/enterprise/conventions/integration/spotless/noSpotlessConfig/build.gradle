@@ -1,0 +1,23 @@
+package eu.xenit.gradle.enterprise.conventions.integration.spotless.noSpotlessConfig
+
+plugins {
+    id 'java'
+    id 'com.diffplug.spotless'
+}
+
+description = "Spotless applied, no spotless configuration of its own"
+
+dependencies {
+    implementation 'org.junit.jupiter:junit-jupiter-api:5.11.4'
+}
+
+// Realizing spotlessJava runs its configuration, which is when Spotless applies the configuration actions
+// it collected. Reading the resulting step names asserts what this plugin contributed, without running any
+// formatting.
+tasks.register("verifySpotlessSteps") {
+    def spotlessJava = tasks.named("spotlessJava")
+    def expected = providers.gradleProperty("expectedSteps").map { it.split(",") as List }
+    doFirst {
+        assert spotlessJava.get().stepsInternalRoundtrip.steps*.name == expected.get()
+    }
+}
