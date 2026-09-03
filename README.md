@@ -272,7 +272,7 @@ A project that applies the Spotless plugin and the `java` plugin gets these step
 `java` format:
 
 * `removeUnusedImports()`
-* `expandWildcardImports()` (requires Spotless >= 8.2; on older versions this step is skipped with a warning)
+* `expandWildcardImports()` (requires Spotless >= 8.2)
 
 To configure a project to use the defaults ad provided by the convention plugin, Add the following:
 
@@ -308,9 +308,10 @@ resolution to the java source sets' compile classpaths; earlier 8.x versions res
 configuration, so 8.10 or newer is recommended.
 
 
-#### Overriding the defaults
+#### Defining your own rules
 
-The defaults are merged into whatever the project configures itself, and are always appended after it:
+The defaults are in place before the project's own `spotless` block runs, so the project's steps are added
+after them:
 
 ```groovy
 spotless {
@@ -318,44 +319,43 @@ spotless {
         importOrder('java', 'javax', '')
     }
 }
-// steps: importOrder, removeUnusedImports, expandwildcardimports
+// steps: removeUnusedImports, expandwildcardimports, importOrder
 ```
 
-Configuring a default step yourself takes precedence, and the convention leaves it alone. This is how to
-change a default rather than remove it:
+A project that declares its own steps has to make sure they do not clash with the defaults. Spotless rejects
+a duplicate step name outright:
+
+```
+Multiple steps with name 'removeUnusedImports' for spotless format 'java'
+```
+
+To replace a default with a different configuration of the same step, or to define the full set of steps
+from scratch, clear the steps first:
 
 ```groovy
 spotless {
     java {
-        // The convention no longer adds its own removeUnusedImports; this configuration wins.
+        clearSteps()
         removeUnusedImports('cleanthat-javaparser-unnecessaryimport')
+        importOrder('java', 'javax', '')
     }
 }
+// steps: removeUnusedImports, importOrder
 ```
 
-Note that Spotless' own `clearSteps()` does not work as an opt-out: it runs before the conventions are
-merged in, so the defaults come back afterwards.
+#### Spotless versions that lack a default step
 
-#### Opting out
+A default step the project's Spotless version does not have fails the build:
 
-To remove a default without replacing it, use the `spotlessConventions` extension:
-
-```groovy
-spotlessConventions {
-    java {
-        // Keep removeUnusedImports, but skip the expensive wildcard expansion in this project.
-        expandWildcardImports = false
-    }
-}
+```
+Spotless step 'expandWildcardImports' is not supported by the Spotless version of project ':'.
+Upgrade Spotless to a version that provides it; the conventions do not apply a reduced set of steps.
 ```
 
-To opt out of everything, including any defaults added for other formats later:
+There is no flag to soften this, and `clearSteps()` does not help either: the conventions run first, so the
+build has already failed by the time the project's own block would clear anything. Upgrade Spotless.
 
-```groovy
-spotlessConventions {
-    enabled = false
-}
-```
+#### Other formats
 
 The conventions are scoped to the `java` format only. Configuring other formats does not affect them:
 
@@ -367,16 +367,4 @@ spotless {
     }
 }
 // java still gets removeUnusedImports() and expandWildcardImports()
-```
-
-#### Conventions applied too late
-
-For the step-merging to work, the conventions plugin has to be applied *before* the spotless configurations. Which is the case
-if the conventions plugin is applied in `settings.gradle`, as is recommended.
-
-When the conventions plugin is applied later than a `spotless { java { ... } }` block in a `build.gradle`,
-its defaults would be silently dropped. That is reported as a policy violation instead:
-
-```
-Policy violation [spotless]: ...
 ```

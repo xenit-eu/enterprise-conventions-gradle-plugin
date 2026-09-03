@@ -1,15 +1,15 @@
-package eu.xenit.gradle.enterprise.conventions.integration.spotless.stepOptOut
-
 plugins {
     id 'java'
     id 'com.diffplug.spotless'
 }
 
-description = "Project opts out of a single default step"
+description = "Project clears the defaults and declares its own steps"
 
-spotlessConventions {
+spotless {
     java {
-        expandWildcardImports = false
+        // The conventions are applied before this block, so clearSteps() drops them.
+        clearSteps()
+        importOrder('java', 'javax', '')
     }
 }
 

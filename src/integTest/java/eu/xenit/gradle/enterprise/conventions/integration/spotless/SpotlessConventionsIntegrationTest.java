@@ -25,20 +25,31 @@ class SpotlessConventionsIntegrationTest extends AbstractIntegrationTest {
 
     @ParameterizedTest(name = "Gradle v{0}")
     @MethodSource("gradleVersions")
-    void mergesDefaultsIntoTheProjectsOwnConfiguration(String gradleVersion) throws IOException {
+    void appliesDefaultsBeforeTheProjectsOwnConfiguration(String gradleVersion) throws IOException {
         assumeSupportedBySpotless(gradleVersion);
         this.gradleVersion = gradleVersion;
-        // The defaults are appended after what the project configured, never in front of it.
-        verifySteps("spotless/javaConfig", "importOrder," + DEFAULTS);
+        verifySteps("spotless/javaConfig", DEFAULTS + ",importOrder");
     }
 
     @ParameterizedTest(name = "Gradle v{0}")
     @MethodSource("gradleVersions")
-    void leavesADefaultStepAloneWhenTheProjectDeclaresItItself(String gradleVersion) throws IOException {
+    void letsTheProjectClearTheDefaultsAndDeclareItsOwnSteps(String gradleVersion) throws IOException {
         assumeSupportedBySpotless(gradleVersion);
         this.gradleVersion = gradleVersion;
-        // Spotless rejects a duplicate step name outright, so this building at all is part of the assertion.
-        verifySteps("spotless/declaresDefaultItself", DEFAULTS);
+        verifySteps("spotless/clearsSteps", "importOrder");
+    }
+
+    @ParameterizedTest(name = "Gradle v{0}")
+    @MethodSource("gradleVersions")
+    void failsWhenTheProjectRedeclaresADefaultStep(String gradleVersion) throws IOException {
+        assumeSupportedBySpotless(gradleVersion);
+        this.gradleVersion = gradleVersion;
+        // Spotless rejects the duplicate itself; the project has to clear the steps or pick another name.
+        BuildResult buildResult = createGradleRunner(integrationTests.resolve("spotless/clashingStep"))
+                .withArguments("realizeSpotlessJava")
+                .buildAndFail();
+
+        assertTrue(buildResult.getOutput().contains("Multiple steps with name 'removeUnusedImports'"));
     }
 
     @ParameterizedTest(name = "Gradle v{0}")
@@ -51,31 +62,17 @@ class SpotlessConventionsIntegrationTest extends AbstractIntegrationTest {
 
     @ParameterizedTest(name = "Gradle v{0}")
     @MethodSource("gradleVersions")
-    void appliesNoDefaultStepThatIsOptedOutOf(String gradleVersion) throws IOException {
+    void failsOnDefaultStepsTheProjectsSpotlessVersionDoesNotHave(String gradleVersion) throws IOException {
         assumeSupportedBySpotless(gradleVersion);
         this.gradleVersion = gradleVersion;
-        verifySteps("spotless/stepOptOut", "removeUnusedImports");
-    }
+        // Spotless 7 has no expandWildcardImports. Applying fewer defaults than prescribed is not an option,
+        // so the build fails until the project upgrades Spotless.
+        BuildResult buildResult = createGradleRunner(integrationTests.resolve("spotless/olderSpotless"))
+                .withArguments("verifySpotlessSteps", "-PexpectedSteps=removeUnusedImports")
+                .buildAndFail();
 
-    @ParameterizedTest(name = "Gradle v{0}")
-    @MethodSource("gradleVersions")
-    void touchesNothingWhenTheConventionsAreDisabled(String gradleVersion) throws IOException {
-        assumeSupportedBySpotless(gradleVersion);
-        this.gradleVersion = gradleVersion;
-        createGradleRunner(integrationTests.resolve("spotless/allOptOut"))
-                .withArguments("verifyNoJavaFormat")
-                .build();
-    }
-
-    @ParameterizedTest(name = "Gradle v{0}")
-    @MethodSource("gradleVersions")
-    void skipsDefaultStepsTheProjectsSpotlessVersionDoesNotHave(String gradleVersion) throws IOException {
-        assumeSupportedBySpotless(gradleVersion);
-        this.gradleVersion = gradleVersion;
-        // Spotless 7 has no expandWildcardImports: it is skipped with a warning instead of breaking the build.
-        BuildResult buildResult = verifySteps("spotless/olderSpotless", "removeUnusedImports");
-
-        assertTrue(buildResult.getOutput().contains("Spotless step 'expandWildcardImports' is not supported"));
+        assertTrue(buildResult.getOutput()
+                .contains("Spotless step 'expandWildcardImports' is not supported by the Spotless version"));
     }
 
     @ParameterizedTest(name = "Gradle v{0}")
@@ -85,28 +82,6 @@ class SpotlessConventionsIntegrationTest extends AbstractIntegrationTest {
         this.gradleVersion = gradleVersion;
         createGradleRunner(integrationTests.resolve("spotless/noJavaPlugin"))
                 .withArguments("verifyNoJavaFormat")
-                .build();
-    }
-
-    @ParameterizedTest(name = "Gradle v{0}")
-    @MethodSource("gradleVersions")
-    void reportsViolationWhenAppliedAfterTheJavaFormatIsConfigured(String gradleVersion) throws IOException {
-        assumeSupportedBySpotless(gradleVersion);
-        this.gradleVersion = gradleVersion;
-        BuildResult buildResult = createGradleRunner(integrationTests.resolve("spotless/appliedTooLate"))
-                .withArguments("help")
-                .buildAndFail();
-
-        assertTrue(buildResult.getOutput().contains("Spotless conventions were not applied to project ':'"));
-    }
-
-    @ParameterizedTest(name = "Gradle v{0}")
-    @MethodSource("gradleVersions")
-    void violationForLateApplicationCanBeDisabled(String gradleVersion) throws IOException {
-        assumeSupportedBySpotless(gradleVersion);
-        this.gradleVersion = gradleVersion;
-        createGradleRunner(integrationTests.resolve("spotless/appliedTooLate"))
-                .withArguments("help", "-Peu.xenit.enterprise-conventions.violations.spotless=disable")
                 .build();
     }
 

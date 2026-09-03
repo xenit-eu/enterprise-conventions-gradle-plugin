@@ -1,5 +1,3 @@
-package eu.xenit.gradle.enterprise.conventions.integration.spotless.nonJavaConfigOnly
-
 plugins {
     id 'java'
     id 'com.diffplug.spotless'
