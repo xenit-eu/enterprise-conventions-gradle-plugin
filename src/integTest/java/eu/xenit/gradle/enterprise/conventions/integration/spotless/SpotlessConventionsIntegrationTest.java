@@ -44,7 +44,6 @@ class SpotlessConventionsIntegrationTest extends AbstractIntegrationTest {
     void failsWhenTheProjectRedeclaresADefaultStep(String gradleVersion) throws IOException {
         assumeSupportedBySpotless(gradleVersion);
         this.gradleVersion = gradleVersion;
-        // Spotless rejects the duplicate itself; the project has to clear the steps or pick another name.
         BuildResult buildResult = createGradleRunner(integrationTests.resolve("spotless/clashingStep"))
                 .withArguments("realizeSpotlessJava")
                 .buildAndFail();
