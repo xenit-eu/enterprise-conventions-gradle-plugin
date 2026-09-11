@@ -308,8 +308,8 @@ configuration, so 8.10 or newer is recommended.
 
 #### Defining your own rules
 
-You are free to declare additional spotless steps in the projects' build.gradle. However, spotless rejects duplicate
-steps, so you have to make sure there are no conflicts with the conventions' steps.
+You are free to declare additional spotless steps in the projects' build.gradle. 
+Re-configuring a step is not possible, you will need to take full ownership of the whole spotless configuration if you want to do that.
 
 ```
 Multiple steps with name 'removeUnusedImports' for spotless format 'java'
