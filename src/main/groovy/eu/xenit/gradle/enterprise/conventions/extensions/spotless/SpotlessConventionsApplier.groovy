@@ -29,8 +29,7 @@ class SpotlessConventionsApplier implements Action<Project> {
         if (!javaExtension.respondsTo(method)) {
             throw new GradleException(
                     ("Spotless step '${method}' is not supported by the Spotless version of project"
-                            + " '${project.path}'. Upgrade Spotless to a version that provides it; the"
-                            + " conventions do not apply a reduced set of steps.").toString())
+                            + " '${project.path}'. Upgrade Spotless to a version that provides it.").toString())
         }
         javaExtension."$method"()
     }
