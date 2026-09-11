@@ -1,0 +1,23 @@
+plugins {
+    id 'java'
+    id 'com.diffplug.spotless'
+}
+
+description = "Project configures the spotless java format itself"
+
+spotless {
+    java {
+        importOrder('java', 'javax', '')
+    }
+}
+
+// Realizing spotlessJava runs its configuration, which is when Spotless applies the configuration actions
+// it collected. Reading the resulting step names asserts what this plugin contributed, without running any
+// formatting: no formatter is resolved, which is why this project needs no repositories.
+tasks.register("verifySpotlessSteps") {
+    def spotlessJava = tasks.named("spotlessJava")
+    def expected = providers.gradleProperty("expectedSteps").map { it.split(",") as List }
+    doFirst {
+        assert spotlessJava.get().stepsInternalRoundtrip.steps*.name == expected.get()
+    }
+}

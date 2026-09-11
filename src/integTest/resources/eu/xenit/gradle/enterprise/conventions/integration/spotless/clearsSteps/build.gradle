@@ -1,0 +1,25 @@
+plugins {
+    id 'java'
+    id 'com.diffplug.spotless'
+}
+
+description = "Project clears the defaults and declares its own steps"
+
+spotless {
+    java {
+        // The conventions are applied before this block, so clearSteps() drops them.
+        clearSteps()
+        importOrder('java', 'javax', '')
+    }
+}
+
+// Realizing spotlessJava runs its configuration, which is when Spotless applies the configuration actions
+// it collected. Reading the resulting step names asserts what this plugin contributed, without running any
+// formatting.
+tasks.register("verifySpotlessSteps") {
+    def spotlessJava = tasks.named("spotlessJava")
+    def expected = providers.gradleProperty("expectedSteps").map { it.split(",") as List }
+    doFirst {
+        assert spotlessJava.get().stepsInternalRoundtrip.steps*.name == expected.get()
+    }
+}

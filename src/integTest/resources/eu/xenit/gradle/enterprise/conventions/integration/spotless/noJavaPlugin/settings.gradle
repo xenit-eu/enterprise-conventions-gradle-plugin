@@ -1,0 +1,8 @@
+pluginManagement {
+    plugins {
+        id 'com.diffplug.spotless' version '8.10.0'
+    }
+}
+plugins {
+    id "eu.xenit.enterprise-conventions.private"
+}

@@ -1,0 +1,20 @@
+plugins {
+    id 'java'
+    id 'com.diffplug.spotless'
+}
+
+description = "Project declares a step that clashes with a default"
+
+spotless {
+    java {
+        // Spotless rejects a duplicate step name outright. Redefining a default without clearing the steps
+        // first is the project's own responsibility, and fails the build.
+        removeUnusedImports()
+    }
+}
+
+// Realizing spotlessJava is what triggers Spotless to apply the collected configuration actions, and with
+// them the duplicate step name.
+tasks.register("realizeSpotlessJava") {
+    dependsOn tasks.named("spotlessJava")
+}

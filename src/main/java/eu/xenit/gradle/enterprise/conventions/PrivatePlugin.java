@@ -4,6 +4,7 @@ import eu.xenit.gradle.enterprise.conventions.api.PluginApi;
 import eu.xenit.gradle.enterprise.conventions.api.PublicApi;
 import eu.xenit.gradle.enterprise.conventions.extensions.dockerimagelabels.DockerImageLabelsPlugin;
 import eu.xenit.gradle.enterprise.conventions.extensions.dockermultiarch.DockerMultiArchPlugin;
+import eu.xenit.gradle.enterprise.conventions.extensions.spotless.SpotlessConventionsPlugin;
 import org.gradle.api.Project;
 
 @PublicApi
@@ -16,5 +17,6 @@ public class PrivatePlugin extends BasePlugin {
     public void apply(Project project) {
         project.getPluginManager().apply(DockerImageLabelsPlugin.class);
         project.getPluginManager().apply(DockerMultiArchPlugin.class);
+        project.getPluginManager().apply(SpotlessConventionsPlugin.class);
     }
 }
