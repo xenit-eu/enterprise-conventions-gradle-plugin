@@ -259,3 +259,76 @@ Building the non-native architecture uses emulation, so the CI runner needs QEMU
 
 (The `ORG_GRADLE_PROJECT_*` environment variables assume the project wires `docker.publishRegistry` from
 Gradle properties, as is the convention; adjust to the project's own credential configuration otherwise.)
+
+### Spotless defaults
+
+Plugin id: `eu.xenit.enterprise-conventions.ext.spotless`
+
+A set of spotless steps that are applicable to most repositories. These steps are centralised, 
+but opting in and choosing the Spotless version stay with the project.
+
+A project that applies the Spotless plugin and the `java` plugin gets these steps added to its Spotless
+`java` format:
+
+* [`removeUnusedImports()`](https://github.com/diffplug/spotless/tree/main/plugin-gradle#removeunusedimports)
+* [`expandWildcardImports`](https://github.com/diffplug/spotless/tree/main/plugin-gradle#expandwildcardimports) (requires Spotless >= 8.2, >= 8.10 is recommended, see below)
+
+To configure a project to use the defaults as provided by the convention plugin, Add the following:
+
+* To settings.gradle
+```groovy
+pluginManagement {
+    plugins {
+        id 'com.diffplug.spotless' version '8.10.0' // the project picks the version
+    }
+}
+plugins {
+    id 'eu.xenit.enterprise-conventions.oss' version ...
+}
+```
+
+* To build.gradle
+```groovy
+plugins {
+    id 'java'
+    id 'com.diffplug.spotless' // opting in is enough, no spotless {} block needed
+}
+```
+
+`removeUnusedImports()` requires having `mavenCentral()` as a repository.
+
+`expandWildcardImports`
+replaces wildcard imports with the types they actually stand for, static wildcards included. 
+Version 8.10 introduced optimisations for the import resolutions, so it's advised to use at least 8.10.0. 
+
+#### Defining your own rules
+
+You are free to declare additional spotless steps in the projects' build.gradle. 
+Re-configuring a step is not possible, you will need to take full ownership of the whole spotless configuration if you want to do that.
+
+To replace a default with a different configuration of the same step, or to define the full set of steps from scratch, 
+clear the steps first:
+
+```groovy
+spotless {
+    java {
+        clearSteps()
+        removeUnusedImports('cleanthat-javaparser-unnecessaryimport')
+        importOrder('java', 'javax', '')
+    }
+}
+```
+
+#### Other formats
+
+The conventions are scoped to the `java` format only. Configuring other formats does not affect them:
+
+```groovy
+spotless {
+    format 'misc', {
+        target '*.md'
+        endWithNewline()
+    }
+}
+// java still gets removeUnusedImports() and expandWildcardImports()
+```

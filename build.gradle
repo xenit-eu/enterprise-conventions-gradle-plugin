@@ -95,6 +95,13 @@ gradlePlugin {
             description = "Registers per-architecture variants of the Spring Boot bootBuildImage task (bootBuildLinuxAmd64Image, bootBuildLinuxArm64Image)"
             tags = ["conventions", "docker", "multi-arch"]
         }
+        spotlessConventionsPlugin {
+            id = 'eu.xenit.enterprise-conventions.ext.spotless'
+            implementationClass = 'eu.xenit.gradle.enterprise.conventions.extensions.spotless.SpotlessConventionsPlugin'
+            displayName = "Xenit conventions plugin: Spotless defaults"
+            description = "Applies default Spotless java formatting steps to projects that declare the Spotless plugin themselves"
+            tags = ["conventions", "spotless", "formatting"]
+        }
     }
     testSourceSets(sourceSets.integTest)
 }

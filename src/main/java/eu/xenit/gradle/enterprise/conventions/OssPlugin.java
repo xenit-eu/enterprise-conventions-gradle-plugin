@@ -7,6 +7,7 @@ import eu.xenit.gradle.enterprise.conventions.extensions.dockermultiarch.DockerM
 import eu.xenit.gradle.enterprise.conventions.extensions.mavencentral.publish.MavenCentralPublishPlugin;
 import eu.xenit.gradle.enterprise.conventions.extensions.mavencentral.requirements.MavenCentralRequirementsCheckPlugin;
 import eu.xenit.gradle.enterprise.conventions.extensions.signing.AutomaticSigningPlugin;
+import eu.xenit.gradle.enterprise.conventions.extensions.spotless.SpotlessConventionsPlugin;
 import org.gradle.api.Project;
 
 @PublicApi
@@ -22,5 +23,6 @@ public class OssPlugin extends BasePlugin {
         project.getPluginManager().apply(AutomaticSigningPlugin.class);
         project.getPluginManager().apply(DockerImageLabelsPlugin.class);
         project.getPluginManager().apply(DockerMultiArchPlugin.class);
+        project.getPluginManager().apply(SpotlessConventionsPlugin.class);
     }
 }
