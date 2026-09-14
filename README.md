@@ -270,8 +270,8 @@ but opting in and choosing the Spotless version stay with the project.
 A project that applies the Spotless plugin and the `java` plugin gets these steps added to its Spotless
 `java` format:
 
-* `removeUnusedImports()`
-* `expandWildcardImports()` (requires Spotless >= 8.2, >= 8.10 is recommended, see below)
+* [`removeUnusedImports()`](https://github.com/diffplug/spotless/tree/main/plugin-gradle#removeunusedimports)
+* [`expandWildcardImports`](https://github.com/diffplug/spotless/tree/main/plugin-gradle#expandwildcardimports) (requires Spotless >= 8.2, >= 8.10 is recommended, see below)
 
 To configure a project to use the defaults as provided by the convention plugin, Add the following:
 
@@ -295,28 +295,19 @@ plugins {
 }
 ```
 
-`removeUnusedImports()` resolves `google-java-format` and `expandWildcardImports()` resolves
-`javaparser-symbol-solver-core`, so the project needs a repository to resolve dependencies from.
+`removeUnusedImports()` requires having `mavenCentral()` as a repository.
 
-[`expandWildcardImports`](https://github.com/diffplug/spotless/tree/main/plugin-gradle#expandwildcardimports)
-replaces wildcard imports with the types they actually stand for, static wildcards
-(`import static org.junit.jupiter.api.Assertions.*`) included. 
-This happens at build time. The step resolves the type solver from the compile classpath when
-`spotlessJava` is configured, and it parses the full source to resolve the names. Spotless 8.10 narrowed that
-resolution to the java source sets' compile classpaths; earlier 8.x versions resolve every resolvable
-configuration, so 8.10 or newer is recommended.
+`expandWildcardImports`
+replaces wildcard imports with the types they actually stand for, static wildcards included. 
+Version 8.10 introduced optimisations for the import resolutions, so it's advised to use at least 8.10.0. 
 
 #### Defining your own rules
 
 You are free to declare additional spotless steps in the projects' build.gradle. 
 Re-configuring a step is not possible, you will need to take full ownership of the whole spotless configuration if you want to do that.
 
-```
-Multiple steps with name 'removeUnusedImports' for spotless format 'java'
-```
-
-To replace a default with a different configuration of the same step, or to define the full set of steps
-from scratch, clear the steps first:
+To replace a default with a different configuration of the same step, or to define the full set of steps from scratch, 
+clear the steps first:
 
 ```groovy
 spotless {
@@ -326,19 +317,7 @@ spotless {
         importOrder('java', 'javax', '')
     }
 }
-// steps: removeUnusedImports, importOrder
 ```
-
-#### Older Spotless versions that don't have a step
-
-A step added by this plugin that isn't included in the project's Spotless version fails the build:
-
-```
-Spotless step 'expandWildcardImports' is not supported by the Spotless version of project ':'.
-Upgrade Spotless to a version that provides it; the conventions do not apply a reduced set of steps.
-```
-
-If you run into this, either update the spotless plugin (recommended) or downgrade the conventions plugin until they are compatible.
 
 #### Other formats
 
