@@ -6,11 +6,3 @@ pluginManagement {
 plugins {
     id "eu.xenit.enterprise-conventions.private"
 }
-
-// expandWildcardImports builds a type solver from the compile classpath, so realizing spotlessJava
-// resolves it. This project has a real dependency so that resolution is actually exercised.
-dependencyResolutionManagement {
-    repositories {
-        mavenCentral()
-    }
-}

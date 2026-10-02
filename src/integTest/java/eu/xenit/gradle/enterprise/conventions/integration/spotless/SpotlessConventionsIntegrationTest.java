@@ -12,8 +12,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 class SpotlessConventionsIntegrationTest extends AbstractIntegrationTest {
 
-    // Spotless names the expandWildcardImports step in lowercase, unlike the method that adds it.
-    private static final String DEFAULTS = "removeUnusedImports,expandwildcardimports";
+    private static final String DEFAULTS = "removeUnusedImports";
 
     @ParameterizedTest(name = "Gradle v{0}")
     @MethodSource("gradleVersions")
@@ -61,21 +60,6 @@ class SpotlessConventionsIntegrationTest extends AbstractIntegrationTest {
 
     @ParameterizedTest(name = "Gradle v{0}")
     @MethodSource("gradleVersions")
-    void failsOnDefaultStepsTheProjectsSpotlessVersionDoesNotHave(String gradleVersion) throws IOException {
-        assumeSupportedBySpotless(gradleVersion);
-        this.gradleVersion = gradleVersion;
-        // Spotless 7 has no expandWildcardImports. Applying fewer defaults than prescribed is not an option,
-        // so the build fails until the project upgrades Spotless.
-        BuildResult buildResult = createGradleRunner(integrationTests.resolve("spotless/olderSpotless"))
-                .withArguments("verifySpotlessSteps", "-PexpectedSteps=removeUnusedImports")
-                .buildAndFail();
-
-        assertTrue(buildResult.getOutput()
-                .contains("Spotless step 'expandWildcardImports' is not supported by the Spotless version"));
-    }
-
-    @ParameterizedTest(name = "Gradle v{0}")
-    @MethodSource("gradleVersions")
     void skipsProjectsWithoutTheJavaPlugin(String gradleVersion) throws IOException {
         assumeSupportedBySpotless(gradleVersion);
         this.gradleVersion = gradleVersion;
@@ -90,7 +74,7 @@ class SpotlessConventionsIntegrationTest extends AbstractIntegrationTest {
                 .build();
     }
 
-    // The test projects use Spotless 8.10 (7.2 for olderSpotless), which requires Gradle >= 8.1.
+    // The test projects use Spotless 8.10, which requires Gradle >= 8.1.
     private static void assumeSupportedBySpotless(String gradleVersion) {
         assumeTrue(GradleVersion.version(gradleVersion).compareTo(GradleVersion.version("8.1")) >= 0,
                 "Spotless 8 requires Gradle >= 8.1");

@@ -267,11 +267,10 @@ Plugin id: `eu.xenit.enterprise-conventions.ext.spotless`
 A set of spotless steps that are applicable to most repositories. These steps are centralised, 
 but opting in and choosing the Spotless version stay with the project.
 
-A project that applies the Spotless plugin and the `java` plugin gets these steps added to its Spotless
+A project that applies the Spotless plugin and the `java` plugin gets the following step added to its Spotless
 `java` format:
 
 * [`removeUnusedImports()`](https://github.com/diffplug/spotless/tree/main/plugin-gradle#removeunusedimports)
-* [`expandWildcardImports`](https://github.com/diffplug/spotless/tree/main/plugin-gradle#expandwildcardimports) (requires Spotless >= 8.2, >= 8.10 is recommended, see below)
 
 To configure a project to use the defaults as provided by the convention plugin, Add the following:
 
@@ -296,10 +295,6 @@ plugins {
 ```
 
 `removeUnusedImports()` requires having `mavenCentral()` as a repository.
-
-`expandWildcardImports`
-replaces wildcard imports with the types they actually stand for, static wildcards included. 
-Version 8.10 introduced optimisations for the import resolutions, so it's advised to use at least 8.10.0. 
 
 #### Defining your own rules
 
@@ -330,5 +325,5 @@ spotless {
         endWithNewline()
     }
 }
-// java still gets removeUnusedImports() and expandWildcardImports()
+// java still gets removeUnusedImports()
 ```

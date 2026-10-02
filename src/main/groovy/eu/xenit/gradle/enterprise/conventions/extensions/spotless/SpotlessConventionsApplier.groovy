@@ -12,7 +12,7 @@ import org.gradle.api.Project
 class SpotlessConventionsApplier implements Action<Project> {
 
     private static final String SPOTLESS_PLUGIN_ID = "com.diffplug.spotless"
-    private static final List<String> JAVA_DEFAULT_STEPS = ["removeUnusedImports", "expandWildcardImports"]
+    private static final List<String> JAVA_DEFAULT_STEPS = ["removeUnusedImports"]
 
     @Override
     void execute(Project project) {
