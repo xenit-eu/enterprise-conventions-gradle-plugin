@@ -5,10 +5,6 @@ plugins {
 
 description = "Spotless applied, no spotless configuration of its own"
 
-dependencies {
-    implementation 'org.junit.jupiter:junit-jupiter-api:5.11.4'
-}
-
 // Realizing spotlessJava runs its configuration, which is when Spotless applies the configuration actions
 // it collected. Reading the resulting step names asserts what this plugin contributed, without running any
 // formatting.
