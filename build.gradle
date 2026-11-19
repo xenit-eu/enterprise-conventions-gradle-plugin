@@ -28,7 +28,7 @@ repositories {
 dependencies {
     implementation 'com.gradleup.nmcp:com.gradleup.nmcp.gradle.plugin:1.4.4'
 
-    integTestImplementation "commons-io:commons-io:2.8.0"
+    integTestImplementation "commons-io:commons-io:2.14.0"
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.4'
     testImplementation 'org.junit.jupiter:junit-jupiter-params:5.11.4'
